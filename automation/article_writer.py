@@ -7,7 +7,7 @@ import re
 
 import anthropic
 
-from config import ANTHROPIC_API_KEY, LORD_VOICE
+from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL, LORD_VOICE
 
 log = logging.getLogger('lord.writer')
 
@@ -76,7 +76,7 @@ Do not speculate, editorialize, or add opinion."""
 
     client = _get_client()
     message = client.messages.create(
-        model='claude-sonnet-4-6',
+        model=ANTHROPIC_MODEL,
         max_tokens=1200,
         system=BULLETIN_SYSTEM,
         messages=[{'role': 'user', 'content': prompt}],

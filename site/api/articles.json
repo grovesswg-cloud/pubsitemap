@@ -1,6 +1,25 @@
 {
   "articles": [
     {
+      "id": "20260623-swavay-discusses-metro-boomin-collaboration-and-upcoming-tour",
+      "title": "SWAVAY Discusses Metro Boomin Collaboration and Upcoming Tour",
+      "deck": "The Atlanta artist opens up about working with one of rap's most sought-after producers and the lessons he's carrying into his next chapter.",
+      "type": "bulletin",
+      "genre": "Hip-Hop",
+      "date": "2026-06-23",
+      "url": "articles/20260623-swavay-discusses-metro-boomin-collaboration-and-upcoming-tour.html",
+      "image": "https://images.unsplash.com/photo-1621619054919-167f2fcf135c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyNDQwNzN8&ixlib=rb-4.1.0&q=80&w=1080",
+      "tags": [
+        "SWAVAY",
+        "Metro Boomin",
+        "Atlanta",
+        "James Blake",
+        "AI in Music"
+      ],
+      "source": "Billboard",
+      "sourceUrl": "https://www.billboard.com/music/rb-hip-hop/swavay-the-prelude-james-blake-interview-1236278781/"
+    },
+    {
       "id": "20260623-wednesday-and-mannequin-pussy-to-co-headline-rolling-stones-nashville-rock-tour",
       "title": "Wednesday and Mannequin Pussy to Co-Headline Rolling Stone's Nashville Rock Tour",
       "deck": "Two of independent rock's most critically recognized acts will share a stage at Nashville's The Truth on November 2.",
@@ -91,7 +110,7 @@
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
     }
   ],
-  "lastUpdated": "2026-06-23T16:32:52.731520+00:00",
+  "lastUpdated": "2026-06-23T19:47:53.595894+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

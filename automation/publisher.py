@@ -115,11 +115,12 @@ def _build_article_html(data: dict) -> str:
     date_str    = data.get('date', '')
     source      = data.get('source', '')
     source_url  = data.get('sourceUrl', '')
-    image_url   = data.get('image', '')
-    image_alt   = data.get('imageAlt', title)
-    img_credit  = data.get('imageCredit', '')
-    img_cred_url = data.get('imageCreditUrl', '#')
-    rating      = data.get('rating', '')  # for reviews
+    image_url     = data.get('image', '')
+    image_alt     = data.get('imageAlt', title)
+    img_credit    = data.get('imageCredit', '')
+    img_cred_url  = data.get('imageCreditUrl', '#')
+    img_provider  = data.get('imageProvider', '')
+    rating        = data.get('rating', '')  # for reviews
 
     type_label    = _type_label(article_type)
     formatted_date = _format_date(date_str)
@@ -135,11 +136,15 @@ def _build_article_html(data: dict) -> str:
     )
 
     if image_url:
-        credit_html = (
-            f'\n      <div class="article-image-credit">'
-            f'Photo: <a href="{img_cred_url}" target="_blank" rel="noopener noreferrer">'
-            f'{img_credit}</a> / Unsplash</div>'
-        ) if img_credit else ''
+        if img_credit:
+            provider_suffix = f' / {img_provider}' if img_provider else ''
+            credit_html = (
+                f'\n      <div class="article-image-credit">'
+                f'Photo: <a href="{img_cred_url}" target="_blank" rel="noopener noreferrer">'
+                f'{img_credit}</a>{provider_suffix}</div>'
+            )
+        else:
+            credit_html = ''
         image_block = f"""\
     <div class="article-hero-image">
       <img src="{image_url}" alt="{image_alt}" loading="eager">
@@ -250,10 +255,11 @@ def publish_article(data: dict, image: dict | None = None) -> dict:
 
     # Attach image data
     if image:
-        data['image']         = image['url']
-        data['imageAlt']      = image.get('altText', data.get('title', ''))
-        data['imageCredit']   = image.get('credit', '')
+        data['image']          = image['url']
+        data['imageAlt']       = image.get('altText', data.get('title', ''))
+        data['imageCredit']    = image.get('credit', '')
         data['imageCreditUrl'] = image.get('creditUrl', '#')
+        data['imageProvider']  = image.get('provider', '')
 
     # Build filename
     date_prefix = data.get('date', datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')).replace('-', '')

@@ -13,8 +13,9 @@ ARTICLES_JSON = API_DIR / 'articles.json'
 # ─── API Keys (set via environment variables / GitHub Secrets) ─────────────────
 ANTHROPIC_API_KEY   = os.getenv('ANTHROPIC_API_KEY', '')
 UNSPLASH_ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY', '')
-NEWS_API_KEY        = os.getenv('NEWS_API_KEY', '')     # optional: newsapi.org
-PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')  # optional: fallback images
+NEWS_API_KEY        = os.getenv('NEWS_API_KEY', '')      # optional: newsapi.org
+PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
+PIXABAY_API_KEY     = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
 
 # ─── Publication schedule ─────────────────────────────────────────────────────
 # Three bulletins per day. Times are UTC for GitHub Actions cron.

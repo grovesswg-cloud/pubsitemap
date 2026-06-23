@@ -57,6 +57,7 @@ jobs:
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           NEWS_API_KEY:        ${{ secrets.NEWS_API_KEY }}
           PEXELS_API_KEY:      ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY:     ${{ secrets.PIXABAY_API_KEY }}
         run: |
           cd automation
           python scheduler.py --run-now --type ${{ steps.review_type.outputs.type }}

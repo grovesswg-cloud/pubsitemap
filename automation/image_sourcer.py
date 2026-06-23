@@ -131,20 +131,25 @@ def fetch_unsplash(query: str, orientation: str = 'landscape') -> dict | None:
         return None
 
 
-def fetch_openverse(query: str) -> dict | None:
+def fetch_openverse(query: str, exclude_flickr: bool = False) -> dict | None:
     """
     Fetch a CC-licensed image from Openverse (searches Flickr, Wikipedia, and others).
     No API key required. Requires attribution.
+    Set exclude_flickr=True to prefer Wikimedia/StockSnap over Flickr (higher quality).
     """
     try:
+        params: dict = {
+            'q':         query,
+            'license':   'cc0,by,by-sa,by-nc,by-nd',
+            'per_page':  10,
+            'mature':    False,
+        }
+        if exclude_flickr:
+            params['source'] = 'wikimedia_commons,stocksnap,rawpixel,europeana'
+
         resp = requests.get(
             'https://api.openverse.org/v1/images/',
-            params={
-                'q':         query,
-                'license':   'cc0,by,by-sa,by-nc,by-nd',
-                'per_page':  10,
-                'mature':    False,
-            },
+            params=params,
             headers={'User-Agent': 'LORD-Music-Publication/1.0'},
             timeout=12,
         )
@@ -259,13 +264,16 @@ def fetch_pexels(query: str) -> dict | None:
 
 
 def _try_all(query: str) -> dict | None:
-    """Try all configured providers in priority order for a single query."""
+    """Try all configured providers in priority order for a single query.
+    Flickr (via Openverse) is last resort due to variable image quality.
+    """
     return (
         fetch_wikipedia(query)
         or fetch_unsplash(query)
-        or fetch_openverse(query)
+        or fetch_openverse(query, exclude_flickr=True)   # Wikimedia/StockSnap first
         or fetch_pixabay(query)
         or fetch_pexels(query)
+        or fetch_openverse(query)                         # Flickr only as last resort
     )
 
 

@@ -185,20 +185,21 @@ def fetch_pexels(query: str) -> dict | None:
         return None
 
 
+def _try_all(query: str) -> dict | None:
+    """Try all configured providers in priority order for a single query."""
+    return (
+        fetch_unsplash(query)
+        or fetch_openverse(query)
+        or fetch_pixabay(query)
+        or fetch_pexels(query)
+    )
+
+
 def get_article_image(primary_query: str) -> dict | None:
     """
-    Attempt to source a relevant image for an article.
-    Priority: Unsplash → Openverse → Pixabay → Pexels → generic music fallbacks.
-    Returns None if no image service is configured or all queries fail.
+    Source one image for an article.
+    Priority: Unsplash → Openverse → Pixabay → Pexels → music fallbacks.
     """
-    def _try_all(query: str) -> dict | None:
-        return (
-            fetch_unsplash(query)
-            or fetch_openverse(query)
-            or fetch_pixabay(query)
-            or fetch_pexels(query)
-        )
-
     image = _try_all(primary_query)
     if image:
         return image
@@ -210,3 +211,25 @@ def get_article_image(primary_query: str) -> dict | None:
 
     log.info("No image sourced — article will render with branded placeholder")
     return None
+
+
+def get_article_images(queries: list[str]) -> list[dict]:
+    """
+    Fetch one unique image per query string.
+    Used for multi-image articles (features: 3 images, reviews: 2 images).
+    Falls back through music fallbacks if a query returns no result or a duplicate.
+    """
+    images: list[dict] = []
+    used_urls: set[str] = set()
+
+    for query in queries:
+        if not query:
+            continue
+        for attempt in [query] + MUSIC_FALLBACK_QUERIES:
+            img = _try_all(attempt)
+            if img and img['url'] not in used_urls:
+                used_urls.add(img['url'])
+                images.append(img)
+                break
+
+    return images

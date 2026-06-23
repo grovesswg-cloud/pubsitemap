@@ -40,7 +40,11 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "deck": "One sentence establishing the feature's argument or frame",
   "body": "<p>Full feature body HTML, 1500-2000 words...</p>",
   "tags": ["artist-name", "genre", "third-tag"],
-  "imageQuery": "Unsplash search string for a relevant editorial photo, e.g. 'musician portrait studio'"
+  "imageQueries": [
+    "Hero image — artist or subject, e.g. 'rapper performing stage lights'",
+    "Mid-feature image — different visual angle, e.g. 'recording studio mixing board'",
+    "Closing image — broader cultural context, e.g. 'concert crowd dark venue'"
+  ]
 }}
 """
 
@@ -95,4 +99,7 @@ Write as if this is the definitive piece on this subject for the archive."""
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
     data['source'] = news_item.get('source', '')
     data['sourceUrl'] = news_item.get('link', '')
+    # Normalise: always use imageQueries list (3 images for features)
+    if 'imageQuery' in data and 'imageQueries' not in data:
+        data['imageQueries'] = [data.pop('imageQuery')]
     return data

@@ -49,7 +49,10 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "body": "<p>Full review body HTML, 800-1200 words...</p>",
   "rating": "Sovereign",
   "tags": ["artist-name", "album-title", "genre"],
-  "imageQuery": "Unsplash search string for a relevant editorial image"
+  "imageQueries": [
+    "Hero image — artist or album feel, e.g. 'musician portrait dark studio'",
+    "Mid-review image — sonic texture, e.g. 'vinyl record close up light'"
+  ]
 }}
 """
 
@@ -79,7 +82,10 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "body": "<p>Full review body HTML, 800-1200 words...</p>",
   "rating": "Eternal",
   "tags": ["artist-name", "album-title", "genre", "classic"],
-  "imageQuery": "Unsplash search string for a relevant editorial image"
+  "imageQueries": [
+    "Hero image — artist era feel, e.g. 'musician black and white portrait'",
+    "Mid-review image — vintage or archival texture, e.g. 'old vinyl record sleeve'"
+  ]
 }}
 """
 
@@ -130,8 +136,10 @@ Stake a clear position and justify it with the rating."""
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
     data['albumName'] = album_info.get('album', '')
     data['artistName'] = album_info.get('artist', '')
-    if not data.get('imageQuery') and album_info.get('imageQuery'):
-        data['imageQuery'] = album_info['imageQuery']
+    if 'imageQuery' in data and 'imageQueries' not in data:
+        data['imageQueries'] = [data.pop('imageQuery')]
+    if not data.get('imageQueries') and album_info.get('imageQuery'):
+        data['imageQueries'] = [album_info['imageQuery']]
     return data
 
 
@@ -175,6 +183,8 @@ What did contemporary criticism get wrong or right? Where does it stand in histo
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
     data['albumName'] = album_info.get('album', '')
     data['artistName'] = album_info.get('artist', '')
-    if not data.get('imageQuery') and album_info.get('imageQuery'):
-        data['imageQuery'] = album_info['imageQuery']
+    if 'imageQuery' in data and 'imageQueries' not in data:
+        data['imageQueries'] = [data.pop('imageQuery')]
+    if not data.get('imageQueries') and album_info.get('imageQuery'):
+        data['imageQueries'] = [album_info['imageQuery']]
     return data

@@ -105,6 +105,63 @@ def _format_date(date_str: str) -> str:
         return date_str
 
 
+def _build_inline_image_html(image: dict) -> str:
+    """Build an inline <figure> block to inject between body paragraphs."""
+    url      = image.get('url', '')
+    alt      = image.get('altText', '')
+    credit   = image.get('credit', '')
+    cred_url = image.get('creditUrl', '#')
+    provider = image.get('provider', '')
+
+    if credit:
+        provider_suffix = f' / {provider}' if provider else ''
+        caption = (
+            f'<figcaption class="article-image-credit">'
+            f'Photo: <a href="{cred_url}" target="_blank" rel="noopener noreferrer">'
+            f'{credit}</a>{provider_suffix}</figcaption>'
+        )
+    else:
+        caption = ''
+
+    return (
+        f'\n    <figure class="article-inline-image">\n'
+        f'      <img src="{url}" alt="{alt}" loading="lazy">\n'
+        f'      {caption}\n'
+        f'    </figure>\n'
+    )
+
+
+def _inject_inline_images(body_html: str, images: list[dict]) -> str:
+    """Insert inline image blocks at evenly spaced paragraph breaks in the body."""
+    if not images:
+        return body_html
+
+    # Collect the character position after each </p> tag
+    ends = [m.end() for m in re.finditer(r'</p>', body_html, re.IGNORECASE)]
+    n = len(ends)
+
+    # Need at least 4 paragraphs and enough room to space images
+    if n < 4 or not images:
+        return body_html
+
+    # Insertion points: divide the safe zone (skip first 2, last 2 paragraphs)
+    # evenly among the images
+    n_imgs = len(images)
+    safe_ends = ends[2:-2]          # exclude first and last 2 paragraphs
+    step = max(1, len(safe_ends) // (n_imgs + 1))
+    insert_positions = [safe_ends[min(step * (i + 1), len(safe_ends) - 1)] for i in range(n_imgs)]
+
+    # Deduplicate while preserving order
+    insert_positions = sorted(set(insert_positions))
+
+    # Build result by inserting in reverse order (so positions stay valid)
+    result = body_html
+    for pos, img in zip(reversed(insert_positions), reversed(images[:len(insert_positions)])):
+        result = result[:pos] + _build_inline_image_html(img) + result[pos:]
+
+    return result
+
+
 # ─── HTML generation ──────────────────────────────────────────────────────────
 
 def _build_article_html(data: dict) -> str:
@@ -121,6 +178,10 @@ def _build_article_html(data: dict) -> str:
     img_cred_url  = data.get('imageCreditUrl', '#')
     img_provider  = data.get('imageProvider', '')
     rating        = data.get('rating', '')  # for reviews
+
+    inline_images = data.get('inlineImages', [])
+    if inline_images:
+        body = _inject_inline_images(body, inline_images)
 
     type_label    = _type_label(article_type)
     formatted_date = _format_date(date_str)
@@ -246,20 +307,31 @@ def count_today(index: dict) -> int:
 
 # ─── Main publish function ────────────────────────────────────────────────────
 
-def publish_article(data: dict, image: dict | None = None) -> dict:
+def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> dict:
     """
     Write one article HTML file, update the index, and return the index entry.
+    images: list of image dicts (index 0 = hero, rest = inline), or a single dict, or None.
     """
     ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
     API_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Attach image data
-    if image:
-        data['image']          = image['url']
-        data['imageAlt']       = image.get('altText', data.get('title', ''))
-        data['imageCredit']    = image.get('credit', '')
-        data['imageCreditUrl'] = image.get('creditUrl', '#')
-        data['imageProvider']  = image.get('provider', '')
+    # Normalise images to a list
+    if isinstance(images, dict):
+        images = [images]
+    elif not images:
+        images = []
+
+    # Attach hero image metadata
+    hero = images[0] if images else None
+    if hero:
+        data['image']          = hero['url']
+        data['imageAlt']       = hero.get('altText', data.get('title', ''))
+        data['imageCredit']    = hero.get('credit', '')
+        data['imageCreditUrl'] = hero.get('creditUrl', '#')
+        data['imageProvider']  = hero.get('provider', '')
+
+    # Store inline images for body injection
+    data['inlineImages'] = images[1:] if len(images) > 1 else []
 
     # Build filename
     date_prefix = data.get('date', datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')).replace('-', '')

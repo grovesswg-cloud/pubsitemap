@@ -1,6 +1,24 @@
 {
   "articles": [
     {
+      "id": "20260623-jim-james-returns-from-the-archive-with-something-alive",
+      "title": "Jim James Returns From the Archive With Something Alive",
+      "deck": "Wowed Out is not a resurrection — it is a reclamation, and the difference is everything.",
+      "type": "review",
+      "date": "2026-06-23",
+      "url": "articles/20260623-jim-james-returns-from-the-archive-with-something-alive.html",
+      "image": "https://images.unsplash.com/photo-1709283842312-478d675ccf18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyMzAwMDN8&ixlib=rb-4.1.0&q=80&w=1080",
+      "tags": [
+        "jim-james",
+        "wowed-out",
+        "psychedelic-folk",
+        "indie-rock",
+        "my-morning-jacket"
+      ],
+      "source": "",
+      "sourceUrl": ""
+    },
+    {
       "id": "20260623-conor-oberst-has-always-been-writing-the-same-confession",
       "title": "Conor Oberst Has Always Been Writing the Same Confession",
       "deck": "Bright Eyes built a career on the illusion of impermanence — and the tour that shouldn't matter somehow does.",
@@ -37,7 +55,7 @@
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
     }
   ],
-  "lastUpdated": "2026-06-23T15:51:00.014943+00:00",
+  "lastUpdated": "2026-06-23T15:53:23.814878+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

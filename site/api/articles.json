@@ -1,6 +1,25 @@
 {
   "articles": [
     {
+      "id": "20260623-wednesday-and-mannequin-pussy-to-co-headline-rolling-stones-nashville-rock-tour",
+      "title": "Wednesday and Mannequin Pussy to Co-Headline Rolling Stone's Nashville Rock Tour",
+      "deck": "Two of independent rock's most critically recognized acts will share a stage at Nashville's The Truth on November 2.",
+      "type": "bulletin",
+      "genre": "Rock",
+      "date": "2026-06-23",
+      "url": "articles/20260623-wednesday-and-mannequin-pussy-to-co-headline-rolling-stones-nashville-rock-tour.html",
+      "image": "https://pixabay.com/get/g58d66558dd7861784bd051e374ad5cbf69c606484bb3cc69a502ba38b2b7b91d68ac7d788756fe74292dffdcf9d8b514ae38b0bd908cf42946327cb98745329e_1280.jpg",
+      "tags": [
+        "Wednesday",
+        "Mannequin Pussy",
+        "Rolling Stone Rock Tour",
+        "Nashville",
+        "Live Music"
+      ],
+      "source": "Music News",
+      "sourceUrl": "https://www.rollingstone.com/music/music-news/wednesday-mannequin-pussy-rolling-stone-rock-tour-nashville-1235581321/"
+    },
+    {
       "id": "20260623-missy-elliott-didnt-predict-the-future-she-built-it",
       "title": "Missy Elliott Didn't Predict the Future. She Built It.",
       "deck": "While the industry debated whether she belonged, Missy Elliott was already decades ahead — and the record, at last, is catching up.",
@@ -72,7 +91,7 @@
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
     }
   ],
-  "lastUpdated": "2026-06-23T16:30:26.504586+00:00",
+  "lastUpdated": "2026-06-23T16:32:52.731520+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

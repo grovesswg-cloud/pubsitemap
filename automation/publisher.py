@@ -14,6 +14,10 @@ log = logging.getLogger('lord.publisher')
 # ─── Shared site header/footer partials ───────────────────────────────────────
 
 def _header(active: str = '') -> str:
+    def _a(href, label, key):
+        cls = ' class="active"' if active == key else ''
+        return f'<a href="{href}"{cls}>{label}</a>'
+
     return f"""\
   <header class="site-header">
     <div class="header-rule-top">
@@ -23,13 +27,11 @@ def _header(active: str = '') -> str:
     <div class="header-inner">
       <a href="../index.html" class="site-wordmark">LORD</a>
       <nav class="site-nav">
-        <a href="../sections/features.html">Features</a>
-        <a href="../sections/reviews.html">Reviews</a>
-        <a href="../sections/interviews.html">Interviews</a>
-        <a href="../sections/culture.html">Culture</a>
-        <a href="../sections/archive.html">Archive</a>
-        <a href="../sections/bulletin.html"{'class="active"' if active == "bulletin" else ''}>Bulletin</a>
-        <a href="../sections/about.html">About</a>
+        {_a('../sections/features.html', 'Features', 'feature')}
+        {_a('../sections/reviews.html', 'Reviews', 'review')}
+        {_a('../sections/bulletin.html', 'Bulletin', 'bulletin')}
+        {_a('../sections/sermon.html', 'Sermon', 'sermon')}
+        {_a('../sections/about.html', 'About', '')}
       </nav>
     </div>
     <div class="header-sub container">
@@ -56,9 +58,6 @@ def _footer() -> str:
       <nav class="footer-nav-grid">
         <a href="../sections/features.html">Features</a>
         <a href="../sections/reviews.html">Reviews</a>
-        <a href="../sections/interviews.html">Interviews</a>
-        <a href="../sections/culture.html">Culture</a>
-        <a href="../sections/archive.html">Archive</a>
         <a href="../sections/bulletin.html">Bulletin</a>
         <a href="../sections/sermon.html">Sermon</a>
         <a href="../sections/about.html">About</a>

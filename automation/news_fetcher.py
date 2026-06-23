@@ -105,6 +105,41 @@ def fetch_newsapi(limit: int = 15) -> list[dict]:
         return []
 
 
+# Terms that immediately disqualify a headline from being a music news article.
+_EXCLUDE_TERMS = {
+    'deal', 'deals', 'sale', 'discount', 'coupon', 'promo', 'prime day',
+    'black friday', 'cyber monday', 'best headphone', 'best speaker',
+    'best earbuds', 'buying guide', 'vs.', ' vs ', 'review: ', 'unboxing',
+    'stock', 'market', 'investment', 'crypto', 'nft', 'fashion week',
+    'recipe', 'weather', 'sports', 'football', 'basketball', 'soccer',
+}
+
+# At least one of these must appear in title or summary for the item to qualify.
+_REQUIRE_TERMS = {
+    'album', 'single', 'song', 'track', 'ep', 'tour', 'concert', 'festival',
+    'rapper', 'singer', 'artist', 'band', 'music', 'record', 'label',
+    'release', 'grammy', 'billboard', 'streaming', 'playlist', 'debut',
+    'collab', 'collaboration', 'producer', 'dj', 'hip-hop', 'hip hop',
+    'r&b', 'pop', 'rock', 'rap', 'jazz', 'country', 'genre', 'lyric',
+    'video', 'mv', 'sound', 'studio', 'mixtape',
+}
+
+
+def _is_music_news(item: dict) -> bool:
+    """Return True only if the item is clearly about music."""
+    text = (item.get('title', '') + ' ' + item.get('summary', '')).lower()
+
+    for term in _EXCLUDE_TERMS:
+        if term in text:
+            return False
+
+    for term in _REQUIRE_TERMS:
+        if term in text:
+            return True
+
+    return False
+
+
 def deduplicate(items: list[dict]) -> list[dict]:
     """Remove near-duplicate items by title prefix."""
     seen: set[str] = set()
@@ -118,7 +153,7 @@ def deduplicate(items: list[dict]) -> list[dict]:
 
 
 def get_trending_music_news() -> list[dict]:
-    """Return a de-duplicated, shuffled list of current music news items."""
+    """Return a filtered, de-duplicated, shuffled list of music news items."""
     items: list[dict] = []
 
     if NEWS_API_KEY:
@@ -128,4 +163,8 @@ def get_trending_music_news() -> list[dict]:
     random.shuffle(rss_items)
     items.extend(rss_items)
 
-    return deduplicate(items)
+    deduped = deduplicate(items)
+    music_only = [item for item in deduped if _is_music_news(item)]
+
+    log.info("Filtered to %d music-specific items (from %d total)", len(music_only), len(deduped))
+    return music_only

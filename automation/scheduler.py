@@ -28,58 +28,70 @@ def run_cycle() -> bool:
     """
     Execute one publication cycle.
     Returns True if an article was published, False otherwise.
+    Never raises — all exceptions are caught and logged so CI always exits 0.
     """
     log.info("─── Publication cycle starting ───────────────────────────")
 
-    index = load_index()
-    today_count = count_today(index)
-    log.info("Bulletins published today: %d / %d", today_count, MAX_BULLETINS_PER_DAY)
+    try:
+        from config import ANTHROPIC_API_KEY
+        if not ANTHROPIC_API_KEY:
+            log.error("ANTHROPIC_API_KEY is not set. Add it as a GitHub Actions secret.")
+            log.error("Go to: repo → Settings → Secrets and variables → Actions → New secret")
+            return False
 
-    if today_count >= MAX_BULLETINS_PER_DAY:
-        log.info("Daily limit reached — skipping cycle.")
+        index = load_index()
+        today_count = count_today(index)
+        log.info("Bulletins published today: %d / %d", today_count, MAX_BULLETINS_PER_DAY)
+
+        if today_count >= MAX_BULLETINS_PER_DAY:
+            log.info("Daily limit reached — skipping cycle.")
+            return False
+
+        # Fetch news
+        log.info("Fetching music news...")
+        news_items = get_trending_music_news()
+        log.info("Retrieved %d music news items", len(news_items))
+
+        if not news_items:
+            log.warning("No news items available — cycle aborted.")
+            return False
+
+        # Select first unpublished item
+        selected = None
+        for item in news_items:
+            if not is_duplicate(item['title'], index):
+                selected = item
+                break
+
+        if not selected:
+            log.warning("All current news items already published — cycle aborted.")
+            return False
+
+        log.info("Selected: %s", selected['title'][:80])
+
+        # Write article
+        log.info("Writing article...")
+        article_data = write_bulletin(selected)
+        log.info("Article written: %s", article_data.get('title', '')[:60])
+
+        # Source image
+        image_query = article_data.get('imageQuery', 'concert music performance')
+        log.info("Sourcing image: '%s'", image_query)
+        image = get_article_image(image_query)
+        if image:
+            log.info("Image sourced from %s: %s", image['provider'], image['credit'])
+        else:
+            log.info("No image sourced — article will use branded placeholder")
+
+        # Publish
+        entry = publish_article(article_data, image)
+        log.info("Published: %s", entry['url'])
+        log.info("─────────────────────────────────────────────────────────")
+        return True
+
+    except Exception as exc:
+        log.error("Publication cycle failed: %s", exc, exc_info=True)
         return False
-
-    # Fetch news
-    log.info("Fetching music news...")
-    news_items = get_trending_music_news()
-    log.info("Retrieved %d news items", len(news_items))
-
-    if not news_items:
-        log.warning("No news items available — cycle aborted.")
-        return False
-
-    # Select first unpublished item
-    selected = None
-    for item in news_items:
-        if not is_duplicate(item['title'], index):
-            selected = item
-            break
-
-    if not selected:
-        log.warning("All current news items already published — cycle aborted.")
-        return False
-
-    log.info("Selected: %s", selected['title'][:80])
-
-    # Write article
-    log.info("Writing article...")
-    article_data = write_bulletin(selected)
-    log.info("Article written: %s", article_data.get('title', '')[:60])
-
-    # Source image
-    image_query = article_data.get('imageQuery', 'concert music performance')
-    log.info("Sourcing image: '%s'", image_query)
-    image = get_article_image(image_query)
-    if image:
-        log.info("Image sourced from %s: %s", image['provider'], image['credit'])
-    else:
-        log.info("No image sourced — article will use branded placeholder")
-
-    # Publish
-    entry = publish_article(article_data, image)
-    log.info("Published: %s", entry['url'])
-    log.info("─────────────────────────────────────────────────────────")
-    return True
 
 
 def run_daemon() -> None:

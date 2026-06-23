@@ -41,10 +41,13 @@ function renderArticleCard(a, featured = false) {
     ? `<div class="article-card-image-wrap"><img src="${a.image}" alt="${escapeHtml(a.title)}" loading="lazy"></div>`
     : imagePlaceholder('LORD');
 
+  const genre = a.genre ? `<span class="card-genre">${escapeHtml(a.genre)}</span>` : '';
+
   return `
     <a href="${a.url}" class="article-card${featured ? ' featured' : ''}">
       ${img}
       <div class="card-eyebrow ${a.type === 'bulletin' ? 'bulletin' : ''}">${typeLabel(a.type)}</div>
+      ${genre}
       <div class="card-title">${escapeHtml(a.title)}</div>
       <div class="card-deck">${escapeHtml(a.deck || '')}</div>
       <div class="card-meta">${formatDate(a.date)}</div>

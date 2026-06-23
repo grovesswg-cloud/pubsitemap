@@ -18,12 +18,13 @@ PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
 PIXABAY_API_KEY     = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
 
 # ─── Publication schedule ─────────────────────────────────────────────────────
-# Three bulletins per day. Times are UTC for GitHub Actions cron.
-PUBLISH_TIMES_UTC = ['08:00', '14:00', '20:00']
+PUBLISH_TIMES_UTC = ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00']
 
 # ─── Content model ────────────────────────────────────────────────────────────
 DEFAULT_ARTICLE_TYPE  = 'bulletin'
-MAX_BULLETINS_PER_DAY = 4
+MAX_BULLETINS_PER_DAY = 6
+MAX_FEATURES_PER_DAY  = 3
+MAX_REVIEWS_PER_DAY   = 3
 
 # Model to use for article writing. Override per-site via ANTHROPIC_MODEL env var.
 ANTHROPIC_MODEL = os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-6')

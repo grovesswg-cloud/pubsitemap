@@ -39,6 +39,7 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "title": "Feature headline — specific, not generic, max 12 words",
   "deck": "One sentence establishing the feature's argument or frame",
   "body": "<p>Full feature body HTML, 1500-2000 words...</p>",
+  "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country",
   "tags": ["artist-name", "genre", "third-tag"],
   "imageQueries": [
     "Hero image — artist or subject, e.g. 'rapper performing stage lights'",

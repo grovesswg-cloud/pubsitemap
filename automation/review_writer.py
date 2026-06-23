@@ -47,6 +47,7 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "title": "Review headline — specific, not generic, max 12 words",
   "deck": "One sentence that stakes LORD's position on this record",
   "body": "<p>Full review body HTML, 800-1200 words...</p>",
+  "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country",
   "rating": "Sovereign",
   "tags": ["artist-name", "album-title", "genre"],
   "imageQueries": [
@@ -80,6 +81,7 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "title": "Review headline — specific, max 12 words",
   "deck": "One sentence establishing the reassessment's core argument",
   "body": "<p>Full review body HTML, 800-1200 words...</p>",
+  "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country",
   "rating": "Eternal",
   "tags": ["artist-name", "album-title", "genre", "classic"],
   "imageQueries": [

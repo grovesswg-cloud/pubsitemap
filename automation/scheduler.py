@@ -12,14 +12,14 @@ import argparse
 import logging
 import sys
 
-from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY
+from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
 from feature_writer import write_feature
 from review_writer import write_review, write_classic_review
 from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums
 from image_sourcer import get_article_image, get_article_images
-from publisher import publish_article, load_index, is_duplicate, count_today
+from publisher import publish_article, load_index, is_duplicate, count_today, count_today_by_type
 
 logging.basicConfig(
     level=logging.INFO,
@@ -117,6 +117,13 @@ def feature_cycle() -> bool:
         if not _check_api_key():
             return False
 
+        index = load_index()
+        today_features = count_today_by_type(index, 'feature')
+        log.info("Features published today: %d / %d", today_features, MAX_FEATURES_PER_DAY)
+        if today_features >= MAX_FEATURES_PER_DAY:
+            log.info("Daily feature limit reached — skipping.")
+            return False
+
         log.info("Fetching music news for feature inspiration...")
         news_items = get_trending_music_news()
         log.info("Retrieved %d music news items", len(news_items))
@@ -125,7 +132,6 @@ def feature_cycle() -> bool:
             log.warning("No news items available — feature cycle aborted.")
             return False
 
-        index = load_index()
         selected = None
         for item in news_items:
             if not is_duplicate(item['title'], index):
@@ -167,6 +173,12 @@ def review_cycle() -> bool:
             return False
 
         index = load_index()
+        today_reviews = count_today_by_type(index, 'review')
+        log.info("Reviews published today: %d / %d", today_reviews, MAX_REVIEWS_PER_DAY)
+        if today_reviews >= MAX_REVIEWS_PER_DAY:
+            log.info("Daily review limit reached — skipping.")
+            return False
+
         reviewed = _get_reviewed_albums(index)
         log.info("Albums already reviewed: %d", len(reviewed))
 

@@ -30,7 +30,6 @@ def _header(active: str = '') -> str:
         {_a('../sections/features.html', 'Features', 'feature')}
         {_a('../sections/reviews.html', 'Reviews', 'review')}
         {_a('../sections/bulletin.html', 'Bulletin', 'bulletin')}
-        {_a('../sections/sermon.html', 'Sermon', 'sermon')}
         {_a('../sections/about.html', 'About', '')}
       </nav>
     </div>
@@ -59,7 +58,6 @@ def _footer() -> str:
         <a href="../sections/features.html">Features</a>
         <a href="../sections/reviews.html">Reviews</a>
         <a href="../sections/bulletin.html">Bulletin</a>
-        <a href="../sections/sermon.html">Sermon</a>
         <a href="../sections/about.html">About</a>
       </nav>
       <div class="footer-statement">
@@ -177,7 +175,8 @@ def _build_article_html(data: dict) -> str:
     img_credit    = data.get('imageCredit', '')
     img_cred_url  = data.get('imageCreditUrl', '#')
     img_provider  = data.get('imageProvider', '')
-    rating        = data.get('rating', '')  # for reviews
+    rating        = data.get('rating', '')
+    genre         = data.get('genre', '')
 
     inline_images = data.get('inlineImages', [])
     if inline_images:
@@ -194,6 +193,10 @@ def _build_article_html(data: dict) -> str:
     review_badge = (
         f'      <div class="review-badge">{rating}</div>'
         if article_type == 'review' and rating else ''
+    )
+    genre_badge = (
+        f'      <span class="genre-badge">{genre}</span>'
+        if genre else ''
     )
 
     if image_url:
@@ -248,6 +251,7 @@ def _build_article_html(data: dict) -> str:
     <header class="article-header">
       <div class="article-eyebrow">{type_label}</div>
 {review_badge}
+{genre_badge}
       <h1 class="article-title">{title}</h1>
       <p class="article-deck">{deck}</p>
       <div class="article-meta-bar">
@@ -300,9 +304,18 @@ def is_duplicate(news_title: str, index: dict) -> bool:
 
 
 def count_today(index: dict) -> int:
-    """Count how many articles have been published today (UTC)."""
+    """Count all articles published today (UTC)."""
     today = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
     return sum(1 for a in index.get('articles', []) if a.get('date') == today)
+
+
+def count_today_by_type(index: dict, article_type: str) -> int:
+    """Count articles of a specific type published today (UTC)."""
+    today = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
+    return sum(
+        1 for a in index.get('articles', [])
+        if a.get('date') == today and a.get('type') == article_type
+    )
 
 
 # ─── Main publish function ────────────────────────────────────────────────────
@@ -357,6 +370,7 @@ def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> di
         'title':     data.get('title', ''),
         'deck':      data.get('deck', ''),
         'type':      data.get('type', 'bulletin'),
+        'genre':     data.get('genre', ''),
         'date':      data.get('date', ''),
         'url':       f"articles/{filename}",
         'image':     data.get('image', ''),

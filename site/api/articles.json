@@ -99,7 +99,7 @@
       "type": "review",
       "date": "2026-06-23",
       "url": "articles/20260623-jim-james-returns-from-the-archive-with-something-alive.html",
-      "image": "https://images.unsplash.com/photo-1709283842312-478d675ccf18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyMzAwMDN8&ixlib=rb-4.1.0&q=80&w=1080",
+      "image": "https://live.staticflickr.com/3098/2332044375_ff90bcbdba_b.jpg",
       "tags": [
         "jim-james",
         "wowed-out",
@@ -108,7 +108,8 @@
         "my-morning-jacket"
       ],
       "source": "",
-      "sourceUrl": ""
+      "sourceUrl": "",
+      "imageProvider": "Flickr"
     },
     {
       "id": "20260623-conor-oberst-has-always-been-writing-the-same-confession",
@@ -117,14 +118,15 @@
       "type": "feature",
       "date": "2026-06-23",
       "url": "articles/20260623-conor-oberst-has-always-been-writing-the-same-confession.html",
-      "image": "https://images.unsplash.com/photo-1613837346616-763613db1fec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyMjk4NTl8&ixlib=rb-4.1.0&q=80&w=1080",
+      "image": "https://live.staticflickr.com/4090/5060559781_e3326c5762_b.jpg",
       "tags": [
         "bright-eyes",
         "indie-folk",
         "conor-oberst"
       ],
       "source": "Consequence",
-      "sourceUrl": "https://consequence.net/2026/06/bright-eyes-fall-2026-us-tour/"
+      "sourceUrl": "https://consequence.net/2026/06/bright-eyes-fall-2026-us-tour/",
+      "imageProvider": "Flickr"
     },
     {
       "id": "20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival",
@@ -133,7 +135,7 @@
       "type": "bulletin",
       "date": "2026-06-23",
       "url": "articles/20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival.html",
-      "image": "https://images.unsplash.com/photo-1739392739250-a4f898ee089b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyMjI4NjR8&ixlib=rb-4.1.0&q=80&w=1080",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/8/80/Olivia_Rodrigo_performs_%27Get_Him_Back%27_live_02.jpg",
       "tags": [
         "Olivia Rodrigo",
         "Daisy Chain Fields",
@@ -144,7 +146,8 @@
         "Women in Music"
       ],
       "source": "Music News",
-      "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
+      "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/",
+      "imageProvider": "Flickr"
     }
   ],
   "lastUpdated": "2026-06-23T21:29:32.292733+00:00",

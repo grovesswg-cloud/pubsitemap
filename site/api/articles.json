@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "id": "20260623-missy-elliott-didnt-predict-the-future-she-built-it",
+      "title": "Missy Elliott Didn't Predict the Future. She Built It.",
+      "deck": "While the industry debated whether she belonged, Missy Elliott was already decades ahead — and the record, at last, is catching up.",
+      "type": "feature",
+      "genre": "Hip-Hop",
+      "date": "2026-06-23",
+      "url": "articles/20260623-missy-elliott-didnt-predict-the-future-she-built-it.html",
+      "image": "https://images.unsplash.com/photo-1571173069043-82a7a13cee9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyMzIyMjV8&ixlib=rb-4.1.0&q=80&w=1080",
+      "tags": [
+        "missy-elliott",
+        "hip-hop",
+        "visionary"
+      ],
+      "source": "Music News",
+      "sourceUrl": "https://www.rollingstone.com/music/music-news/missy-elliott-visionary-icon-award-culture-creators-1235581836/"
+    },
+    {
       "id": "20260623-jim-james-returns-from-the-archive-with-something-alive",
       "title": "Jim James Returns From the Archive With Something Alive",
       "deck": "Wowed Out is not a resurrection — it is a reclamation, and the difference is everything.",
@@ -55,7 +72,7 @@
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
     }
   ],
-  "lastUpdated": "2026-06-23T15:53:23.814878+00:00",
+  "lastUpdated": "2026-06-23T16:30:26.504586+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

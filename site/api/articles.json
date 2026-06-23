@@ -1,6 +1,26 @@
 {
   "articles": [
     {
+      "id": "20260623-the-second-act-nobody-saw-coming-everyone-says-hi",
+      "title": "The Second Act Nobody Saw Coming: Everyone Says Hi",
+      "deck": "When the bands that defined a generation dissolve, what happens to the musicians left holding the instruments? Everyone Says Hi may have the most honest answer.",
+      "type": "feature",
+      "genre": "Rock",
+      "date": "2026-06-23",
+      "url": "articles/20260623-the-second-act-nobody-saw-coming-everyone-says-hi.html",
+      "image": "https://pixabay.com/get/g23f626ffe4058e879e8e4f1741388715ef38f2c03f15466459df4e0ac309a32150f619b351b97e2e03734fcf5bec17c3b19587a5eb58a29af21ea5eec6f31f3e_1280.jpg",
+      "tags": [
+        "everyone-says-hi",
+        "indie-rock",
+        "british-indie",
+        "kaiser-chiefs",
+        "the-kooks",
+        "second-acts"
+      ],
+      "source": "Music News | First For Music News | NME",
+      "sourceUrl": "https://www.nme.com/news/music/everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows-3952688?utm_source=rss&utm_medium=rss&utm_campaign=everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows"
+    },
+    {
       "id": "20260623-swavay-discusses-metro-boomin-collaboration-and-upcoming-tour",
       "title": "SWAVAY Discusses Metro Boomin Collaboration and Upcoming Tour",
       "deck": "The Atlanta artist opens up about working with one of rap's most sought-after producers and the lessons he's carrying into his next chapter.",
@@ -110,7 +130,7 @@
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
     }
   ],
-  "lastUpdated": "2026-06-23T19:47:53.595894+00:00",
+  "lastUpdated": "2026-06-23T20:59:39.174150+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

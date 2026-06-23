@@ -51,8 +51,8 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "rating": "Sovereign",
   "tags": ["artist-name", "album-title", "genre"],
   "imageQueries": [
-    "Hero image — artist or album feel, e.g. 'musician portrait dark studio'",
-    "Mid-review image — sonic texture, e.g. 'vinyl record close up light'"
+    "MUST use actual artist + album name — e.g. 'Taylor Swift Midnights' or 'Taylor Swift performing' NOT 'pop singer dark studio'",
+    "MUST use actual artist name — e.g. 'Taylor Swift live concert' or 'Taylor Swift' NOT 'singer vinyl record'"
   ]
 }}
 """
@@ -85,8 +85,8 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "rating": "Eternal",
   "tags": ["artist-name", "album-title", "genre", "classic"],
   "imageQueries": [
-    "Hero image — artist era feel, e.g. 'musician black and white portrait'",
-    "Mid-review image — vintage or archival texture, e.g. 'old vinyl record sleeve'"
+    "MUST use actual artist + album name — e.g. 'Lauryn Hill Miseducation' or 'Lauryn Hill performing 1998' NOT 'musician black and white portrait'",
+    "MUST use actual artist name — e.g. 'Lauryn Hill Fugees' or 'Lauryn Hill concert' NOT 'vintage vinyl record'"
   ]
 }}
 """

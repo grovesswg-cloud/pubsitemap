@@ -42,7 +42,7 @@ Return ONLY a valid JSON object with these exact keys — no markdown fences, no
   "body": "<p>Body HTML with <p> tags...</p>",
   "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country, Latin, Classical",
   "tags": ["tag1", "tag2", "tag3"],
-  "imageQuery": "Unsplash search string for a relevant non-specific photo, e.g. 'concert stage lights crowd'"
+  "imageQuery": "MUST use the actual artist or band name — e.g. 'Olivia Rodrigo performing live' or 'Drake concert stage'. Never use generic descriptions like 'pop singer on stage' or 'concert crowd'."
 }}
 """
 

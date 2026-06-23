@@ -42,9 +42,9 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country",
   "tags": ["artist-name", "genre", "third-tag"],
   "imageQueries": [
-    "Hero image — artist or subject, e.g. 'rapper performing stage lights'",
-    "Mid-feature image — different visual angle, e.g. 'recording studio mixing board'",
-    "Closing image — broader cultural context, e.g. 'concert crowd dark venue'"
+    "MUST use the actual artist/band name — e.g. 'Jim James My Morning Jacket performing' NOT 'folk musician stage'",
+    "MUST use the actual artist/band name — e.g. 'Jim James guitar' or 'My Morning Jacket live concert'",
+    "MUST use the actual artist/band name — e.g. 'Jim James My Morning Jacket crowd' or album/era context with artist named"
   ]
 }}
 """

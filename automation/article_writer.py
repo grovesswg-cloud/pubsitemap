@@ -40,6 +40,7 @@ Return ONLY a valid JSON object with these exact keys — no markdown fences, no
   "title": "Headline: factual, compelling, no clickbait, max 12 words",
   "deck": "One italic-style sentence that frames the story without repeating the headline",
   "body": "<p>Body HTML with <p> tags...</p>",
+  "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country, Latin, Classical",
   "tags": ["tag1", "tag2", "tag3"],
   "imageQuery": "Unsplash search string for a relevant non-specific photo, e.g. 'concert stage lights crowd'"
 }}

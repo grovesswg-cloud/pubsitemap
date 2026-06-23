@@ -595,6 +595,55 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 .article-image-credit a { color: var(--bone); }
 .article-image-credit a:hover { color: var(--crown); }
 
+.genre-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--crown);
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  padding: 2px 8px;
+  margin-bottom: 18px;
+  vertical-align: middle;
+}
+.card-genre {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--crown);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  padding: 1px 6px;
+  margin-bottom: 6px;
+}
+
+.article-inline-image {
+  margin: 2.5em 0 0.5em;
+  border: 0;
+  padding: 0;
+}
+.article-inline-image img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  filter: saturate(0.8) sepia(0.1) contrast(1.08);
+  display: block;
+}
+.article-inline-image figcaption {
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--smoke);
+  margin-top: 6px;
+  margin-bottom: 2em;
+}
+.article-inline-image figcaption a { color: var(--bone); }
+.article-inline-image figcaption a:hover { color: var(--crown); }
+
 .article-body {
   font-family: var(--font-body);
   font-size: clamp(1rem, 1.4vw, 1.15rem);

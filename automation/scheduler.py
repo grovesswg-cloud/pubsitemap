@@ -12,14 +12,14 @@ import argparse
 import logging
 import sys
 
-from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY
+from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
 from feature_writer import write_feature
 from review_writer import write_review, write_classic_review
 from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums
-from image_sourcer import get_article_image
-from publisher import publish_article, load_index, is_duplicate, count_today
+from image_sourcer import get_article_image, get_article_images
+from publisher import publish_article, load_index, is_duplicate, count_today, count_today_by_type
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,15 +38,26 @@ def _check_api_key() -> bool:
     return True
 
 
-def _source_image(query: str, fallback: str = 'concert music performance') -> dict | None:
-    image_query = query or fallback
-    log.info("Sourcing image: '%s'", image_query)
-    image = get_article_image(image_query)
-    if image:
-        log.info("Image sourced from %s: %s", image['provider'], image['credit'])
+def _source_images(article_data: dict, fallback_query: str = 'concert music performance') -> list:
+    """
+    Fetch images for an article.
+    Uses imageQueries list if present (multi-image), otherwise imageQuery (single).
+    Returns a list of image dicts (index 0 = hero, rest = inline).
+    """
+    queries = article_data.get('imageQueries') or []
+    if not queries:
+        single = article_data.get('imageQuery', '') or fallback_query
+        queries = [single]
+
+    log.info("Sourcing %d image(s): %s", len(queries), queries[:3])
+    images = get_article_images(queries)
+
+    if images:
+        for img in images:
+            log.info("  [%s] %s", img.get('provider', '?'), img.get('credit', ''))
     else:
-        log.info("No image sourced — article will use branded placeholder")
-    return image
+        log.info("No images sourced — article will use branded placeholder")
+    return images
 
 
 def run_cycle() -> bool:
@@ -88,8 +99,8 @@ def run_cycle() -> bool:
         article_data = write_bulletin(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
-        image = _source_image(article_data.get('imageQuery', ''))
-        entry = publish_article(article_data, image)
+        images = _source_images(article_data)
+        entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
         return True
@@ -106,6 +117,13 @@ def feature_cycle() -> bool:
         if not _check_api_key():
             return False
 
+        index = load_index()
+        today_features = count_today_by_type(index, 'feature')
+        log.info("Features published today: %d / %d", today_features, MAX_FEATURES_PER_DAY)
+        if today_features >= MAX_FEATURES_PER_DAY:
+            log.info("Daily feature limit reached — skipping.")
+            return False
+
         log.info("Fetching music news for feature inspiration...")
         news_items = get_trending_music_news()
         log.info("Retrieved %d music news items", len(news_items))
@@ -114,7 +132,6 @@ def feature_cycle() -> bool:
             log.warning("No news items available — feature cycle aborted.")
             return False
 
-        index = load_index()
         selected = None
         for item in news_items:
             if not is_duplicate(item['title'], index):
@@ -129,8 +146,8 @@ def feature_cycle() -> bool:
         article_data = write_feature(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
-        image = _source_image(article_data.get('imageQuery', ''), 'musician portrait studio')
-        entry = publish_article(article_data, image)
+        images = _source_images(article_data, 'musician portrait studio')
+        entry = publish_article(article_data, images)
         log.info("Published feature: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
         return True
@@ -156,6 +173,12 @@ def review_cycle() -> bool:
             return False
 
         index = load_index()
+        today_reviews = count_today_by_type(index, 'review')
+        log.info("Reviews published today: %d / %d", today_reviews, MAX_REVIEWS_PER_DAY)
+        if today_reviews >= MAX_REVIEWS_PER_DAY:
+            log.info("Daily review limit reached — skipping.")
+            return False
+
         reviewed = _get_reviewed_albums(index)
         log.info("Albums already reviewed: %d", len(reviewed))
 
@@ -170,11 +193,8 @@ def review_cycle() -> bool:
         article_data = write_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
-        image = _source_image(
-            article_data.get('imageQuery') or album_info.get('imageQuery', ''),
-            'vinyl record music studio',
-        )
-        entry = publish_article(article_data, image)
+        images = _source_images(article_data, 'vinyl record music studio')
+        entry = publish_article(article_data, images)
         log.info("Published review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
         return True
@@ -202,11 +222,8 @@ def classic_review_cycle() -> bool:
         article_data = write_classic_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
-        image = _source_image(
-            article_data.get('imageQuery') or album_info.get('imageQuery', ''),
-            'vintage vinyl record collection',
-        )
-        entry = publish_article(article_data, image)
+        images = _source_images(article_data, 'vintage vinyl record collection')
+        entry = publish_article(article_data, images)
         log.info("Published classic review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
         return True

@@ -13,16 +13,18 @@ ARTICLES_JSON = API_DIR / 'articles.json'
 # ─── API Keys (set via environment variables / GitHub Secrets) ─────────────────
 ANTHROPIC_API_KEY   = os.getenv('ANTHROPIC_API_KEY', '')
 UNSPLASH_ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY', '')
-NEWS_API_KEY        = os.getenv('NEWS_API_KEY', '')     # optional: newsapi.org
-PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')  # optional: fallback images
+NEWS_API_KEY        = os.getenv('NEWS_API_KEY', '')      # optional: newsapi.org
+PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
+PIXABAY_API_KEY     = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
 
 # ─── Publication schedule ─────────────────────────────────────────────────────
-# Three bulletins per day. Times are UTC for GitHub Actions cron.
-PUBLISH_TIMES_UTC = ['08:00', '14:00', '20:00']
+PUBLISH_TIMES_UTC = ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00']
 
 # ─── Content model ────────────────────────────────────────────────────────────
 DEFAULT_ARTICLE_TYPE  = 'bulletin'
-MAX_BULLETINS_PER_DAY = 4
+MAX_BULLETINS_PER_DAY = 6
+MAX_FEATURES_PER_DAY  = 3
+MAX_REVIEWS_PER_DAY   = 3
 
 # Model to use for article writing. Override per-site via ANTHROPIC_MODEL env var.
 ANTHROPIC_MODEL = os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-6')

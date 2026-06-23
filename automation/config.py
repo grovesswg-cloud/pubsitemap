@@ -22,14 +22,10 @@ PUBLISH_TIMES_UTC = ['08:00', '14:00', '20:00']
 
 # ─── Content model ────────────────────────────────────────────────────────────
 DEFAULT_ARTICLE_TYPE  = 'bulletin'
-MAX_BULLETINS_PER_DAY = 3
+MAX_BULLETINS_PER_DAY = 4
 
-# Model to use for article writing.
-# Haiku is recommended for bulletins — fast, cheap, more than capable for short news.
-# Override per-site via ANTHROPIC_MODEL env var.
-# Haiku 4.5:   claude-haiku-4-5-20251001   (~$5-6/month for 15 sites)
-# Sonnet 4.6:  claude-sonnet-4-6            (~$20-22/month for 15 sites)
-ANTHROPIC_MODEL = os.getenv('ANTHROPIC_MODEL', 'claude-haiku-4-5-20251001')
+# Model to use for article writing. Override per-site via ANTHROPIC_MODEL env var.
+ANTHROPIC_MODEL = os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-6')
 
 # ─── RSS news sources ─────────────────────────────────────────────────────────
 # All free, no API key required. Covers broad music news landscape.

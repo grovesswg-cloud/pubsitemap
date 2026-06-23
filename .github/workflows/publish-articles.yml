@@ -2,9 +2,10 @@ name: LORD — Publish Daily Bulletins
 
 on:
   schedule:
-    - cron: '0 8 * * *'    # 08:00 UTC — Morning dispatch
-    - cron: '0 14 * * *'   # 14:00 UTC — Afternoon dispatch
-    - cron: '0 20 * * *'   # 20:00 UTC — Evening dispatch
+    - cron: '0 7 * * *'    # 07:00 UTC — Morning dispatch
+    - cron: '0 12 * * *'   # 12:00 UTC — Midday dispatch
+    - cron: '0 17 * * *'   # 17:00 UTC — Afternoon dispatch
+    - cron: '0 22 * * *'   # 22:00 UTC — Evening dispatch
   workflow_dispatch:        # Manual trigger from GitHub Actions tab
 
 permissions:

@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "id": "20260623-rodrigo-turns-the-wound-into-the-weapon",
+      "title": "Rodrigo Turns the Wound Into the Weapon",
+      "deck": "Her third record confirms what sour only suggested: Olivia Rodrigo is not a phenomenon. She is a craftsman.",
+      "type": "review",
+      "genre": "Pop",
+      "date": "2026-06-23",
+      "url": "articles/20260623-rodrigo-turns-the-wound-into-the-weapon.html",
+      "image": "https://images.unsplash.com/photo-1691131121450-408e4b87adb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyNTAxNzF8&ixlib=rb-4.1.0&q=80&w=1080",
+      "tags": [
+        "olivia-rodrigo",
+        "you-seem-pretty-sad-for-a-girl-so-in-love",
+        "pop"
+      ],
+      "source": "",
+      "sourceUrl": ""
+    },
+    {
       "id": "20260623-the-second-act-nobody-saw-coming-everyone-says-hi",
       "title": "The Second Act Nobody Saw Coming: Everyone Says Hi",
       "deck": "When the bands that defined a generation dissolve, what happens to the musicians left holding the instruments? Everyone Says Hi may have the most honest answer.",
@@ -130,7 +147,7 @@
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
     }
   ],
-  "lastUpdated": "2026-06-23T20:59:39.174150+00:00",
+  "lastUpdated": "2026-06-23T21:29:32.292733+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

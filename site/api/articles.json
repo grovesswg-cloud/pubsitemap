@@ -1,6 +1,27 @@
 {
-  "articles": [],
-  "lastUpdated": "2026-06-23T00:00:00Z",
+  "articles": [
+    {
+      "id": "20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival",
+      "title": "Olivia Rodrigo Announces Daisy Chain Fields, an All-Women Music Festival",
+      "deck": "The debut lineup spans five decades of women in rock, pop, and punk — from Bikini Kill to Chappell Roan.",
+      "type": "bulletin",
+      "date": "2026-06-23",
+      "url": "articles/20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival.html",
+      "image": "https://images.unsplash.com/photo-1739392739250-a4f898ee089b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5ODM5MjB8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODIyMjI4NjR8&ixlib=rb-4.1.0&q=80&w=1080",
+      "tags": [
+        "Olivia Rodrigo",
+        "Daisy Chain Fields",
+        "Festivals",
+        "Chappell Roan",
+        "Bikini Kill",
+        "Stevie Nicks",
+        "Women in Music"
+      ],
+      "source": "Music News",
+      "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/"
+    }
+  ],
+  "lastUpdated": "2026-06-23T13:54:24.471283+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

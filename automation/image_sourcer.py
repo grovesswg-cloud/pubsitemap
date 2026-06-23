@@ -1,9 +1,10 @@
 """LORD Automation — Image Sourcer
 Fetches editorial images from multiple free providers:
-  1. Unsplash   — high-quality editorial photography (requires key)
-  2. Openverse  — CC-licensed content from Flickr, Wikipedia, etc. (no key needed)
-  3. Pixabay    — large CC0 library including concert/artist shots (requires key)
-  4. Pexels     — editorial stock photography fallback (requires key)
+  1. Wikipedia  — official artist portrait from Wikipedia page (no key needed)
+  2. Unsplash   — high-quality editorial photography (requires key)
+  3. Openverse  — CC-licensed content from Flickr, Wikipedia, etc. (no key needed)
+  4. Pixabay    — large CC0 library including concert/artist shots (requires key)
+  5. Pexels     — editorial stock photography fallback (requires key)
 All images are properly attributed to the original photographer and source.
 """
 import logging
@@ -22,6 +23,78 @@ MUSIC_FALLBACK_QUERIES = [
     'music festival crowd',
     'musician performance live',
 ]
+
+
+def fetch_wikipedia(query: str) -> dict | None:
+    """
+    Fetch the lead image from a Wikipedia article matching the query.
+    Uses Wikipedia's search + summary APIs — no key required.
+    Best for artist/band portraits (returns the exact photo on their Wikipedia page).
+    """
+    try:
+        # Step 1: search Wikipedia for the most relevant article
+        search_resp = requests.get(
+            'https://en.wikipedia.org/w/api.php',
+            params={
+                'action':    'query',
+                'list':      'search',
+                'srsearch':  query,
+                'srnamespace': 0,
+                'srlimit':   3,
+                'format':    'json',
+            },
+            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)'},
+            timeout=10,
+        )
+        if search_resp.status_code != 200:
+            return None
+
+        results = search_resp.json().get('query', {}).get('search', [])
+        if not results:
+            return None
+
+        # Skip list/disambiguation pages — pick the first real article
+        skip_prefixes = ('list of', 'discography', 'filmography', 'bibliography',
+                         'songs written', 'awards and', 'wikipedia:')
+        title = None
+        for r in results:
+            if not any(r['title'].lower().startswith(p) for p in skip_prefixes):
+                title = r['title']
+                break
+        if not title:
+            title = results[0]['title']  # fallback: take whatever we have
+        summary_resp = requests.get(
+            f'https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(title)}',
+            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)'},
+            timeout=10,
+        )
+        if summary_resp.status_code != 200:
+            return None
+
+        page = summary_resp.json()
+        thumbnail = page.get('thumbnail')
+        if not thumbnail:
+            return None
+
+        # Use the largest available version (replace /320px- with /1200px-)
+        thumb_url = thumbnail['source']
+        full_url = thumb_url
+        import re
+        full_url = re.sub(r'/\d+px-', '/1200px-', thumb_url)
+
+        page_url = page.get('content_urls', {}).get('desktop', {}).get('page', f'https://en.wikipedia.org/wiki/{title}')
+
+        return {
+            'url':       full_url,
+            'thumbUrl':  thumb_url,
+            'credit':    f'Wikipedia — {title}',
+            'creditUrl': page_url,
+            'altText':   page.get('description') or title,
+            'provider':  'Wikipedia',
+        }
+    except Exception as exc:
+        log.warning("Wikipedia error: %s", exc)
+        return None
 
 
 def fetch_unsplash(query: str, orientation: str = 'landscape') -> dict | None:
@@ -188,7 +261,8 @@ def fetch_pexels(query: str) -> dict | None:
 def _try_all(query: str) -> dict | None:
     """Try all configured providers in priority order for a single query."""
     return (
-        fetch_unsplash(query)
+        fetch_wikipedia(query)
+        or fetch_unsplash(query)
         or fetch_openverse(query)
         or fetch_pixabay(query)
         or fetch_pexels(query)

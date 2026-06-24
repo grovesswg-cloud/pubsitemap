@@ -1,6 +1,25 @@
 {
   "articles": [
     {
+      "id": "20260624-phoebe-bridgers-returns-with-a-record-that-earns-its-silence",
+      "title": "Phoebe Bridgers Returns With a Record That Earns Its Silence",
+      "deck": "Lost Weekend is not a comeback — it is a reckoning, six years in the making and unwilling to apologize for any of it.",
+      "type": "review",
+      "genre": "Folk",
+      "date": "2026-06-24",
+      "url": "articles/20260624-phoebe-bridgers-returns-with-a-record-that-earns-its-silence.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/BoygeniusKingstonEarly240823_%2829_of_45%29_%2853138924957%29_Cropped.jpg",
+      "tags": [
+        "phoebe-bridgers",
+        "lost-weekend",
+        "folk"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Phoebe Bridgers",
+      "albumName": "Lost Weekend"
+    },
+    {
       "id": "20260624-chelsea-wolfe-announces-ninth-studio-album-with-two-new-tracks",
       "title": "Chelsea Wolfe Announces Ninth Studio Album With Two New Tracks",
       "deck": "The California artist surfaces from silence with 'The Dark' and 'Death Is Not The End,' alongside a transatlantic tour.",
@@ -231,7 +250,7 @@
       "imageProvider": "Flickr"
     }
   ],
-  "lastUpdated": "2026-06-24T14:27:41.325391+00:00",
+  "lastUpdated": "2026-06-24T16:07:43.008907+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

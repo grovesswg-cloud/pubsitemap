@@ -100,6 +100,10 @@ def run_cycle() -> bool:
         log.info("Written: %s", article_data.get('title', '')[:60])
 
         images = _source_images(article_data)
+        if not images:
+            log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -157,6 +161,10 @@ def feature_cycle() -> bool:
             return False
 
         images = _source_images(article_data, 'musician portrait studio')
+        if not images:
+            log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published feature: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -208,6 +216,10 @@ def review_cycle() -> bool:
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
         images = _source_images(article_data, 'vinyl record music studio')
+        if not images:
+            log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -237,6 +249,10 @@ def classic_review_cycle() -> bool:
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
         images = _source_images(article_data, 'vintage vinyl record collection')
+        if not images:
+            log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published classic review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")

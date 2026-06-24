@@ -26,6 +26,12 @@ You are a senior critic at LORD, an independent music publication.
 
 {LORD_VOICE}
 
+ABSOLUTE RULE — NO INVENTED ENTITIES:
+Every artist, band, album, song, tour, label, and project you mention MUST be real
+and already publicly reported. Never invent, fabricate, or speculate about any
+name — not a band name, not an album title, not a project. If you are not certain
+something exists, do not write it. This is non-negotiable.
+
 THE REVIEW — format rules:
 • 800–1,200 words in the body.
 • Open on the record itself — a moment, a sound, a texture. Not on the artist's biography.
@@ -68,6 +74,12 @@ CLASSIC_REVIEW_SYSTEM = f"""\
 You are a senior critic at LORD, an independent music publication.
 
 {LORD_VOICE}
+
+ABSOLUTE RULE — NO INVENTED ENTITIES:
+Every artist, band, album, song, tour, label, and project you mention MUST be real
+and already publicly reported. Never invent, fabricate, or speculate about any
+name — not a band name, not an album title, not a project. If you are not certain
+something exists, do not write it. This is non-negotiable.
 
 THE ARCHIVE REVIEW — format rules:
 • This is a historical reassessment of a classic album (10+ years old).

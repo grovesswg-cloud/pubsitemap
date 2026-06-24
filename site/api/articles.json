@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260624-turnstile-announce-2026-north-american-tour-with-eclectic-opener-lineup",
+      "title": "Turnstile Announce 2026 North American Tour With Eclectic Opener Lineup",
+      "deck": "The Baltimore hardcore band continues its practice of assembling cross-genre bills, this time pairing with Slayyyter, Clipse, and Vince Staples.",
+      "type": "bulletin",
+      "genre": "Rock",
+      "date": "2026-06-24",
+      "url": "articles/20260624-turnstile-announce-2026-north-american-tour-with-eclectic-opener-lineup.html",
+      "image": "https://pixabay.com/get/g483738f9334ed7a87c581756c1120f8ce45446a827cfe42afa4be9ace94b1ff864ab77cf0e1302abd83c7b1f42b14527ce3cc6b6b42a0ae6b849836c896eabb7_1280.jpg",
+      "tags": [
+        "Turnstile",
+        "Clipse",
+        "Vince Staples",
+        "Slayyyter",
+        "Tour Announcement",
+        "Hardcore",
+        "2026 Tour"
+      ],
+      "source": "Stereogum",
+      "sourceUrl": "https://stereogum.com/2503035/turnstile-announce-2026-tour-with-openers-including-slayyyter-clipse-vince-staples-more/news/"
+    },
+    {
       "id": "20260623-rodrigo-turns-the-wound-into-the-weapon",
       "title": "Rodrigo Turns the Wound Into the Weapon",
       "deck": "Her third record confirms what sour only suggested: Olivia Rodrigo is not a phenomenon. She is a craftsman.",
@@ -150,7 +171,7 @@
       "imageProvider": "Flickr"
     }
   ],
-  "lastUpdated": "2026-06-23T21:29:32.292733+00:00",
+  "lastUpdated": "2026-06-24T09:47:10.615604+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

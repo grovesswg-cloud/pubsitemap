@@ -146,11 +146,15 @@ def feature_cycle() -> bool:
         article_data = write_feature(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
-        # Skip if same artist was featured within the last 7 days
-        for tag in article_data.get('tags', []):
-            if is_artist_covered(tag, index, days=7):
-                log.info("Artist '%s' featured recently — skipping duplicate feature.", tag)
-                return False
+        # Skip if the same artist was featured within the last 7 days.
+        # Only check the first tag (the artist name, per the writer schema).
+        # Checking every tag would match shared genre labels like "indie-rock"
+        # and falsely reject nearly every feature as a duplicate.
+        tags = article_data.get('tags', [])
+        artist_tag = tags[0] if tags else ''
+        if artist_tag and is_artist_covered(artist_tag, index, days=7):
+            log.info("Artist '%s' featured recently — skipping duplicate feature.", artist_tag)
+            return False
 
         images = _source_images(article_data, 'musician portrait studio')
         entry = publish_article(article_data, images)

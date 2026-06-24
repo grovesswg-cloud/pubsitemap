@@ -6,6 +6,7 @@ import logging
 import re
 
 from config import ANTHROPIC_MODEL, ANTHROPIC_API_KEY, LORD_VOICE
+from json_utils import parse_writer_json
 
 log = logging.getLogger('lord.review')
 
@@ -126,13 +127,11 @@ Stake a clear position and justify it with the rating."""
     )
 
     raw = message.content[0].text
-    cleaned = _strip_fences(raw)
-
     try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError as exc:
+        data = parse_writer_json(raw)
+    except ValueError as exc:
         log.error("JSON parse failed for review. Raw:\n%s", raw[:500])
-        raise ValueError(f"Review writer returned invalid JSON: {exc}") from exc
+        raise
 
     data['type'] = 'review'
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
@@ -172,13 +171,11 @@ What did contemporary criticism get wrong or right? Where does it stand in histo
     )
 
     raw = message.content[0].text
-    cleaned = _strip_fences(raw)
-
     try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError as exc:
+        data = parse_writer_json(raw)
+    except ValueError as exc:
         log.error("JSON parse failed for classic review. Raw:\n%s", raw[:500])
-        raise ValueError(f"Classic review writer returned invalid JSON: {exc}") from exc
+        raise
 
     data['type'] = 'review'
     data['isClassic'] = True

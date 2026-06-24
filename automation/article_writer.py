@@ -8,6 +8,7 @@ import re
 import anthropic
 
 from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL, LORD_VOICE
+from json_utils import parse_writer_json
 
 log = logging.getLogger('lord.writer')
 
@@ -84,13 +85,11 @@ Do not speculate, editorialize, or add opinion."""
     )
 
     raw = message.content[0].text
-    cleaned = _strip_fences(raw)
-
     try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError as exc:
+        data = parse_writer_json(raw)
+    except ValueError as exc:
         log.error("JSON parse failed. Raw response:\n%s", raw[:500])
-        raise ValueError(f"Article writer returned invalid JSON: {exc}") from exc
+        raise
 
     # Merge source metadata
     data['type']      = 'bulletin'

@@ -76,11 +76,17 @@ def fetch_wikipedia(query: str) -> dict | None:
         if not thumbnail:
             return None
 
-        # Use the largest available version (replace /320px- with /1200px-)
+        # Use the original full-resolution file by stripping /thumb/ and size prefix.
+        # Requesting 1200px thumbnails returns 400 when the original is smaller.
         thumb_url = thumbnail['source']
-        full_url = thumb_url
         import re
-        full_url = re.sub(r'/\d+px-', '/1200px-', thumb_url)
+        # https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/File.jpg/320px-File.jpg
+        # →  https://upload.wikimedia.org/wikipedia/commons/a/ab/File.jpg
+        m = re.match(
+            r'(https://upload\.wikimedia\.org/wikipedia/[^/]+)/thumb(/[^/]+/[^/]+/[^/]+)/\d+px-.+',
+            thumb_url,
+        )
+        full_url = (m.group(1) + m.group(2)) if m else thumb_url
 
         page_url = page.get('content_urls', {}).get('desktop', {}).get('page', f'https://en.wikipedia.org/wiki/{title}')
 

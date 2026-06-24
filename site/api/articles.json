@@ -33,7 +33,7 @@
       "genre": "Folk",
       "date": "2026-06-24",
       "url": "articles/20260624-phoebe-bridgers-returns-with-a-record-that-earns-its-silence.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/BoygeniusKingstonEarly240823_%2829_of_45%29_%2853138924957%29_Cropped.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/9/93/Phoebe_Bridgers_at_Marymoor_Park_in_Redmond%2C_WA_01.jpg",
       "tags": [
         "phoebe-bridgers",
         "lost-weekend",
@@ -42,7 +42,8 @@
       "source": "",
       "sourceUrl": "",
       "artistName": "Phoebe Bridgers",
-      "albumName": "Lost Weekend"
+      "albumName": "Lost Weekend",
+      "imageProvider": "Wikimedia"
     },
     {
       "id": "20260624-chelsea-wolfe-announces-ninth-studio-album-with-two-new-tracks",
@@ -52,7 +53,7 @@
       "genre": "Rock",
       "date": "2026-06-24",
       "url": "articles/20260624-chelsea-wolfe-announces-ninth-studio-album-with-two-new-tracks.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/8/85/Chelsea_Wolfe_%2810034259094%29.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Roskilde_Festival_Chelsea_Wolfe_7_%28crop%29.jpg",
       "tags": [
         "Chelsea Wolfe",
         "New Music",
@@ -92,7 +93,7 @@
       "genre": "Hip-Hop",
       "date": "2026-06-24",
       "url": "articles/20260624-drake-and-the-art-of-disappearing-in-plain-sight.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/8/87/OVOFest_2017%2Bnumerous_artists.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/28/Drake_July_2016.jpg",
       "tags": [
         "drake",
         "hip-hop",
@@ -149,7 +150,7 @@
       "genre": "Rock",
       "date": "2026-06-23",
       "url": "articles/20260623-the-second-act-nobody-saw-coming-everyone-says-hi.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Kaiser_Chiefs_Liverpool_2015.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Kaiser_Chiefs_Ricky_Wilson_Rock_am_Ring.jpg",
       "tags": [
         "everyone-says-hi",
         "indie-rock",
@@ -208,7 +209,7 @@
       "genre": "Hip-Hop",
       "date": "2026-06-23",
       "url": "articles/20260623-missy-elliott-didnt-predict-the-future-she-built-it.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Missy_Elliott_-_Wireless_Festival_2010_%281%29.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Missy_Elliott_2006.jpg",
       "tags": [
         "missy-elliott",
         "hip-hop",
@@ -276,7 +277,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T16:58:10.368041+00:00",
+  "lastUpdated": "2026-06-24T18:23:09.459287+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

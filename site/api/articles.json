@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260624-mike-d-steps-out-alone-and-finds-his-own-room",
+      "title": "Mike D Steps Out Alone, and Finds His Own Room",
+      "deck": "Thank You is not a Beastie Boys record wearing a solo disguise — it is something quieter, stranger, and more considered than that.",
+      "type": "review",
+      "genre": "Hip-Hop",
+      "date": "2026-06-24",
+      "url": "articles/20260624-mike-d-steps-out-alone-and-finds-his-own-room.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Michael_Diamond_2_%28cropped%29.jpg",
+      "tags": [
+        "mike-d",
+        "thank-you",
+        "hip-hop",
+        "beastie-boys",
+        "solo-debut"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Mike D",
+      "albumName": "Thank You"
+    },
+    {
       "id": "20260624-beabadoobee-builds-something-structural-on-pylon",
       "title": "Beabadoobee Builds Something Structural on Pylon",
       "deck": "Her most ambitious and sonically fractured record yet, Pylon finds Beabadoobee locating real tension between softness and siege.",
@@ -297,7 +318,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T21:20:45.542332+00:00",
+  "lastUpdated": "2026-06-24T21:32:37.677510+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

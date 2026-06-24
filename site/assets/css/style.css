@@ -580,10 +580,12 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 .article-hero-image { margin-bottom: 8px; }
 .article-hero-image img {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 72vh;
   object-fit: cover;
   object-position: top;
   filter: saturate(0.8) sepia(0.1) contrast(1.08);
+  display: block;
 }
 
 /* Getty embed widget — responsive 16:9 container */
@@ -647,7 +649,8 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 }
 .article-inline-image img {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 60vh;
   object-fit: cover;
   object-position: top;
   filter: saturate(0.8) sepia(0.1) contrast(1.08);

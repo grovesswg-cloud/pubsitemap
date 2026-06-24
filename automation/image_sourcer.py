@@ -143,12 +143,13 @@ def fetch_wikipedia(query: str) -> dict | None:
         return None
 
 
-def fetch_wikimedia_commons(query: str) -> dict | None:
+def fetch_wikimedia_commons(query: str, prefer_portrait: bool = False) -> dict | None:
     """
     Search Wikimedia Commons directly for a high-resolution artist photo.
     - Requires images at least MIN_IMAGE_WIDTH pixels wide
     - Prefers JPEGs over PNGs (photos vs. graphics)
     - Skips files whose names suggest album covers, logos, or posters
+    - When prefer_portrait=True, portrait images (ratio < 1.1) score higher than wide shots
     - No API key required
     """
     try:
@@ -227,24 +228,31 @@ def fetch_wikimedia_commons(query: str) -> dict | None:
                 'https://commons.wikimedia.org/wiki/' +
                 requests.utils.quote(page.get('title', '').replace(' ', '_'))
             )
+            height  = info.get('height', 0)
             is_jpeg = url.lower().endswith(('.jpg', '.jpeg'))
+            is_portrait = (width / height < 1.1) if height else False
             best_candidates.append({
-                'url':       url,
-                'width':     width,
-                'is_jpeg':   is_jpeg,
-                'credit':    credit,
-                'creditUrl': page_url,
-                'altText':   title,
-                'provider':  'Wikimedia',
+                'url':        url,
+                'width':      width,
+                'height':     height,
+                'is_jpeg':    is_jpeg,
+                'is_portrait': is_portrait,
+                'credit':     credit,
+                'creditUrl':  page_url,
+                'altText':    title,
+                'provider':   'Wikimedia',
             })
 
         if not best_candidates:
             return None
 
-        # Sort: JPEGs first, then by width descending
-        best_candidates.sort(key=lambda x: (x['is_jpeg'], x['width']), reverse=True)
+        # Sort: JPEGs first, then portrait preference when requested, then width descending
+        best_candidates.sort(
+            key=lambda x: (x['is_jpeg'], x['is_portrait'] if prefer_portrait else False, x['width']),
+            reverse=True,
+        )
         best = best_candidates[0]
-        return {k: v for k, v in best.items() if k not in ('width', 'is_jpeg')}
+        return {k: v for k, v in best.items() if k not in ('width', 'height', 'is_jpeg', 'is_portrait')}
 
     except Exception as exc:
         log.warning("Wikimedia Commons error: %s", exc)
@@ -496,16 +504,23 @@ def _try_editorial(query: str) -> dict | None:
     """Try artist-specific sources only: Getty, Wikipedia, Wikimedia Commons, Openverse.
     Stock photo APIs are NOT used here — they return random strangers when
     queried for a specific artist name instead of actual photos of that person.
+
+    HERO IMAGE POLICY: The result of this function is used as the article hero / card
+    thumbnail. It must show the artist as the main subject with their face fully visible.
+    Portrait close-ups are preferred over wide concert/stage shots — those belong inline.
+    Wikimedia Commons search runs with prefer_portrait=True so portrait images score higher
+    when multiple candidates exist.
+
     Priority: Getty editorial (highest quality, requires key) → Wikipedia portrait →
-              Wikimedia Commons hi-res search → Openverse/Wikimedia →
+              Wikimedia Commons hi-res search (portrait-preferred) → Openverse/Wikimedia →
               Openverse/Flickr (last resort).
     """
     return (
-        fetch_getty(query)                                # Best quality — requires GETTY_API_KEY
+        fetch_getty(query)                                         # Best quality — requires GETTY_API_KEY
         or fetch_wikipedia(query)
-        or fetch_wikimedia_commons(query)                 # Direct Commons hi-res search
-        or fetch_openverse(query, exclude_flickr=True)   # Openverse non-Flickr sources
-        or fetch_openverse(query)                         # Flickr only as last resort
+        or fetch_wikimedia_commons(query, prefer_portrait=True)   # Prefer close-up portraits for hero
+        or fetch_openverse(query, exclude_flickr=True)            # Openverse non-Flickr sources
+        or fetch_openverse(query)                                  # Flickr only as last resort
     )
 
 

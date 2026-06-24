@@ -20,7 +20,7 @@ GETTY_API_KEY       = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.
 GOOGLE_INDEXING_KEY = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
 
 # Public domain for sitemap + indexing API (no trailing slash)
-SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'https://lord.music')
+SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'https://lordmedia.live')
 
 # ─── Publication schedule ─────────────────────────────────────────────────────
 PUBLISH_TIMES_UTC = ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00']

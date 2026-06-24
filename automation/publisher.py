@@ -3,11 +3,14 @@ Generates article HTML pages and maintains the articles index.
 """
 import json
 import logging
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from config import ARTICLES_DIR, ARTICLES_JSON, API_DIR
+import requests
+
+from config import ARTICLES_DIR, ARTICLES_JSON, API_DIR, SITE_DIR, GOOGLE_INDEXING_KEY, SITE_DOMAIN
 
 log = logging.getLogger('lord.publisher')
 
@@ -343,6 +346,87 @@ def count_today_by_type(index: dict, article_type: str) -> int:
     )
 
 
+# ─── Sitemap ──────────────────────────────────────────────────────────────────
+
+STATIC_URLS = [
+    ('/', '1.0', 'daily'),
+    ('/sections/features.html', '0.8', 'daily'),
+    ('/sections/reviews.html',  '0.8', 'daily'),
+    ('/sections/bulletin.html', '0.8', 'daily'),
+    ('/sections/about.html',    '0.5', 'monthly'),
+]
+
+def generate_sitemap(index: dict) -> None:
+    """Write site/sitemap.xml from the current article index."""
+    domain = SITE_DOMAIN.rstrip('/')
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+
+    for path, priority, changefreq in STATIC_URLS:
+        lines += [
+            '  <url>',
+            f'    <loc>{domain}{path}</loc>',
+            f'    <changefreq>{changefreq}</changefreq>',
+            f'    <priority>{priority}</priority>',
+            '  </url>',
+        ]
+
+    for article in index.get('articles', []):
+        url_path = article.get('url', '')
+        date     = article.get('date', '')
+        if not url_path:
+            continue
+        lines += [
+            '  <url>',
+            f'    <loc>{domain}/{url_path}</loc>',
+            f'    <lastmod>{date}</lastmod>',
+            '    <changefreq>never</changefreq>',
+            '    <priority>0.7</priority>',
+            '  </url>',
+        ]
+
+    lines.append('</urlset>')
+    sitemap_path = SITE_DIR / 'sitemap.xml'
+    sitemap_path.write_text('\n'.join(lines), encoding='utf-8')
+    log.info("Sitemap written: %d URLs", len(index.get('articles', [])) + len(STATIC_URLS))
+
+
+def ping_google_sitemap() -> None:
+    """Tell Google the sitemap was updated."""
+    sitemap_url = f"{SITE_DOMAIN.rstrip('/')}/sitemap.xml"
+    ping_url = f"https://www.google.com/ping?sitemap={sitemap_url}"
+    try:
+        r = requests.get(ping_url, timeout=10)
+        log.info("Google sitemap ping: %s", r.status_code)
+    except Exception as exc:
+        log.warning("Google sitemap ping failed: %s", exc)
+
+
+def ping_google_indexing(article_url: str) -> None:
+    """Submit a single article URL to the Google Indexing API."""
+    if not GOOGLE_INDEXING_KEY:
+        return
+    try:
+        import google.auth.transport.requests
+        from google.oauth2 import service_account
+
+        creds_info = json.loads(GOOGLE_INDEXING_KEY)
+        creds = service_account.Credentials.from_service_account_info(
+            creds_info,
+            scopes=['https://www.googleapis.com/auth/indexing'],
+        )
+        creds.refresh(google.auth.transport.requests.Request())
+        r = requests.post(
+            'https://indexing.googleapis.com/v3/urlNotifications:publish',
+            headers={'Authorization': f'Bearer {creds.token}'},
+            json={'url': article_url, 'type': 'URL_UPDATED'},
+            timeout=15,
+        )
+        log.info("Google Indexing API: %s %s", r.status_code, article_url)
+    except Exception as exc:
+        log.warning("Google Indexing API failed: %s", exc)
+
+
 # ─── Main publish function ────────────────────────────────────────────────────
 
 def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> dict:
@@ -413,5 +497,11 @@ def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> di
     index['articles'].insert(0, entry)
     save_index(index)
     log.info("Index updated — total articles: %d", len(index['articles']))
+
+    # Regenerate sitemap and notify Google
+    generate_sitemap(index)
+    ping_google_sitemap()
+    full_url = f"{SITE_DOMAIN.rstrip('/')}/{entry['url']}"
+    ping_google_indexing(full_url)
 
     return entry

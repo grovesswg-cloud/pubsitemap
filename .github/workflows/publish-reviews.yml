@@ -54,11 +54,13 @@ jobs:
 
       - name: Run LORD review cycle
         env:
-          ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-          NEWS_API_KEY:        ${{ secrets.NEWS_API_KEY }}
-          PEXELS_API_KEY:      ${{ secrets.PEXELS_API_KEY }}
-          PIXABAY_API_KEY:     ${{ secrets.PIXABAY_API_KEY }}
+          ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
+          UNSPLASH_ACCESS_KEY:  ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          NEWS_API_KEY:         ${{ secrets.NEWS_API_KEY }}
+          PEXELS_API_KEY:       ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY:      ${{ secrets.PIXABAY_API_KEY }}
+          GOOGLE_INDEXING_KEY:  ${{ secrets.GOOGLE_INDEXING_KEY }}
+          SITE_DOMAIN:          ${{ secrets.SITE_DOMAIN }}
         run: |
           cd automation
           python scheduler.py --run-now --type ${{ steps.review_type.outputs.type }}
@@ -67,7 +69,7 @@ jobs:
         run: |
           git config user.name  "LORD Publisher"
           git config user.email "publisher@lord.music"
-          git add site/articles/ site/api/articles.json
+          git add site/articles/ site/api/articles.json site/sitemap.xml
           if git diff --staged --quiet; then
             echo "No new content to commit."
           else

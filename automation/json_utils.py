@@ -4,12 +4,20 @@ import re
 
 
 def strip_fences(text: str) -> str:
-    """Remove markdown code fences Claude may have wrapped the JSON in."""
+    """Remove markdown code fences Claude may have wrapped the JSON in.
+    Handles preamble prose appearing before the opening fence.
+    """
     text = text.strip()
-    if text.startswith('```'):
-        text = re.sub(r'^```(?:json)?\s*', '', text)
-        text = re.sub(r'\s*```$', '', text)
-    return text.strip()
+    # Extract content between fences regardless of leading prose
+    fence_match = re.search(r'```(?:json)?\s*\n?(.*?)```', text, re.DOTALL)
+    if fence_match:
+        return fence_match.group(1).strip()
+    # No fences at all — find first { and last } and extract that range
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1 and end > start:
+        return text[start:end + 1]
+    return text
 
 
 def _fix_string_newlines(text: str) -> str:

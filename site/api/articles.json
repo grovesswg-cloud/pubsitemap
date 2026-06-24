@@ -1,6 +1,31 @@
 {
   "articles": [
     {
+      "id": "20260624-the-offspring-announce-full-line-up-for-crystal-palace-park-show",
+      "title": "The Offspring Announce Full Line-Up for Crystal Palace Park Show",
+      "deck": "Dropkick Murphys, Pennywise, PUP, and Destroy Boys join the California punk veterans for a landmark outdoor event.",
+      "type": "bulletin",
+      "genre": "Rock",
+      "date": "2026-06-24",
+      "url": "articles/20260624-the-offspring-announce-full-line-up-for-crystal-palace-park-show.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/24/Offspring2025Aichi_Cropped.jpg",
+      "tags": [
+        "The Offspring",
+        "Crystal Palace Park",
+        "Punk",
+        "Dropkick Murphys",
+        "Pennywise",
+        "PUP",
+        "Destroy Boys",
+        "Live Music",
+        "London"
+      ],
+      "source": "Music News | First For Music News | NME",
+      "sourceUrl": "https://www.nme.com/news/music/the-offspring-at-crystal-palace-park-see-the-full-stage-times-for-the-full-line-up-3953029?utm_source=rss&utm_medium=rss&utm_campaign=the-offspring-at-crystal-palace-park-see-the-full-stage-times-for-the-full-line-up",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260624-phoebe-bridgers-returns-with-a-record-that-earns-its-silence",
       "title": "Phoebe Bridgers Returns With a Record That Earns Its Silence",
       "deck": "Lost Weekend is not a comeback — it is a reckoning, six years in the making and unwilling to apologize for any of it.",
@@ -251,7 +276,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T16:30:04.629824+00:00",
+  "lastUpdated": "2026-06-24T16:58:10.368041+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

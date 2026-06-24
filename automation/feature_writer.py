@@ -43,11 +43,17 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country",
   "tags": ["artist-name", "genre", "third-tag"],
   "imageQueries": [
-    "MUST use the actual artist/band name — e.g. 'Jim James My Morning Jacket performing' NOT 'folk musician stage'",
-    "MUST use the actual artist/band name — e.g. 'Jim James guitar' or 'My Morning Jacket live concert'",
-    "MUST use the actual artist/band name — e.g. 'Jim James My Morning Jacket crowd' or album/era context with artist named"
+    "MUST name the PRIMARY artist this feature is about — e.g. 'Jim James performing'",
+    "MUST name the SAME primary artist again — e.g. 'Jim James guitar' or 'Jim James live'",
+    "MUST name the SAME primary artist again — e.g. 'Jim James portrait' or 'Jim James concert'"
   ]
 }}
+
+IMAGE RULES — read carefully:
+• Every published photo MUST be of the PRIMARY artist this feature is about — the act the headline names.
+• ALL THREE image queries must name THAT SAME primary artist. Never a photographer, producer, collaborator, festival, or any other act mentioned in the body.
+• Never use generic descriptions ('folk musician stage', 'concert crowd'). Always the real name.
+• The first tag in "tags" MUST be the primary artist's name.
 """
 
 

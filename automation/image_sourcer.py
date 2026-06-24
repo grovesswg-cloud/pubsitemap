@@ -561,29 +561,29 @@ def _try_all(query: str) -> dict | None:
 
 def get_article_image(primary_query: str) -> dict | None:
     """
-    Source one image for an article.
-    Uses editorial sources (Wikipedia, Openverse/Wikimedia) for the artist query.
-    Falls back to stock APIs only with generic music imagery — never artist names —
-    so we never return a random stranger instead of the actual artist.
+    Source one image for an article — editorial sources ONLY.
+
+    Every image LORD publishes must show the actual artist. Stock photo APIs
+    return random strangers, so they are never used: if no editorial photo of
+    the artist is found, we return None and the article renders with a branded
+    placeholder rather than a wrong-person photo.
     """
     image = _try_editorial(primary_query)
     if image:
         return image
 
-    for fallback in MUSIC_FALLBACK_QUERIES:
-        image = _try_stock(fallback)
-        if image:
-            return image
-
-    log.info("No image sourced — article will render with branded placeholder")
+    log.info("No artist photo found — article will render with branded placeholder")
     return None
 
 
 def get_article_images(queries: list[str]) -> list[dict]:
     """
-    Fetch one unique image per query string.
+    Fetch one unique editorial image per query string.
     Used for multi-image articles (features: 3 images, reviews: 2 images).
-    Falls back through music fallbacks if a query returns no result or a duplicate.
+
+    Editorial sources ONLY — no stock fallback. If a query returns no photo of
+    the artist, that slot is simply skipped. A feature with one verified photo
+    of the artist is always better than one padded with random strangers.
     """
     images: list[dict] = []
     used_urls: set[str] = set()
@@ -591,18 +591,9 @@ def get_article_images(queries: list[str]) -> list[dict]:
     for query in queries:
         if not query:
             continue
-        # Try editorial sources with the artist query first
         img = _try_editorial(query)
         if img and img['url'] not in used_urls:
             used_urls.add(img['url'])
             images.append(img)
-            continue
-        # Fall back to stock APIs with generic music queries only
-        for fallback in MUSIC_FALLBACK_QUERIES:
-            img = _try_stock(fallback)
-            if img and img['url'] not in used_urls:
-                used_urls.add(img['url'])
-                images.append(img)
-                break
 
     return images

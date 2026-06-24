@@ -42,9 +42,11 @@ Return ONLY a valid JSON object with these exact keys — no markdown fences, no
   "deck": "One italic-style sentence that frames the story without repeating the headline",
   "body": "<p>Body HTML with <p> tags...</p>",
   "genre": "Single genre label, e.g. Hip-Hop, R&B, Pop, Rock, Jazz, Electronic, Country, Latin, Classical",
-  "tags": ["tag1", "tag2", "tag3"],
-  "imageQuery": "MUST use the actual artist or band name — e.g. 'Olivia Rodrigo performing live' or 'Drake concert stage'. Never use generic descriptions like 'pop singer on stage' or 'concert crowd'."
+  "tags": ["artist-name", "tag2", "tag3"],
+  "imageQuery": "MUST name the PRIMARY artist this story is about — e.g. 'Olivia Rodrigo performing live'. Never a collaborator, producer, festival, or generic description like 'pop singer on stage'."
 }}
+
+IMAGE RULE: The photo MUST be of the primary artist this bulletin is about — the act the headline names — and nobody else. If the story is "Artist X discusses working with Producer Y", the image query is Artist X, never Producer Y. The first tag in "tags" MUST be that primary artist's name.
 """
 
 

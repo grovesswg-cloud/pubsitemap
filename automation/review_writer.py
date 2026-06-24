@@ -52,10 +52,15 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "rating": "Sovereign",
   "tags": ["artist-name", "album-title", "genre"],
   "imageQueries": [
-    "MUST use actual artist + album name — e.g. 'Taylor Swift Midnights' or 'Taylor Swift performing' NOT 'pop singer dark studio'",
-    "MUST use actual artist name — e.g. 'Taylor Swift live concert' or 'Taylor Swift' NOT 'singer vinyl record'"
+    "MUST name the artist whose album this is — e.g. 'Taylor Swift performing'",
+    "MUST name the SAME artist again — e.g. 'Taylor Swift live concert' or 'Taylor Swift portrait'"
   ]
 }}
+
+IMAGE RULES — read carefully:
+• Every published photo MUST be of the artist whose album this is — nobody else.
+• BOTH image queries must name THAT SAME artist. Never a featured guest, producer, festival, or generic description ('pop singer studio', 'vinyl record').
+• The first tag in "tags" MUST be the artist's name.
 """
 
 
@@ -86,10 +91,15 @@ Return ONLY a valid JSON object — no markdown fences, no extra text:
   "rating": "Eternal",
   "tags": ["artist-name", "album-title", "genre", "classic"],
   "imageQueries": [
-    "MUST use actual artist + album name — e.g. 'Lauryn Hill Miseducation' or 'Lauryn Hill performing 1998' NOT 'musician black and white portrait'",
-    "MUST use actual artist name — e.g. 'Lauryn Hill Fugees' or 'Lauryn Hill concert' NOT 'vintage vinyl record'"
+    "MUST name the artist whose album this is — e.g. 'Lauryn Hill performing'",
+    "MUST name the SAME artist again — e.g. 'Lauryn Hill concert' or 'Lauryn Hill portrait'"
   ]
 }}
+
+IMAGE RULES — read carefully:
+• Every published photo MUST be of the artist whose album this is — nobody else.
+• BOTH image queries must name THAT SAME artist. Never a bandmate, producer, festival, or generic description ('musician portrait', 'vintage vinyl').
+• The first tag in "tags" MUST be the artist's name.
 """
 
 

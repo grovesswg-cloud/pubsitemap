@@ -1,6 +1,25 @@
 {
   "articles": [
     {
+      "id": "20260624-chelsea-wolfe-announces-ninth-studio-album-with-two-new-tracks",
+      "title": "Chelsea Wolfe Announces Ninth Studio Album With Two New Tracks",
+      "deck": "The California artist surfaces from silence with 'The Dark' and 'Death Is Not The End,' alongside a transatlantic tour.",
+      "type": "bulletin",
+      "genre": "Rock",
+      "date": "2026-06-24",
+      "url": "articles/20260624-chelsea-wolfe-announces-ninth-studio-album-with-two-new-tracks.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Roskilde_Festival_Chelsea_Wolfe_7_%28crop%29.jpg",
+      "tags": [
+        "Chelsea Wolfe",
+        "New Music",
+        "Tour Announcement"
+      ],
+      "source": "Music News | First For Music News | NME",
+      "sourceUrl": "https://www.nme.com/news/music/chelsea-wolfe-shares-two-new-songs-the-dark-and-death-is-not-the-end-and-announces-us-and-european-tour-buy-tickets-3952951?utm_source=rss&utm_medium=rss&utm_campaign=chelsea-wolfe-shares-two-new-songs-the-dark-and-death-is-not-the-end-and-announces-us-and-european-tour-buy-tickets",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260624-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston",
       "title": "The Strokes Cover The Walkmen's 'Heaven' With Hamilton Leithauser in Boston",
       "deck": "Two pillars of New York indie rock shared a stage to perform one of the movement's most enduring songs.",
@@ -211,7 +230,7 @@
       "imageProvider": "Flickr"
     }
   ],
-  "lastUpdated": "2026-06-24T11:37:42.955978+00:00",
+  "lastUpdated": "2026-06-24T14:27:41.325391+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

@@ -38,10 +38,11 @@ def _get_reviewed_albums(index: dict) -> list[dict]:
     ]
 
 
-def extract_album_from_news(news_items: list[dict]) -> dict | None:
+def extract_album_from_news(news_items: list[dict], reviewed: list[dict] | None = None) -> dict | None:
     """
     Use Claude to identify a current album release from news headlines.
     Returns dict with {artist, album, context, imageQuery} or None.
+    reviewed: list of already-reviewed album dicts to avoid repeating.
     """
     if not news_items:
         return None
@@ -51,9 +52,15 @@ def extract_album_from_news(news_items: list[dict]) -> dict | None:
         for item in news_items[:20]
     )
 
+    already_reviewed = ''
+    if reviewed:
+        already_reviewed = '\n\nAlready covered (do NOT select these artists or albums again):\n' + '\n'.join(
+            f"- {r.get('title', '')}" for r in reviewed[:30]
+        )
+
     prompt = f"""\
 From these music news headlines, identify ONE newly released album worth reviewing.
-Prioritize major artist releases, debut albums, or highly anticipated releases from the current month.
+Prioritize major artist releases, debut albums, or highly anticipated releases from the current month.{already_reviewed}
 
 Headlines:
 {headlines}

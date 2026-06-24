@@ -303,6 +303,23 @@ def is_duplicate(news_title: str, index: dict) -> bool:
     return False
 
 
+def is_artist_covered(artist: str, index: dict, days: int = 30) -> bool:
+    """Return True if any article about this artist was published within the last `days` days."""
+    from datetime import timedelta
+    cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=days)).strftime('%Y-%m-%d')
+    artist_slug = slugify(artist)
+    artist_lower = artist.lower()
+    for entry in index.get('articles', []):
+        if entry.get('date', '') < cutoff:
+            continue
+        for tag in entry.get('tags', []):
+            if artist_slug in tag or tag in artist_slug:
+                return True
+        if artist_lower in entry.get('title', '').lower():
+            return True
+    return False
+
+
 def count_today(index: dict) -> int:
     """Count all articles published today (UTC)."""
     today = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
@@ -366,17 +383,19 @@ def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> di
 
     # Build index entry
     entry = {
-        'id':        filename.replace('.html', ''),
-        'title':     data.get('title', ''),
-        'deck':      data.get('deck', ''),
-        'type':      data.get('type', 'bulletin'),
-        'genre':     data.get('genre', ''),
-        'date':      data.get('date', ''),
-        'url':       f"articles/{filename}",
-        'image':     data.get('image', ''),
-        'tags':      data.get('tags', []),
-        'source':    data.get('source', ''),
-        'sourceUrl': data.get('sourceUrl', ''),
+        'id':         filename.replace('.html', ''),
+        'title':      data.get('title', ''),
+        'deck':       data.get('deck', ''),
+        'type':       data.get('type', 'bulletin'),
+        'genre':      data.get('genre', ''),
+        'date':       data.get('date', ''),
+        'url':        f"articles/{filename}",
+        'image':      data.get('image', ''),
+        'tags':       data.get('tags', []),
+        'source':     data.get('source', ''),
+        'sourceUrl':  data.get('sourceUrl', ''),
+        'artistName': data.get('artistName', ''),
+        'albumName':  data.get('albumName', ''),
     }
 
     # Prepend (newest first)

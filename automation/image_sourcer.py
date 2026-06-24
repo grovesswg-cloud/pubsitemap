@@ -1,20 +1,29 @@
 """LORD Automation — Image Sourcer
 Fetches editorial images from multiple free providers:
-  1. Wikipedia  — official artist portrait from Wikipedia page (no key needed)
-  2. Unsplash   — high-quality editorial photography (requires key)
-  3. Openverse  — CC-licensed content from Flickr, Wikipedia, etc. (no key needed)
-  4. Pixabay    — large CC0 library including concert/artist shots (requires key)
-  5. Pexels     — editorial stock photography fallback (requires key)
-All images are properly attributed to the original photographer and source.
+  1. Wikipedia        — lead artist portrait from their Wikipedia page (no key)
+  2. Wikimedia Commons — direct hi-res search, resolution-filtered (no key)
+  3. Openverse        — CC-licensed Wikimedia/StockSnap content (no key)
+  4. Unsplash         — stock photography for generic fallbacks only (key required)
+  5. Pixabay          — CC0 library for generic fallbacks only (key required)
+  6. Pexels           — stock photography for generic fallbacks only (key required)
+  7. Openverse/Flickr — last resort for artist queries (variable quality)
+
+Stock APIs (Unsplash/Pixabay/Pexels) are NEVER used for artist-specific queries —
+they return random strangers instead of the actual artist.
 """
 import logging
 import random
+import re
 
 import requests
 
 from config import UNSPLASH_ACCESS_KEY, PEXELS_API_KEY, PIXABAY_API_KEY
 
 log = logging.getLogger('lord.images')
+
+# Minimum image width to accept — prevents blurry upscaled images in the hero slot.
+# Article hero is displayed at ~1200px wide (16:9 ratio). 800px is the floor.
+MIN_IMAGE_WIDTH = 800
 
 MUSIC_FALLBACK_QUERIES = [
     'concert stage lights',
@@ -24,26 +33,44 @@ MUSIC_FALLBACK_QUERIES = [
     'musician performance live',
 ]
 
+# Page title patterns that indicate an album/song/tour page rather than an artist bio.
+# Used to skip non-portrait lead images in Wikipedia and Commons searches.
+_SKIP_TITLE_CONTAINS = (
+    '(album)', '(ep)', '(song)', '(single)', '(tour)', '(soundtrack)',
+    '(film)', '(television series)', '(video)', 'discography', 'filmography',
+    'songs written by', 'awards and', 'list of', 'wikipedia:',
+)
+
+
+def _wiki_headers() -> dict:
+    return {
+        'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)',
+        'Referer': 'https://en.wikipedia.org/',
+    }
+
+
+def _is_skip_title(title: str) -> bool:
+    t = title.lower()
+    return any(p in t for p in _SKIP_TITLE_CONTAINS)
+
 
 def fetch_wikipedia(query: str) -> dict | None:
     """
     Fetch the lead image from a Wikipedia article matching the query.
-    Uses Wikipedia's search + summary APIs — no key required.
-    Best for artist/band portraits (returns the exact photo on their Wikipedia page).
+    Skips album/tour/song pages so the result is always an artist portrait.
     """
     try:
-        # Step 1: search Wikipedia for the most relevant article
         search_resp = requests.get(
             'https://en.wikipedia.org/w/api.php',
             params={
-                'action':    'query',
-                'list':      'search',
-                'srsearch':  query,
+                'action':      'query',
+                'list':        'search',
+                'srsearch':    query,
                 'srnamespace': 0,
-                'srlimit':   3,
-                'format':    'json',
+                'srlimit':     5,
+                'format':      'json',
             },
-            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)', 'Referer': 'https://en.wikipedia.org/'},
+            headers=_wiki_headers(),
             timeout=10,
         )
         if search_resp.status_code != 200:
@@ -53,19 +80,18 @@ def fetch_wikipedia(query: str) -> dict | None:
         if not results:
             return None
 
-        # Skip list/disambiguation pages — pick the first real article
-        skip_prefixes = ('list of', 'discography', 'filmography', 'bibliography',
-                         'songs written', 'awards and', 'wikipedia:')
+        # Pick the first result whose title looks like an artist/person page
         title = None
         for r in results:
-            if not any(r['title'].lower().startswith(p) for p in skip_prefixes):
+            if not _is_skip_title(r['title']):
                 title = r['title']
                 break
         if not title:
-            title = results[0]['title']  # fallback: take whatever we have
+            title = results[0]['title']
+
         summary_resp = requests.get(
             f'https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(title)}',
-            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)', 'Referer': 'https://en.wikipedia.org/'},
+            headers=_wiki_headers(),
             timeout=10,
         )
         if summary_resp.status_code != 200:
@@ -76,19 +102,20 @@ def fetch_wikipedia(query: str) -> dict | None:
         if not thumbnail:
             return None
 
-        # Use the original full-resolution file by stripping /thumb/ and size prefix.
-        # Requesting 1200px thumbnails returns 400 when the original is smaller.
+        # Skip if the thumbnail itself is tiny — indicates a low-res original
+        if thumbnail.get('width', 0) < 200:
+            return None
+
+        # Strip /thumb/ prefix to get the original full-resolution file
         thumb_url = thumbnail['source']
-        import re
-        # https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/File.jpg/320px-File.jpg
-        # →  https://upload.wikimedia.org/wikipedia/commons/a/ab/File.jpg
         m = re.match(
             r'(https://upload\.wikimedia\.org/wikipedia/[^/]+)/thumb(/[^/]+/[^/]+/[^/]+)/\d+px-.+',
             thumb_url,
         )
         full_url = (m.group(1) + m.group(2)) if m else thumb_url
 
-        page_url = page.get('content_urls', {}).get('desktop', {}).get('page', f'https://en.wikipedia.org/wiki/{title}')
+        page_url = page.get('content_urls', {}).get('desktop', {}).get('page',
+                   f'https://en.wikipedia.org/wiki/{title}')
 
         return {
             'url':       full_url,
@@ -98,6 +125,117 @@ def fetch_wikipedia(query: str) -> dict | None:
             'altText':   page.get('description') or title,
             'provider':  'Wikipedia',
         }
+    except Exception as exc:
+        log.warning("Wikipedia error: %s", exc)
+        return None
+
+
+def fetch_wikimedia_commons(query: str) -> dict | None:
+    """
+    Search Wikimedia Commons directly for a high-resolution artist photo.
+    - Requires images at least MIN_IMAGE_WIDTH pixels wide
+    - Prefers JPEGs over PNGs (photos vs. graphics)
+    - Skips files whose names suggest album covers, logos, or posters
+    - No API key required
+    """
+    try:
+        # Search for files in the File: namespace
+        search_resp = requests.get(
+            'https://commons.wikimedia.org/w/api.php',
+            params={
+                'action':      'query',
+                'list':        'search',
+                'srsearch':    f'{query} filetype:bitmap',
+                'srnamespace': 6,
+                'srlimit':     15,
+                'format':      'json',
+            },
+            headers=_wiki_headers(),
+            timeout=10,
+        )
+        if search_resp.status_code != 200:
+            return None
+
+        results = search_resp.json().get('query', {}).get('search', [])
+        if not results:
+            return None
+
+        # Filter out non-photo filenames upfront
+        _skip_file_keywords = (
+            'logo', 'signature', ' sig.', 'icon', 'album', 'cover',
+            'poster', 'artwork', 'single', 'promo', 'flag', 'coat_of',
+        )
+        candidates_titles = []
+        for r in results:
+            title_lower = r['title'].lower()
+            if not any(kw in title_lower for kw in _skip_file_keywords):
+                candidates_titles.append(r['title'])
+
+        if not candidates_titles:
+            return None
+
+        # Batch-fetch dimensions + URL
+        info_resp = requests.get(
+            'https://commons.wikimedia.org/w/api.php',
+            params={
+                'action':  'query',
+                'titles':  '|'.join(candidates_titles[:10]),
+                'prop':    'imageinfo',
+                'iiprop':  'url|size|extmetadata',
+                'format':  'json',
+            },
+            headers=_wiki_headers(),
+            timeout=10,
+        )
+        if info_resp.status_code != 200:
+            return None
+
+        pages = info_resp.json().get('query', {}).get('pages', {})
+
+        best_candidates = []
+        for page in pages.values():
+            info = page.get('imageinfo', [{}])[0]
+            url   = info.get('url', '')
+            width = info.get('width', 0)
+
+            # Require minimum resolution
+            if width < MIN_IMAGE_WIDTH:
+                continue
+            # Prefer JPEGs (photographs), tolerate PNG if large enough
+            if url.lower().endswith('.svg'):
+                continue
+
+            meta     = info.get('extmetadata', {})
+            raw_cred = meta.get('Artist', {}).get('value', '') or \
+                       meta.get('Credit', {}).get('value', '') or ''
+            credit   = re.sub(r'<[^>]+>', '', raw_cred).strip() or 'Wikimedia Commons'
+            title    = page.get('title', 'File:photo').replace('File:', '')
+            page_url = (
+                'https://commons.wikimedia.org/wiki/' +
+                requests.utils.quote(page.get('title', '').replace(' ', '_'))
+            )
+            is_jpeg = url.lower().endswith(('.jpg', '.jpeg'))
+            best_candidates.append({
+                'url':       url,
+                'width':     width,
+                'is_jpeg':   is_jpeg,
+                'credit':    credit,
+                'creditUrl': page_url,
+                'altText':   title,
+                'provider':  'Wikimedia',
+            })
+
+        if not best_candidates:
+            return None
+
+        # Sort: JPEGs first, then by width descending
+        best_candidates.sort(key=lambda x: (x['is_jpeg'], x['width']), reverse=True)
+        best = best_candidates[0]
+        return {k: v for k, v in best.items() if k not in ('width', 'is_jpeg')}
+
+    except Exception as exc:
+        log.warning("Wikimedia Commons error: %s", exc)
+        return None
     except Exception as exc:
         log.warning("Wikipedia error: %s", exc)
         return None
@@ -270,14 +408,17 @@ def fetch_pexels(query: str) -> dict | None:
 
 
 def _try_editorial(query: str) -> dict | None:
-    """Try artist-specific sources only: Wikipedia and Openverse/Wikimedia.
+    """Try artist-specific sources only: Wikipedia, Wikimedia Commons, Openverse.
     Stock photo APIs are NOT used here — they return random strangers when
     queried for a specific artist name instead of actual photos of that person.
+    Priority: Wikipedia portrait → Wikimedia Commons hi-res search →
+              Openverse/Wikimedia → Openverse/Flickr (last resort).
     """
     return (
         fetch_wikipedia(query)
-        or fetch_openverse(query, exclude_flickr=True)   # Wikimedia Commons/StockSnap
-        or fetch_openverse(query)                         # Flickr as last resort
+        or fetch_wikimedia_commons(query)                 # Direct Commons hi-res search
+        or fetch_openverse(query, exclude_flickr=True)   # Openverse non-Flickr sources
+        or fetch_openverse(query)                         # Flickr only as last resort
     )
 
 

@@ -27,7 +27,7 @@
       "genre": "Rock",
       "date": "2026-06-24",
       "url": "articles/20260624-chelsea-wolfe-announces-ninth-studio-album-with-two-new-tracks.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Roskilde_Festival_Chelsea_Wolfe_7_%28crop%29.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/8/85/Chelsea_Wolfe_%2810034259094%29.jpg",
       "tags": [
         "Chelsea Wolfe",
         "New Music",
@@ -36,7 +36,8 @@
       "source": "Music News | First For Music News | NME",
       "sourceUrl": "https://www.nme.com/news/music/chelsea-wolfe-shares-two-new-songs-the-dark-and-death-is-not-the-end-and-announces-us-and-european-tour-buy-tickets-3952951?utm_source=rss&utm_medium=rss&utm_campaign=chelsea-wolfe-shares-two-new-songs-the-dark-and-death-is-not-the-end-and-announces-us-and-european-tour-buy-tickets",
       "artistName": "",
-      "albumName": ""
+      "albumName": "",
+      "imageProvider": "Wikimedia"
     },
     {
       "id": "20260624-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston",
@@ -123,7 +124,7 @@
       "genre": "Rock",
       "date": "2026-06-23",
       "url": "articles/20260623-the-second-act-nobody-saw-coming-everyone-says-hi.html",
-      "image": "https://upload.wikimedia.org/wikipedia/en/6/67/Everyone_says_hi.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Kaiser_Chiefs_Liverpool_2015.jpg",
       "tags": [
         "everyone-says-hi",
         "indie-rock",
@@ -134,7 +135,7 @@
       ],
       "source": "Music News | First For Music News | NME",
       "sourceUrl": "https://www.nme.com/news/music/everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows-3952688?utm_source=rss&utm_medium=rss&utm_campaign=everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows",
-      "imageProvider": "Wikipedia"
+      "imageProvider": "Wikimedia"
     },
     {
       "id": "20260623-swavay-discusses-metro-boomin-collaboration-and-upcoming-tour",
@@ -235,7 +236,7 @@
       "type": "bulletin",
       "date": "2026-06-23",
       "url": "articles/20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Glasto2025-546_%28cropped%29_%282%29.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/64/OlivaRO230724_ATL_Ballad_of_a_Homeschooled_Girl.jpg",
       "tags": [
         "Olivia Rodrigo",
         "Daisy Chain Fields",
@@ -247,10 +248,10 @@
       ],
       "source": "Music News",
       "sourceUrl": "https://www.rollingstone.com/music/music-news/olivia-rodrigo-daisy-chain-fest-bikini-kill-chappell-roan-1235581562/",
-      "imageProvider": "Flickr"
+      "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T16:07:43.008907+00:00",
+  "lastUpdated": "2026-06-24T16:30:04.629824+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

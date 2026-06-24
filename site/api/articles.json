@@ -1,6 +1,25 @@
 {
   "articles": [
     {
+      "id": "20260624-becky-hill-has-always-been-right-there-hiding-in-plain-sight",
+      "title": "Becky Hill Has Always Been Right There, Hiding in Plain Sight",
+      "deck": "Pop's most durable voice keeps being mistaken for a service industry, and that misreading says more about us than it does about her.",
+      "type": "feature",
+      "genre": "Pop",
+      "date": "2026-06-24",
+      "url": "articles/20260624-becky-hill-has-always-been-right-there-hiding-in-plain-sight.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Becky_Hill_at_Capitol_Hill_Block_Party_%28cropped%29.jpg",
+      "tags": [
+        "becky-hill",
+        "pop",
+        "uk-dance-pop"
+      ],
+      "source": "Music News | First For Music News | NME",
+      "sourceUrl": "https://www.nme.com/news/music/becky-hill-addresses-being-booed-for-surprise-new-music-set-at-trnsmt-im-not-a-jukebox-im-an-artist-3953052?utm_source=rss&utm_medium=rss&utm_campaign=becky-hill-addresses-being-booed-for-surprise-new-music-set-at-trnsmt-im-not-a-jukebox-im-an-artist",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260624-mike-d-steps-out-alone-and-finds-his-own-room",
       "title": "Mike D Steps Out Alone, and Finds His Own Room",
       "deck": "Thank You is not a Beastie Boys record wearing a solo disguise — it is something quieter, stranger, and more considered than that.",
@@ -318,7 +337,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T21:32:37.677510+00:00",
+  "lastUpdated": "2026-06-24T21:46:21.539994+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

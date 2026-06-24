@@ -47,7 +47,7 @@
       "genre": "Hip-Hop",
       "date": "2026-06-24",
       "url": "articles/20260624-drake-and-the-art-of-disappearing-in-plain-sight.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/1/15/Drake_at_The_Carter_Effect_2017_%2836818935200%29_%28cropped%29.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/8/87/OVOFest_2017%2Bnumerous_artists.jpg",
       "tags": [
         "drake",
         "hip-hop",
@@ -55,7 +55,7 @@
       ],
       "source": "Hypebeast",
       "sourceUrl": "https://hypebeast.com/2026/6/everything-we-loved-in-music-this-week-june-19-drake-ken-carson-xperiment-isaiah-rashad-north-west",
-      "imageProvider": "Wikipedia"
+      "imageProvider": "Wikimedia"
     },
     {
       "id": "20260624-turnstile-announce-2026-north-american-tour-with-eclectic-opener-lineup",
@@ -163,14 +163,15 @@
       "genre": "Hip-Hop",
       "date": "2026-06-23",
       "url": "articles/20260623-missy-elliott-didnt-predict-the-future-she-built-it.html",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/7/77/Missy_Elliot.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Missy_Elliott_-_Wireless_Festival_2010_%281%29.jpg",
       "tags": [
         "missy-elliott",
         "hip-hop",
         "visionary"
       ],
       "source": "Music News",
-      "sourceUrl": "https://www.rollingstone.com/music/music-news/missy-elliott-visionary-icon-award-culture-creators-1235581836/"
+      "sourceUrl": "https://www.rollingstone.com/music/music-news/missy-elliott-visionary-icon-award-culture-creators-1235581836/",
+      "imageProvider": "Wikimedia"
     },
     {
       "id": "20260623-jim-james-returns-from-the-archive-with-something-alive",

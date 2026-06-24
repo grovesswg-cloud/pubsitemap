@@ -586,6 +586,24 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   filter: saturate(0.8) sepia(0.1) contrast(1.08);
 }
 
+/* Getty embed widget — responsive 16:9 container */
+.article-hero-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--ink);
+  margin-bottom: 8px;
+}
+.article-hero-embed iframe,
+.article-hero-embed > div {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}
+
 .article-image-credit {
   font-family: var(--font-ui);
   font-size: 0.5rem;

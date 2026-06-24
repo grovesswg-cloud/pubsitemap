@@ -17,7 +17,7 @@ import re
 
 import requests
 
-from config import UNSPLASH_ACCESS_KEY, PEXELS_API_KEY, PIXABAY_API_KEY
+from config import UNSPLASH_ACCESS_KEY, PEXELS_API_KEY, PIXABAY_API_KEY, GETTY_API_KEY
 
 log = logging.getLogger('lord.images')
 
@@ -80,34 +80,47 @@ def fetch_wikipedia(query: str) -> dict | None:
         if not results:
             return None
 
-        # Pick the first result whose title looks like an artist/person page
-        title = None
-        for r in results:
-            if not _is_skip_title(r['title']):
-                title = r['title']
-                break
-        if not title:
-            title = results[0]['title']
-
-        summary_resp = requests.get(
-            f'https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(title)}',
-            headers=_wiki_headers(),
-            timeout=10,
+        # Descriptions that indicate the page is about a song/release, not a person/band
+        _SKIP_DESC_WORDS = (
+            ' song', ' single', ' album', ' ep ', ' soundtrack', ' compilation',
+            ' track', ' remix', ' video', ' film ', ' movie', ' game ',
         )
-        if summary_resp.status_code != 200:
-            return None
 
-        page = summary_resp.json()
-        thumbnail = page.get('thumbnail')
-        if not thumbnail:
-            return None
+        # Try each result until we find a valid artist/band page with a usable image
+        for r in results:
+            if _is_skip_title(r['title']):
+                continue
 
-        # Skip if the thumbnail itself is tiny — indicates a low-res original
-        if thumbnail.get('width', 0) < 200:
-            return None
+            summary_resp = requests.get(
+                f'https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(r["title"])}',
+                headers=_wiki_headers(),
+                timeout=10,
+            )
+            if summary_resp.status_code != 200:
+                continue
+
+            page = summary_resp.json()
+
+            # Skip pages whose description reveals it's a release, not an artist
+            desc_lower = (page.get('description') or '').lower()
+            if any(w in desc_lower for w in _SKIP_DESC_WORDS):
+                continue
+
+            thumbnail = page.get('thumbnail')
+            if not thumbnail:
+                continue
+
+            # Skip if the thumbnail itself is tiny — indicates a low-res original
+            if thumbnail.get('width', 0) < 200:
+                continue
+
+            title = r['title']
+            break
+        else:
+            return None  # no usable artist page found
 
         # Strip /thumb/ prefix to get the original full-resolution file
-        thumb_url = thumbnail['source']
+        thumb_url = thumbnail['source']  # type: ignore[index]  # set in loop above
         m = re.match(
             r'(https://upload\.wikimedia\.org/wikipedia/[^/]+)/thumb(/[^/]+/[^/]+/[^/]+)/\d+px-.+',
             thumb_url,
@@ -236,8 +249,80 @@ def fetch_wikimedia_commons(query: str) -> dict | None:
     except Exception as exc:
         log.warning("Wikimedia Commons error: %s", exc)
         return None
+
+
+def fetch_getty(query: str) -> dict | None:
+    """
+    Search Getty Images Editorial API and return an embeddable image dict.
+    Requires GETTY_API_KEY. Returns embedType='getty' with the oEmbed HTML snippet.
+    Free editorial embeds — displayed with Getty watermark/attribution widget.
+    """
+    if not GETTY_API_KEY:
+        return None
+    try:
+        search_resp = requests.get(
+            'https://api.gettyimages.com/v3/search/images/editorial',
+            params={
+                'phrase':              query,
+                'fields':              'id,title,display_sizes',
+                'page_size':           5,
+                'editorial_segments':  'news',
+                'sort_order':          'most_popular',
+            },
+            headers={'Api-Key': GETTY_API_KEY},
+            timeout=10,
+        )
+        if search_resp.status_code != 200:
+            log.warning("Getty search %s for '%s'", search_resp.status_code, query)
+            return None
+
+        images = search_resp.json().get('images', [])
+        if not images:
+            return None
+
+        image   = images[0]
+        img_id  = image['id']
+        title   = image.get('title', query)
+
+        # Resolve the embed HTML via Getty's oEmbed endpoint (no API key needed here)
+        oembed_resp = requests.get(
+            'https://embed.gettyimages.com/oembed',
+            params={
+                'url':    f'https://www.gettyimages.com/detail/{img_id}',
+                'format': 'json',
+            },
+            timeout=10,
+        )
+        if oembed_resp.status_code != 200:
+            log.warning("Getty oEmbed %s for id %s", oembed_resp.status_code, img_id)
+            return None
+
+        embed_html = oembed_resp.json().get('html', '')
+        if not embed_html:
+            return None
+
+        # Pull the best available display thumbnail for og:image / index preview
+        thumb_url = ''
+        for size_name in ('comp', 'preview', 'thumb'):
+            for size in image.get('display_sizes', []):
+                if size.get('name') == size_name:
+                    thumb_url = size.get('uri', '')
+                    break
+            if thumb_url:
+                break
+
+        return {
+            'embedType': 'getty',
+            'embedHtml': embed_html,
+            'url':       thumb_url,
+            'thumbUrl':  thumb_url,
+            'credit':    'Getty Images',
+            'creditUrl': f'https://www.gettyimages.com/detail/{img_id}',
+            'altText':   title,
+            'provider':  'Getty',
+        }
     except Exception as exc:
-        log.warning("Wikipedia error: %s", exc)
+        log.warning("Getty error: %s", exc)
         return None
 
 
@@ -408,14 +493,16 @@ def fetch_pexels(query: str) -> dict | None:
 
 
 def _try_editorial(query: str) -> dict | None:
-    """Try artist-specific sources only: Wikipedia, Wikimedia Commons, Openverse.
+    """Try artist-specific sources only: Getty, Wikipedia, Wikimedia Commons, Openverse.
     Stock photo APIs are NOT used here — they return random strangers when
     queried for a specific artist name instead of actual photos of that person.
-    Priority: Wikipedia portrait → Wikimedia Commons hi-res search →
-              Openverse/Wikimedia → Openverse/Flickr (last resort).
+    Priority: Getty editorial (highest quality, requires key) → Wikipedia portrait →
+              Wikimedia Commons hi-res search → Openverse/Wikimedia →
+              Openverse/Flickr (last resort).
     """
     return (
-        fetch_wikipedia(query)
+        fetch_getty(query)                                # Best quality — requires GETTY_API_KEY
+        or fetch_wikipedia(query)
         or fetch_wikimedia_commons(query)                 # Direct Commons hi-res search
         or fetch_openverse(query, exclude_flickr=True)   # Openverse non-Flickr sources
         or fetch_openverse(query)                         # Flickr only as last resort

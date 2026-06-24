@@ -19,7 +19,7 @@ from feature_writer import write_feature
 from review_writer import write_review, write_classic_review
 from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums
 from image_sourcer import get_article_image, get_article_images
-from publisher import publish_article, load_index, is_duplicate, count_today, count_today_by_type
+from publisher import publish_article, load_index, is_duplicate, is_artist_covered, count_today, count_today_by_type
 
 logging.basicConfig(
     level=logging.INFO,
@@ -99,6 +99,12 @@ def run_cycle() -> bool:
         article_data = write_bulletin(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
+        # Check artist-level duplicate after writing
+        for tag in article_data.get('tags', []):
+            if is_artist_covered(tag, index):
+                log.info("Artist '%s' already covered recently — skipping bulletin.", tag)
+                return False
+
         images = _source_images(article_data)
         entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
@@ -146,6 +152,12 @@ def feature_cycle() -> bool:
         article_data = write_feature(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
+        # Check artist-level duplicate after writing (artist is in tags)
+        for tag in article_data.get('tags', []):
+            if is_artist_covered(tag, index):
+                log.info("Artist '%s' already covered recently — skipping feature.", tag)
+                return False
+
         images = _source_images(article_data, 'musician portrait studio')
         entry = publish_article(article_data, images)
         log.info("Published feature: %s", entry['url'])
@@ -183,10 +195,14 @@ def review_cycle() -> bool:
         log.info("Albums already reviewed: %d", len(reviewed))
 
         log.info("Identifying current album from news...")
-        album_info = extract_album_from_news(news_items)
+        album_info = extract_album_from_news(news_items, reviewed=reviewed)
 
         if not album_info:
             log.warning("Could not identify a current album from news — review cycle aborted.")
+            return False
+
+        if is_artist_covered(album_info['artist'], index):
+            log.info("Artist '%s' already covered recently — skipping review.", album_info['artist'])
             return False
 
         log.info("Writing review: %s — %s", album_info['artist'], album_info['album'])

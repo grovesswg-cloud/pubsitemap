@@ -1,6 +1,25 @@
 {
   "articles": [
     {
+      "id": "20260624-beabadoobee-builds-something-structural-on-pylon",
+      "title": "Beabadoobee Builds Something Structural on Pylon",
+      "deck": "Her most ambitious and sonically fractured record yet, Pylon finds Beabadoobee locating real tension between softness and siege.",
+      "type": "review",
+      "genre": "Rock",
+      "date": "2026-06-24",
+      "url": "articles/20260624-beabadoobee-builds-something-structural-on-pylon.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/d/dc/MitskiAPE180824_%2813_of_116%29_%2853941099308%29_%28cropped_2%29.jpg",
+      "tags": [
+        "beabadoobee",
+        "pylon",
+        "indie-rock"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Beabadoobee",
+      "albumName": "Pylon"
+    },
+    {
       "id": "20260624-the-offspring-announce-full-line-up-for-crystal-palace-park-show",
       "title": "The Offspring Announce Full Line-Up for Crystal Palace Park Show",
       "deck": "Dropkick Murphys, Pennywise, PUP, and Destroy Boys join the California punk veterans for a landmark outdoor event.",
@@ -29,7 +48,7 @@
     {
       "id": "20260624-phoebe-bridgers-returns-with-a-record-that-earns-its-silence",
       "title": "Phoebe Bridgers Returns With a Record That Earns Its Silence",
-      "deck": "Lost Weekend is not a comeback \u2014 it is a reckoning, six years in the making and unwilling to apologize for any of it.",
+      "deck": "Lost Weekend is not a comeback — it is a reckoning, six years in the making and unwilling to apologize for any of it.",
       "type": "review",
       "genre": "Folk",
       "date": "2026-06-24",
@@ -89,7 +108,7 @@
     {
       "id": "20260624-drake-and-the-art-of-disappearing-in-plain-sight",
       "title": "Drake and the Art of Disappearing in Plain Sight",
-      "deck": "The SoundCloud drop is not a retreat. It is a philosophy \u2014 and it has always been.",
+      "deck": "The SoundCloud drop is not a retreat. It is a philosophy — and it has always been.",
       "type": "feature",
       "genre": "Hip-Hop",
       "date": "2026-06-24",
@@ -205,7 +224,7 @@
     {
       "id": "20260623-missy-elliott-didnt-predict-the-future-she-built-it",
       "title": "Missy Elliott Didn't Predict the Future. She Built It.",
-      "deck": "While the industry debated whether she belonged, Missy Elliott was already decades ahead \u2014 and the record, at last, is catching up.",
+      "deck": "While the industry debated whether she belonged, Missy Elliott was already decades ahead — and the record, at last, is catching up.",
       "type": "feature",
       "genre": "Hip-Hop",
       "date": "2026-06-23",
@@ -223,7 +242,7 @@
     {
       "id": "20260623-jim-james-returns-from-the-archive-with-something-alive",
       "title": "Jim James Returns From the Archive With Something Alive",
-      "deck": "Wowed Out is not a resurrection \u2014 it is a reclamation, and the difference is everything.",
+      "deck": "Wowed Out is not a resurrection — it is a reclamation, and the difference is everything.",
       "type": "review",
       "date": "2026-06-23",
       "url": "articles/20260623-jim-james-returns-from-the-archive-with-something-alive.html",
@@ -242,7 +261,7 @@
     {
       "id": "20260623-conor-oberst-has-always-been-writing-the-same-confession",
       "title": "Conor Oberst Has Always Been Writing the Same Confession",
-      "deck": "Bright Eyes built a career on the illusion of impermanence \u2014 and the tour that shouldn't matter somehow does.",
+      "deck": "Bright Eyes built a career on the illusion of impermanence — and the tour that shouldn't matter somehow does.",
       "type": "feature",
       "date": "2026-06-23",
       "url": "articles/20260623-conor-oberst-has-always-been-writing-the-same-confession.html",
@@ -259,7 +278,7 @@
     {
       "id": "20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival",
       "title": "Olivia Rodrigo Announces Daisy Chain Fields, an All-Women Music Festival",
-      "deck": "The debut lineup spans five decades of women in rock, pop, and punk \u2014 from Bikini Kill to Chappell Roan.",
+      "deck": "The debut lineup spans five decades of women in rock, pop, and punk — from Bikini Kill to Chappell Roan.",
       "type": "bulletin",
       "date": "2026-06-23",
       "url": "articles/20260623-olivia-rodrigo-announces-daisy-chain-fields-an-all-women-music-festival.html",
@@ -278,7 +297,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T18:23:09.459287+00:00",
+  "lastUpdated": "2026-06-24T21:20:45.542332+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

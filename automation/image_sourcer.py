@@ -43,7 +43,7 @@ def fetch_wikipedia(query: str) -> dict | None:
                 'srlimit':   3,
                 'format':    'json',
             },
-            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)'},
+            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)', 'Referer': 'https://en.wikipedia.org/'},
             timeout=10,
         )
         if search_resp.status_code != 200:
@@ -65,7 +65,7 @@ def fetch_wikipedia(query: str) -> dict | None:
             title = results[0]['title']  # fallback: take whatever we have
         summary_resp = requests.get(
             f'https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(title)}',
-            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)'},
+            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)', 'Referer': 'https://en.wikipedia.org/'},
             timeout=10,
         )
         if summary_resp.status_code != 200:
@@ -269,31 +269,45 @@ def fetch_pexels(query: str) -> dict | None:
         return None
 
 
-def _try_all(query: str) -> dict | None:
-    """Try all configured providers in priority order for a single query.
-    Flickr (via Openverse) is last resort due to variable image quality.
+def _try_editorial(query: str) -> dict | None:
+    """Try artist-specific sources only: Wikipedia and Openverse/Wikimedia.
+    Stock photo APIs are NOT used here — they return random strangers when
+    queried for a specific artist name instead of actual photos of that person.
     """
     return (
         fetch_wikipedia(query)
-        or fetch_unsplash(query)
-        or fetch_openverse(query, exclude_flickr=True)   # Wikimedia/StockSnap first
+        or fetch_openverse(query, exclude_flickr=True)   # Wikimedia Commons/StockSnap
+        or fetch_openverse(query)                         # Flickr as last resort
+    )
+
+
+def _try_stock(query: str) -> dict | None:
+    """Try stock photo APIs. Only suitable for generic music queries, never artist names."""
+    return (
+        fetch_unsplash(query)
         or fetch_pixabay(query)
         or fetch_pexels(query)
-        or fetch_openverse(query)                         # Flickr only as last resort
     )
+
+
+def _try_all(query: str) -> dict | None:
+    """Try editorial sources first, then stock APIs as a fallback."""
+    return _try_editorial(query) or _try_stock(query)
 
 
 def get_article_image(primary_query: str) -> dict | None:
     """
     Source one image for an article.
-    Priority: Unsplash → Openverse → Pixabay → Pexels → music fallbacks.
+    Uses editorial sources (Wikipedia, Openverse/Wikimedia) for the artist query.
+    Falls back to stock APIs only with generic music imagery — never artist names —
+    so we never return a random stranger instead of the actual artist.
     """
-    image = _try_all(primary_query)
+    image = _try_editorial(primary_query)
     if image:
         return image
 
     for fallback in MUSIC_FALLBACK_QUERIES:
-        image = _try_all(fallback)
+        image = _try_stock(fallback)
         if image:
             return image
 
@@ -313,8 +327,15 @@ def get_article_images(queries: list[str]) -> list[dict]:
     for query in queries:
         if not query:
             continue
-        for attempt in [query] + MUSIC_FALLBACK_QUERIES:
-            img = _try_all(attempt)
+        # Try editorial sources with the artist query first
+        img = _try_editorial(query)
+        if img and img['url'] not in used_urls:
+            used_urls.add(img['url'])
+            images.append(img)
+            continue
+        # Fall back to stock APIs with generic music queries only
+        for fallback in MUSIC_FALLBACK_QUERIES:
+            img = _try_stock(fallback)
             if img and img['url'] not in used_urls:
                 used_urls.add(img['url'])
                 images.append(img)

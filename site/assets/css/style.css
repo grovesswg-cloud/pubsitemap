@@ -333,6 +333,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  object-position: center 20%;
   filter: saturate(0.75) sepia(0.12) contrast(1.08);
   transition: filter 0.35s, transform 0.35s;
 }

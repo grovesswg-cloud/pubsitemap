@@ -6,6 +6,7 @@ import logging
 import re
 
 from config import ANTHROPIC_MODEL, ANTHROPIC_API_KEY, LORD_VOICE
+from json_utils import parse_writer_json
 
 log = logging.getLogger('lord.feature')
 
@@ -88,13 +89,11 @@ Write as if this is the definitive piece on this subject for the archive."""
     )
 
     raw = message.content[0].text
-    cleaned = _strip_fences(raw)
-
     try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError as exc:
+        data = parse_writer_json(raw)
+    except ValueError as exc:
         log.error("JSON parse failed for feature. Raw:\n%s", raw[:500])
-        raise ValueError(f"Feature writer returned invalid JSON: {exc}") from exc
+        raise
 
     data['type'] = 'feature'
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')

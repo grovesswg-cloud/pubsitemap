@@ -99,12 +99,6 @@ def run_cycle() -> bool:
         article_data = write_bulletin(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
-        # Check artist-level duplicate after writing
-        for tag in article_data.get('tags', []):
-            if is_artist_covered(tag, index):
-                log.info("Artist '%s' already covered recently — skipping bulletin.", tag)
-                return False
-
         images = _source_images(article_data)
         entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
@@ -152,10 +146,10 @@ def feature_cycle() -> bool:
         article_data = write_feature(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
-        # Check artist-level duplicate after writing (artist is in tags)
+        # Skip if same artist was featured within the last 7 days
         for tag in article_data.get('tags', []):
-            if is_artist_covered(tag, index):
-                log.info("Artist '%s' already covered recently — skipping feature.", tag)
+            if is_artist_covered(tag, index, days=7):
+                log.info("Artist '%s' featured recently — skipping duplicate feature.", tag)
                 return False
 
         images = _source_images(article_data, 'musician portrait studio')

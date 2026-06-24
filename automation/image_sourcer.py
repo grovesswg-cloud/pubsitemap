@@ -43,7 +43,7 @@ def fetch_wikipedia(query: str) -> dict | None:
                 'srlimit':   3,
                 'format':    'json',
             },
-            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)'},
+            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)', 'Referer': 'https://en.wikipedia.org/'},
             timeout=10,
         )
         if search_resp.status_code != 200:
@@ -65,7 +65,7 @@ def fetch_wikipedia(query: str) -> dict | None:
             title = results[0]['title']  # fallback: take whatever we have
         summary_resp = requests.get(
             f'https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(title)}',
-            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)'},
+            headers={'User-Agent': 'LORD-Music-Publication/1.0 (lord.music)', 'Referer': 'https://en.wikipedia.org/'},
             timeout=10,
         )
         if summary_resp.status_code != 200:

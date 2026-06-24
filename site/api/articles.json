@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "id": "20260624-drake-and-the-art-of-disappearing-in-plain-sight",
+      "title": "Drake and the Art of Disappearing in Plain Sight",
+      "deck": "The SoundCloud drop is not a retreat. It is a philosophy — and it has always been.",
+      "type": "feature",
+      "genre": "Hip-Hop",
+      "date": "2026-06-24",
+      "url": "articles/20260624-drake-and-the-art-of-disappearing-in-plain-sight.html",
+      "image": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a1/Drake_2025_tour_poster.jpg/1200px-Drake_2025_tour_poster.jpg",
+      "tags": [
+        "drake",
+        "hip-hop",
+        "ovo-sound"
+      ],
+      "source": "Hypebeast",
+      "sourceUrl": "https://hypebeast.com/2026/6/everything-we-loved-in-music-this-week-june-19-drake-ken-carson-xperiment-isaiah-rashad-north-west"
+    },
+    {
       "id": "20260624-turnstile-announce-2026-north-american-tour-with-eclectic-opener-lineup",
       "title": "Turnstile Announce 2026 North American Tour With Eclectic Opener Lineup",
       "deck": "The Baltimore hardcore band continues its practice of assembling cross-genre bills, this time pairing with Slayyyter, Clipse, and Vince Staples.",
@@ -171,7 +188,7 @@
       "imageProvider": "Flickr"
     }
   ],
-  "lastUpdated": "2026-06-24T09:47:10.615604+00:00",
+  "lastUpdated": "2026-06-24T10:24:36.995212+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

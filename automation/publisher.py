@@ -391,17 +391,6 @@ def generate_sitemap(index: dict) -> None:
     log.info("Sitemap written: %d URLs", len(index.get('articles', [])) + len(STATIC_URLS))
 
 
-def ping_google_sitemap() -> None:
-    """Tell Google the sitemap was updated."""
-    sitemap_url = f"{SITE_DOMAIN.rstrip('/')}/sitemap.xml"
-    ping_url = f"https://www.google.com/ping?sitemap={sitemap_url}"
-    try:
-        r = requests.get(ping_url, timeout=10)
-        log.info("Google sitemap ping: %s", r.status_code)
-    except Exception as exc:
-        log.warning("Google sitemap ping failed: %s", exc)
-
-
 def ping_google_indexing(article_url: str) -> None:
     """Submit a single article URL to the Google Indexing API."""
     if not GOOGLE_INDEXING_KEY:
@@ -498,9 +487,11 @@ def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> di
     save_index(index)
     log.info("Index updated — total articles: %d", len(index['articles']))
 
-    # Regenerate sitemap and notify Google
+    # Regenerate sitemap and notify Google via the Indexing API.
+    # (The legacy sitemap ping endpoint was retired by Google in 2023 and
+    # now always returns 404 — Search Console re-crawls the sitemap on its
+    # own schedule, so we only submit the new URL to the Indexing API.)
     generate_sitemap(index)
-    ping_google_sitemap()
     full_url = f"{SITE_DOMAIN.rstrip('/')}/{entry['url']}"
     ping_google_indexing(full_url)
 

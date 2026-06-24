@@ -80,11 +80,23 @@ def fetch_wikipedia(query: str) -> dict | None:
         if not results:
             return None
 
-        # Descriptions that indicate the page is about a song/release, not a person/band
+        # Descriptions that indicate the page is about a song/release/event, not a person/band
         _SKIP_DESC_WORDS = (
             ' song', ' single', ' album', ' ep ', ' soundtrack', ' compilation',
             ' track', ' remix', ' video', ' film ', ' movie', ' game ',
+            ' tour', ' concert tour', ' festival', ' poster', ' residency',
         )
+
+        # Anchor token: the first meaningful word of the query is the artist/band name.
+        # The matched Wikipedia page MUST mention it, or we reject the result — this
+        # prevents a query like "Beabadoobee arena tour" from matching "The Eras Tour".
+        _STOPWORDS = {'the', 'a', 'an', 'of', 'and', 'live', 'concert',
+                      'performing', 'tour', 'festival', 'stage', 'crowd'}
+        anchor = ''
+        for w in re.findall(r"[a-z0-9']+", query.lower()):
+            if w not in _STOPWORDS:
+                anchor = w
+                break
 
         # Try each result until we find a valid artist/band page with a usable image
         for r in results:
@@ -101,10 +113,19 @@ def fetch_wikipedia(query: str) -> dict | None:
 
             page = summary_resp.json()
 
-            # Skip pages whose description reveals it's a release, not an artist
+            # Skip pages whose description reveals it's a release/event, not an artist
             desc_lower = (page.get('description') or '').lower()
             if any(w in desc_lower for w in _SKIP_DESC_WORDS):
                 continue
+
+            # Reject pages that don't mention the artist name from the query.
+            # Guards against full-text search matching an unrelated artist's page.
+            if anchor:
+                title_lower = r['title'].lower()
+                extract_lower = (page.get('extract') or '')[:300].lower()
+                if anchor not in title_lower and anchor not in desc_lower \
+                        and anchor not in extract_lower:
+                    continue
 
             thumbnail = page.get('thumbnail')
             if not thumbnail:

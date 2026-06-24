@@ -8,7 +8,7 @@
       "genre": "Rock",
       "date": "2026-06-24",
       "url": "articles/20260624-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston.html",
-      "image": "https://upload.wikimedia.org/wikipedia/en/f/f8/The_Strokes_-_The_New_Abnormal.png",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/a/a3/StrokesTempelhof120622_collage.jpg",
       "tags": [
         "The Strokes",
         "The Walkmen",
@@ -17,7 +17,8 @@
         "Cover"
       ],
       "source": "Music News | First For Music News | NME",
-      "sourceUrl": "https://www.nme.com/news/music/watch-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston-3952836?utm_source=rss&utm_medium=rss&utm_campaign=watch-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston"
+      "sourceUrl": "https://www.nme.com/news/music/watch-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston-3952836?utm_source=rss&utm_medium=rss&utm_campaign=watch-the-strokes-cover-the-walkmens-heaven-with-hamilton-leithauser-in-boston",
+      "imageProvider": "Wikipedia"
     },
     {
       "id": "20260624-drake-and-the-art-of-disappearing-in-plain-sight",
@@ -27,14 +28,15 @@
       "genre": "Hip-Hop",
       "date": "2026-06-24",
       "url": "articles/20260624-drake-and-the-art-of-disappearing-in-plain-sight.html",
-      "image": "https://upload.wikimedia.org/wikipedia/en/a/a1/Drake_2025_tour_poster.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/1/15/Drake_at_The_Carter_Effect_2017_%2836818935200%29_%28cropped%29.jpg",
       "tags": [
         "drake",
         "hip-hop",
         "ovo-sound"
       ],
       "source": "Hypebeast",
-      "sourceUrl": "https://hypebeast.com/2026/6/everything-we-loved-in-music-this-week-june-19-drake-ken-carson-xperiment-isaiah-rashad-north-west"
+      "sourceUrl": "https://hypebeast.com/2026/6/everything-we-loved-in-music-this-week-june-19-drake-ken-carson-xperiment-isaiah-rashad-north-west",
+      "imageProvider": "Wikipedia"
     },
     {
       "id": "20260624-turnstile-announce-2026-north-american-tour-with-eclectic-opener-lineup",
@@ -44,7 +46,7 @@
       "genre": "Rock",
       "date": "2026-06-24",
       "url": "articles/20260624-turnstile-announce-2026-north-american-tour-with-eclectic-opener-lineup.html",
-      "image": "https://pixabay.com/get/g483738f9334ed7a87c581756c1120f8ce45446a827cfe42afa4be9ace94b1ff864ab77cf0e1302abd83c7b1f42b14527ce3cc6b6b42a0ae6b849836c896eabb7_1280.jpg",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Turnstile_Full_Force_2019_02.jpg",
       "tags": [
         "Turnstile",
         "Clipse",
@@ -55,7 +57,8 @@
         "2026 Tour"
       ],
       "source": "Stereogum",
-      "sourceUrl": "https://stereogum.com/2503035/turnstile-announce-2026-tour-with-openers-including-slayyyter-clipse-vince-staples-more/news/"
+      "sourceUrl": "https://stereogum.com/2503035/turnstile-announce-2026-tour-with-openers-including-slayyyter-clipse-vince-staples-more/news/",
+      "imageProvider": "Wikipedia"
     },
     {
       "id": "20260623-rodrigo-turns-the-wound-into-the-weapon",
@@ -92,7 +95,8 @@
         "second-acts"
       ],
       "source": "Music News | First For Music News | NME",
-      "sourceUrl": "https://www.nme.com/news/music/everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows-3952688?utm_source=rss&utm_medium=rss&utm_campaign=everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows"
+      "sourceUrl": "https://www.nme.com/news/music/everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows-3952688?utm_source=rss&utm_medium=rss&utm_campaign=everyone-says-hi-announce-new-album-funny-cos-its-true-with-swirling-single-dont-underestimate-yourself-and-uk-live-shows",
+      "imageProvider": "Wikipedia"
     },
     {
       "id": "20260623-swavay-discusses-metro-boomin-collaboration-and-upcoming-tour",

@@ -170,11 +170,12 @@ def _build_article_html(data: dict) -> str:
     date_str    = data.get('date', '')
     source      = data.get('source', '')
     source_url  = data.get('sourceUrl', '')
-    image_url     = data.get('image', '')
-    image_alt     = data.get('imageAlt', title)
-    img_credit    = data.get('imageCredit', '')
-    img_cred_url  = data.get('imageCreditUrl', '#')
-    img_provider  = data.get('imageProvider', '')
+    image_url      = data.get('image', '')
+    image_alt      = data.get('imageAlt', title)
+    img_credit     = data.get('imageCredit', '')
+    img_cred_url   = data.get('imageCreditUrl', '#')
+    img_provider   = data.get('imageProvider', '')
+    image_embed_html = data.get('imageEmbedHtml', '')
     rating        = data.get('rating', '')
     genre         = data.get('genre', '')
 
@@ -199,7 +200,13 @@ def _build_article_html(data: dict) -> str:
         if genre else ''
     )
 
-    if image_url:
+    if image_embed_html:
+        # Getty (or other JS-based) embed — rendered as a widget, not a plain <img>
+        image_block = f"""\
+    <div class="article-hero-image article-hero-embed">
+{image_embed_html}
+    </div>"""
+    elif image_url:
         if img_credit:
             provider_suffix = f' / {img_provider}' if img_provider else ''
             credit_html = (
@@ -354,11 +361,13 @@ def publish_article(data: dict, images: 'list[dict] | dict | None' = None) -> di
     # Attach hero image metadata
     hero = images[0] if images else None
     if hero:
-        data['image']          = hero['url']
+        data['image']          = hero.get('url', '')
         data['imageAlt']       = hero.get('altText', data.get('title', ''))
         data['imageCredit']    = hero.get('credit', '')
         data['imageCreditUrl'] = hero.get('creditUrl', '#')
         data['imageProvider']  = hero.get('provider', '')
+        if hero.get('embedType') == 'getty':
+            data['imageEmbedHtml'] = hero.get('embedHtml', '')
 
     # Store inline images for body injection
     data['inlineImages'] = images[1:] if len(images) > 1 else []

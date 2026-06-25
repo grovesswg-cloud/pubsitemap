@@ -111,14 +111,14 @@ function getGridColumns() {
   return 3;
 }
 
-function populateGrid(id, articles, max = 3) {
+function populateGrid(id, articles, targetRows = 2) {
   const el = document.getElementById(id);
   if (!el) return;
 
   const cols = getGridColumns();
-  // Show only complete rows. If fewer articles than a full row, show all (won't fill grid completely).
-  const numRows = Math.floor(articles.length / cols);
-  const count = numRows > 0 ? Math.min(numRows * cols, max) : articles.length;
+  // Show exactly targetRows complete rows, or all articles if fewer than target
+  const targetCount = targetRows * cols;
+  const count = articles.length >= targetCount ? targetCount : articles.length;
   const slice = articles.slice(0, count);
 
   if (!slice.length) {
@@ -128,7 +128,7 @@ function populateGrid(id, articles, max = 3) {
   el.innerHTML = slice.map((a, i) => renderArticleCard(a, i === 0 && slice.length >= 3)).join('');
 }
 
-function populateBulletins(id, articles, max = 3) {
+function populateBulletins(id, articles, max = 5) {
   const el = document.getElementById(id);
   if (!el) return;
   if (!articles.length) {

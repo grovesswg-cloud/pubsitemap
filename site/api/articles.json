@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "id": "20260625-línea-personal-are-drawing-the-border-on-their-own-terms",
+      "title": "Línea Personal Are Drawing the Border on Their Own Terms",
+      "deck": "With a first US headlining tour and a sophomore record that refuses easy translation, the música Mexicana quartet are redefining what crossover means — and who it's for.",
+      "type": "feature",
+      "genre": "Regional Mexican",
+      "date": "2026-06-25",
+      "url": "articles/20260625-línea-personal-are-drawing-the-border-on-their-own-terms.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Nazareth_03121976_01_640.jpg",
+      "tags": [
+        "linea-personal",
+        "musica-mexicana",
+        "regional-mexican",
+        "todo-o-nada",
+        "latin",
+        "touring"
+      ],
+      "source": "Consequence",
+      "sourceUrl": "https://consequence.net/2026/06/linea-personal-2026-us-tour-dates/",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260625-camille-releases-triple-album-fifteen-years-in-the-making",
       "title": "Camille Releases Triple Album Fifteen Years in the Making",
       "deck": "The Sound of Milk documents birth, childhood, and adolescence across three records — and a decade and a half of deliberate silence.",
@@ -385,7 +407,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T09:38:18.667769+00:00",
+  "lastUpdated": "2026-06-25T10:17:10.096408+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

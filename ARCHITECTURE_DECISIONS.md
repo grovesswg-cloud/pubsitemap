@@ -155,3 +155,21 @@ Each entry documents a significant architectural decision: what was chosen, what
 - Manual review of all images — rejected as unscalable; AI vision QA allows automated review at publication speed.
 
 **Consequences:** Image QA is more expensive per article (two vision calls instead of one). The added accuracy justifies the cost for a publication with strict editorial standards.
+
+---
+
+## ADR-010: Entity identity verification as a separate check within Vision QA
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** Vision QA includes an explicit entity identity check that operates at the identity level, not the name level. The check requires the model to (A) resolve the specific real-world entity the article covers using all article context, (B) identify the specific entity shown in the image, and (C) confirm identity-level match. A shared name is not sufficient — `entity_match=false` forces `result=FAIL` in `_parse_response` regardless of what the model's result field says.
+
+**Context:** A production failure occurred where an article about Camille (French singer) was cleared by vision QA with an image of Camille Claudel (French sculptor). The original person-match check was name-level: "Is [artist name] visible?" Two entirely different people satisfied that check. Identity-level verification catches the class of failure where band names match city names, animal names, political figures, generic imagery, or different people who share a name.
+
+**Alternatives considered:**
+- Strengthen the person-match prompt only — rejected because person_match and entity_match are logically different checks. Person match answers "is this person visible?" Entity match answers "is this the right person?". Collapsing them makes the distinction invisible.
+- Post-process person_match with a separate API call — rejected because a single well-structured prompt is cheaper and faster than two sequential calls.
+- Deterministic entity lookup (MusicBrainz/Wikidata cross-reference) — considered for future improvement; AI vision is required for the actual image-side of the check regardless.
+
+**Consequences:** `VisionVerificationResult` gained five new fields (`entity_match`, `expected_entity`, `detected_entity`, `entity_confidence`, `mismatch_reason`). `entity_match` defaults to `True` for backwards compatibility. Regression tests in `automation/tests/test_vision_entity.py` cover 12 known ambiguous entity pairs and must be extended whenever a new editorial failure of this class is discovered.

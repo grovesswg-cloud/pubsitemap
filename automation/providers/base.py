@@ -37,6 +37,11 @@ class VisionVerificationResult:
     technical_pass: bool = False
     editorial_quality: str = ''   # "strong" | "adequate" | "weak"
     editorial_note: str = ''
+    entity_match: bool = True         # False → FAIL (identity mismatch, not just name match)
+    expected_entity: str = ''         # e.g. "Camille (French singer, born 1978)"
+    detected_entity: str = ''         # e.g. "Camille Claudel (French sculptor, 1864–1943)"
+    entity_confidence: float = 0.0    # 0.0 – 1.0
+    mismatch_reason: str = ''         # human-readable explanation when entity_match=False
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 

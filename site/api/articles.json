@@ -1,6 +1,29 @@
 {
   "articles": [
     {
+      "id": "20260625-the-miseducation-of-lauryn-hill-was-always-a-warning",
+      "title": "The Miseducation of Lauryn Hill Was Always a Warning",
+      "deck": "Twenty-five years on, Hill's masterwork reveals itself not as a celebration of Black feminine genius but as the document of what the industry does to it.",
+      "type": "review",
+      "genre": "R&B",
+      "date": "2026-06-25",
+      "url": "articles/20260625-the-miseducation-of-lauryn-hill-was-always-a-warning.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Lauryn_Hill_Kongsberg_Jazzfestival_2019_%28221758%29_%28cropped%29.jpg",
+      "tags": [
+        "lauryn-hill",
+        "the-miseducation-of-lauryn-hill",
+        "r-and-b",
+        "classic",
+        "hip-hop-soul",
+        "1998",
+        "archive-review"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Lauryn Hill",
+      "albumName": "The Miseducation of Lauryn Hill"
+    },
+    {
       "id": "20260625-camilles-triple-album-is-an-act-of-radical-witness",
       "title": "Camille's Triple Album Is an Act of Radical Witness",
       "deck": "Fifteen years in the making, this vast, strange, and necessary record earns every minute of its ambition.",
@@ -341,7 +364,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T03:32:55.688649+00:00",
+  "lastUpdated": "2026-06-25T05:02:59.473678+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

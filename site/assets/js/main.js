@@ -104,10 +104,23 @@ function renderHero(a) {
   setEl('hero-link', `<a href="${a.url}" class="hero-read-link">Read &rarr;</a>`);
 }
 
+function getGridColumns() {
+  // Match CSS breakpoints
+  if (window.innerWidth <= 768) return 1;
+  if (window.innerWidth <= 1100) return 2;
+  return 3;
+}
+
 function populateGrid(id, articles, max = 3) {
   const el = document.getElementById(id);
   if (!el) return;
-  const slice = articles.slice(0, max);
+
+  const cols = getGridColumns();
+  // Show only complete rows. If fewer articles than a full row, show all (won't fill grid completely).
+  const numRows = Math.floor(articles.length / cols);
+  const count = numRows > 0 ? Math.min(numRows * cols, max) : articles.length;
+  const slice = articles.slice(0, count);
+
   if (!slice.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-state-title">Coming soon.</div></div>';
     return;
@@ -129,6 +142,23 @@ function todayStr() {
   return new Date().toISOString().split('T')[0];
 }
 
+function addScrollArrow() {
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+
+  const arrow = document.createElement('button');
+  arrow.className = 'hero-scroll-arrow';
+  arrow.innerHTML = '↓';
+  arrow.setAttribute('aria-label', 'Scroll to articles');
+  arrow.addEventListener('click', () => {
+    const main = document.querySelector('main');
+    if (main) {
+      main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+  hero.appendChild(arrow);
+}
+
 async function init() {
   const all = await loadArticles();
 
@@ -138,6 +168,7 @@ async function init() {
 
   // Hero: latest article of any type
   renderHero(all[0]);
+  addScrollArrow();
 
   // Today's bulletins (fall back to most recent 3)
   const today = todayStr();

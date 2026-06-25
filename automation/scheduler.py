@@ -644,7 +644,10 @@ def classic_review_cycle(target_artist: str = '', target_album: str = '') -> boo
                 'context': f'Golden Article validation: {target_artist} — {target_album}',
                 'imageQuery': f'{target_artist} musician portrait',
             }
-            log.info("Target override: %s — %s", target_artist, target_album)
+            log.info("─── GOLDEN ARTICLE TARGET ──────────────────────────────────")
+            log.info("  Artist: %s", target_artist)
+            log.info("  Album:  %s", target_album)
+            log.info("────────────────────────────────────────────────────────────")
         else:
             log.info("Selecting classic album for reassessment...")
             album_info = pick_classic_album(reviewed, attempted=_classic_attempted)

@@ -116,9 +116,10 @@ function populateGrid(id, articles, targetRows = 2) {
   if (!el) return;
 
   const cols = getGridColumns();
-  // Show exactly targetRows complete rows, or all articles if fewer than target
+  // Show only complete rows, up to targetRows
+  const numCompleteRows = Math.floor(articles.length / cols);
   const targetCount = targetRows * cols;
-  const count = articles.length >= targetCount ? targetCount : articles.length;
+  const count = Math.min(numCompleteRows * cols, targetCount);
   const slice = articles.slice(0, count);
 
   if (!slice.length) {

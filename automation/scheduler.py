@@ -16,6 +16,7 @@ from config import (
     PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY,
     QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, QUALITY_FACT_FAIL_OPEN,
     QUALITY_IMAGE_VALIDATION, QUALITY_IMAGE_FAIL_OPEN,
+    QUALITY_EDITORIAL_REVIEW, QUALITY_EDITORIAL_FAIL_OPEN,
     GOOGLE_GEMINI_API_KEY,
 )
 from news_fetcher import get_trending_music_news
@@ -44,8 +45,9 @@ def _check_api_key() -> bool:
     return True
 
 
-_fact_provider = None
-_vision_provider = None
+_fact_provider      = None
+_vision_provider    = None
+_editorial_provider = None
 
 
 def _get_fact_provider():
@@ -125,6 +127,65 @@ def _run_vision_verification(image: dict, article_data: dict) -> bool:
             log.error(
                 "Vision verification uncertain for '%s' — blocking (fail-closed, default). "
                 "Set QUALITY_IMAGE_FAIL_OPEN=true to allow uncertain results through.",
+                article_data.get('title', '')[:60],
+            )
+            return False
+
+    return True
+
+
+def _get_editorial_provider():
+    global _editorial_provider
+    if _editorial_provider is None:
+        from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL
+        from providers.impl.claude_editorial import ClaudeEditorialProvider
+        _editorial_provider = ClaudeEditorialProvider(api_key=ANTHROPIC_API_KEY, model=ANTHROPIC_MODEL)
+    return _editorial_provider
+
+
+def _run_editorial_review(article_data: dict) -> bool:
+    """Run editorial review gate if enabled. Returns False to abort on FAIL."""
+    if not QUALITY_EDITORIAL_REVIEW:
+        return True
+
+    provider = _get_editorial_provider()
+    result = provider.review(article_data)
+
+    fail_issues = [i for i in result.issues if i.severity == 'FAIL']
+    warn_issues = [i for i in result.issues if i.severity == 'WARN']
+    info_issues = [i for i in result.issues if i.severity == 'INFO']
+
+    for issue in info_issues:
+        log.info("EDITORIAL INFO [%s]: %s", issue.category, issue.description)
+    for issue in warn_issues:
+        log.warning("EDITORIAL WARN [%s]: %s", issue.category, issue.description)
+
+    log.info(
+        "EDITORIAL REVIEW: %s (confidence: %.2f, FAIL=%d, WARN=%d, INFO=%d) — %s",
+        result.result, result.confidence,
+        len(fail_issues), len(warn_issues), len(info_issues),
+        result.summary[:100] if result.summary else '',
+    )
+
+    if result.result == 'FAIL':
+        for issue in fail_issues:
+            log.error("EDITORIAL FAIL [%s]: %s", issue.category, issue.description)
+        log.error(
+            "Article '%s' failed editorial review — skipping.",
+            article_data.get('title', '')[:60],
+        )
+        return False
+
+    if result.result == 'UNCERTAIN':
+        if QUALITY_EDITORIAL_FAIL_OPEN:
+            log.warning(
+                "Editorial review uncertain for '%s' — proceeding (fail-open mode).",
+                article_data.get('title', '')[:60],
+            )
+        else:
+            log.error(
+                "Editorial review uncertain for '%s' — blocking (fail-closed, default). "
+                "Set QUALITY_EDITORIAL_FAIL_OPEN=true to allow uncertain results through.",
                 article_data.get('title', '')[:60],
             )
             return False
@@ -268,6 +329,9 @@ def run_cycle() -> bool:
         if not _run_vision_verification(images[0], article_data):
             return False
 
+        if not _run_editorial_review(article_data):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -337,6 +401,9 @@ def feature_cycle() -> bool:
         if not _run_vision_verification(images[0], article_data):
             return False
 
+        if not _run_editorial_review(article_data):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published feature: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -400,6 +467,9 @@ def review_cycle() -> bool:
         if not _run_vision_verification(images[0], article_data):
             return False
 
+        if not _run_editorial_review(article_data):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -439,6 +509,9 @@ def classic_review_cycle() -> bool:
             return False
 
         if not _run_vision_verification(images[0], article_data):
+            return False
+
+        if not _run_editorial_review(article_data):
             return False
 
         entry = publish_article(article_data, images)

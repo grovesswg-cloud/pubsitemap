@@ -192,3 +192,20 @@ Each entry documents a significant architectural decision: what was chosen, what
 - Never audit the archive — rejected because pre-framework articles represent unknown editorial risk.
 
 **Consequences:** No archive-touching code is written during the roadmap phase. The Legacy Editorial Certification phase is a separate milestone, not a PR. The modularity constraint applies to every quality gate added from this point forward.
+
+---
+
+## ADR-012: Claude as the Editorial Review provider; Gemini for objective verification
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** `ClaudeEditorialProvider` is the first implementation of `EditorialReviewProvider`. Claude evaluates articles as a senior magazine editor: structure, voice, pacing, coherence, tone consistency, and conclusion strength. Gemini handles objective verification (facts, entity identity, image QA). Claude handles editorial judgment.
+
+**Context:** The pipeline already uses Gemini with Google Search grounding for fact verification — a task where live web retrieval is a clear advantage. Editorial review is a different task: it requires sustained literary judgment, voice consistency evaluation, and nuanced assessment of whether prose earns the reader's attention. Keeping the two domains separate plays to each model's strengths and maintains a clean architectural separation between objective and subjective checks.
+
+**Alternatives considered:**
+- Gemini for editorial review — rejected because editorial judgment is a different task from factual retrieval; no search grounding is needed, and literary sensitivity is the primary requirement.
+- Same provider for all AI tasks — rejected because it couples vendor choice for unrelated tasks and forecloses competition between providers for different roles.
+
+**Consequences:** The pipeline now has a two-provider architecture: Gemini (objective) and Claude (editorial). Both implement interfaces in `providers/base.py`. Either can be replaced by editing one file. Editorial issues are classified as FAIL / WARN / INFO. Only FAIL prevents publication. `QUALITY_EDITORIAL_REVIEW` feature flag defaults to `false`; `QUALITY_EDITORIAL_FAIL_OPEN` controls UNCERTAIN behavior.

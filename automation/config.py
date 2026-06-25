@@ -60,8 +60,9 @@ QUALITY_FACT_VERIFICATION   = os.getenv('QUALITY_FACT_VERIFICATION',   'false').
 QUALITY_FACT_FAIL_OPEN      = os.getenv('QUALITY_FACT_FAIL_OPEN',      'false').lower() == 'true'
 QUALITY_IMAGE_VALIDATION    = os.getenv('QUALITY_IMAGE_VALIDATION',    'false').lower() == 'true'
 QUALITY_IMAGE_FAIL_OPEN     = os.getenv('QUALITY_IMAGE_FAIL_OPEN',     'false').lower() == 'true'
-QUALITY_EDITORIAL_REVIEW    = os.getenv('QUALITY_EDITORIAL_REVIEW',    'false').lower() == 'true'
-QUALITY_SEO_VALIDATION      = os.getenv('QUALITY_SEO_VALIDATION',      'false').lower() == 'true'
+QUALITY_EDITORIAL_REVIEW      = os.getenv('QUALITY_EDITORIAL_REVIEW',      'false').lower() == 'true'
+QUALITY_EDITORIAL_FAIL_OPEN   = os.getenv('QUALITY_EDITORIAL_FAIL_OPEN',   'false').lower() == 'true'
+QUALITY_SEO_VALIDATION        = os.getenv('QUALITY_SEO_VALIDATION',        'false').lower() == 'true'
 
 # ─── LORD Voice prompt (injected into every generation request) ───────────────
 LORD_VOICE = """

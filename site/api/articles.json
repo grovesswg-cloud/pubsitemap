@@ -1,6 +1,29 @@
 {
   "articles": [
     {
+      "id": "20260625-fiona-apples-tidal-was-never-the-record-they-said-it-was",
+      "title": "Fiona Apple's Tidal Was Never the Record They Said It Was",
+      "deck": "Nearly thirty years on, Apple's debut reveals itself not as the work of a gifted teenager but as one of the most formally lucid documents of female self-possession American pop has ever produced.",
+      "type": "review",
+      "genre": "Pop",
+      "date": "2026-06-25",
+      "url": "articles/20260625-fiona-apples-tidal-was-never-the-record-they-said-it-was.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Fiona_Apple_by_Sachyn_Mital_%28cropped%29.jpg",
+      "tags": [
+        "fiona-apple",
+        "tidal",
+        "pop",
+        "classic",
+        "singer-songwriter",
+        "1990s",
+        "archive-review"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Fiona Apple",
+      "albumName": "Tidal"
+    },
+    {
       "id": "20260624-becky-hill-has-always-been-right-there-hiding-in-plain-sight",
       "title": "Becky Hill Has Always Been Right There, Hiding in Plain Sight",
       "deck": "Pop's most durable voice keeps being mistaken for a service industry, and that misreading says more about us than it does about her.",
@@ -297,7 +320,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-24T21:46:21.539994+00:00",
+  "lastUpdated": "2026-06-25T00:02:16.001301+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

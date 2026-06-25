@@ -116,9 +116,9 @@ function populateGrid(id, articles, max = 3) {
   if (!el) return;
 
   const cols = getGridColumns();
-  // Only show complete rows: take the largest multiple of cols that doesn't exceed max
-  const complete = Math.floor(articles.length / cols) * cols;
-  const count = Math.min(complete || cols, max);
+  // Show only complete rows. If fewer articles than a full row, show all (won't fill grid completely).
+  const numRows = Math.floor(articles.length / cols);
+  const count = numRows > 0 ? Math.min(numRows * cols, max) : articles.length;
   const slice = articles.slice(0, count);
 
   if (!slice.length) {

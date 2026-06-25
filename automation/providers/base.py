@@ -34,6 +34,9 @@ class VisionVerificationResult:
     confidence: float       # 0.0 – 1.0
     person_match: bool = False
     context_match: bool = False
+    technical_pass: bool = False
+    editorial_quality: str = ''   # "strong" | "adequate" | "weak"
+    editorial_note: str = ''
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 

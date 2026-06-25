@@ -15,6 +15,7 @@ import sys
 from config import (
     PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY,
     QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, QUALITY_FACT_FAIL_OPEN,
+    QUALITY_IMAGE_VALIDATION, QUALITY_IMAGE_FAIL_OPEN,
     GOOGLE_GEMINI_API_KEY,
 )
 from news_fetcher import get_trending_music_news
@@ -44,6 +45,7 @@ def _check_api_key() -> bool:
 
 
 _fact_provider = None
+_vision_provider = None
 
 
 def _get_fact_provider():
@@ -52,6 +54,66 @@ def _get_fact_provider():
         from providers.impl.gemini_fact import GeminiFactProvider
         _fact_provider = GeminiFactProvider(api_key=GOOGLE_GEMINI_API_KEY)
     return _fact_provider
+
+
+def _get_vision_provider():
+    global _vision_provider
+    if _vision_provider is None:
+        from providers.impl.gemini_vision import GeminiVisionProvider
+        _vision_provider = GeminiVisionProvider(api_key=GOOGLE_GEMINI_API_KEY)
+    return _vision_provider
+
+
+def _run_vision_verification(image: dict, article_data: dict) -> bool:
+    """Run visual editorial verification gate if enabled. Returns False to abort on FAIL."""
+    if not QUALITY_IMAGE_VALIDATION:
+        return True
+    if not GOOGLE_GEMINI_API_KEY:
+        log.warning("QUALITY_IMAGE_VALIDATION=true but GOOGLE_GEMINI_API_KEY not set — skipping gate.")
+        return True
+
+    image_url = image.get('url', '')
+    if not image_url:
+        log.warning("Vision QA: no URL on hero image — skipping gate.")
+        return True
+
+    provider = _get_vision_provider()
+    result = provider.verify_image(image_url, article_data)
+
+    for w in result.warnings:
+        log.warning("VISION WARN: %s", w)
+
+    log.info(
+        "VISION VERIFICATION: %s (confidence: %.2f, person=%s, context=%s, technical=%s, editorial=%s)",
+        result.result, result.confidence,
+        result.person_match, result.context_match, result.technical_pass,
+        result.editorial_quality,
+    )
+
+    if result.result == 'FAIL':
+        for e in result.errors:
+            log.error("VISION ERROR: %s", e)
+        log.error(
+            "Hero image for '%s' failed visual verification — skipping.",
+            article_data.get('title', '')[:60],
+        )
+        return False
+
+    if result.result == 'UNCERTAIN':
+        if QUALITY_IMAGE_FAIL_OPEN:
+            log.warning(
+                "Vision verification uncertain for '%s' — proceeding (fail-open mode).",
+                article_data.get('title', '')[:60],
+            )
+        else:
+            log.error(
+                "Vision verification uncertain for '%s' — blocking (fail-closed, default). "
+                "Set QUALITY_IMAGE_FAIL_OPEN=true to allow uncertain results through.",
+                article_data.get('title', '')[:60],
+            )
+            return False
+
+    return True
 
 
 def _run_fact_verification(article_data: dict) -> bool:
@@ -187,6 +249,9 @@ def run_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
+        if not _run_vision_verification(images[0], article_data):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -253,6 +318,9 @@ def feature_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
+        if not _run_vision_verification(images[0], article_data):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published feature: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -313,6 +381,9 @@ def review_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
+        if not _run_vision_verification(images[0], article_data):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -349,6 +420,9 @@ def classic_review_cycle() -> bool:
         images = _source_images(article_data, 'vintage vinyl record collection')
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
+        if not _run_vision_verification(images[0], article_data):
             return False
 
         entry = publish_article(article_data, images)

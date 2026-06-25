@@ -18,8 +18,9 @@ PEXELS_API_KEY       = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
 PIXABAY_API_KEY      = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
 GETTY_API_KEY        = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.com editorial embeds
 GOOGLE_INDEXING_KEY  = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
-GOOGLE_GEMINI_API_KEY  = os.getenv('GOOGLE_GEMINI_API_KEY', '')   # required for PR-002 fact verification
-GEMINI_FACT_MODEL      = os.getenv('GEMINI_FACT_MODEL', 'gemini-1.5-pro')  # override to upgrade model
+GOOGLE_GEMINI_API_KEY  = os.getenv('GOOGLE_GEMINI_API_KEY', '')   # required for fact + vision verification
+GEMINI_FACT_MODEL      = os.getenv('GEMINI_FACT_MODEL',   'gemini-1.5-pro')  # override to upgrade model
+GEMINI_VISION_MODEL    = os.getenv('GEMINI_VISION_MODEL', 'gemini-1.5-pro')  # must support vision input
 
 # Public domain for sitemap + indexing API (no trailing slash)
 SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'https://lordmedia.live')
@@ -58,6 +59,7 @@ QUALITY_METADATA_VALIDATION = os.getenv('QUALITY_METADATA_VALIDATION', 'true').l
 QUALITY_FACT_VERIFICATION   = os.getenv('QUALITY_FACT_VERIFICATION',   'false').lower() == 'true'
 QUALITY_FACT_FAIL_OPEN      = os.getenv('QUALITY_FACT_FAIL_OPEN',      'false').lower() == 'true'
 QUALITY_IMAGE_VALIDATION    = os.getenv('QUALITY_IMAGE_VALIDATION',    'false').lower() == 'true'
+QUALITY_IMAGE_FAIL_OPEN     = os.getenv('QUALITY_IMAGE_FAIL_OPEN',     'false').lower() == 'true'
 QUALITY_EDITORIAL_REVIEW    = os.getenv('QUALITY_EDITORIAL_REVIEW',    'false').lower() == 'true'
 QUALITY_SEO_VALIDATION      = os.getenv('QUALITY_SEO_VALIDATION',      'false').lower() == 'true'
 

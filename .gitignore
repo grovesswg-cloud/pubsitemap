@@ -23,3 +23,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# LORD operational artifacts (not source code — back up separately)
+evidence/
+review/

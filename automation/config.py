@@ -49,6 +49,15 @@ RSS_FEEDS = [
     'https://www.complex.com/music/rss',
 ]
 
+# ─── Quality Pipeline Feature Flags ──────────────────────────────────────────
+# Toggle any stage off instantly via environment variable (e.g. on API outage).
+# Metadata validation is on by default; all others are off until their PR lands.
+QUALITY_METADATA_VALIDATION = os.getenv('QUALITY_METADATA_VALIDATION', 'true').lower()  == 'true'
+QUALITY_FACT_VERIFICATION   = os.getenv('QUALITY_FACT_VERIFICATION',   'false').lower() == 'true'
+QUALITY_IMAGE_VALIDATION    = os.getenv('QUALITY_IMAGE_VALIDATION',    'false').lower() == 'true'
+QUALITY_EDITORIAL_REVIEW    = os.getenv('QUALITY_EDITORIAL_REVIEW',    'false').lower() == 'true'
+QUALITY_SEO_VALIDATION      = os.getenv('QUALITY_SEO_VALIDATION',      'false').lower() == 'true'
+
 # ─── LORD Voice prompt (injected into every generation request) ───────────────
 LORD_VOICE = """
 LORD is an independent online music publication with an authoritative, literary editorial voice.

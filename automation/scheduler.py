@@ -12,7 +12,7 @@ import argparse
 import logging
 import sys
 
-from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY
+from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY, QUALITY_METADATA_VALIDATION
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
 from feature_writer import write_feature
@@ -20,6 +20,7 @@ from review_writer import write_review, write_classic_review
 from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums
 from image_sourcer import get_article_image, get_article_images
 from publisher import publish_article, load_index, is_duplicate, is_artist_covered, count_today, count_today_by_type
+from validators.metadata import validate_metadata
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,6 +35,24 @@ def _check_api_key() -> bool:
     if not ANTHROPIC_API_KEY:
         log.error("ANTHROPIC_API_KEY is not set. Add it as a GitHub Actions secret.")
         log.error("Go to: repo → Settings → Secrets and variables → Actions → New secret")
+        return False
+    return True
+
+
+def _run_metadata_validation(article_data: dict) -> bool:
+    """Run metadata gate if enabled. Returns False to abort the cycle on failure."""
+    if not QUALITY_METADATA_VALIDATION:
+        return True
+    result = validate_metadata(article_data)
+    for w in result['warnings']:
+        log.warning("METADATA WARN: %s", w)
+    if result['result'] == 'FAIL':
+        for e in result['errors']:
+            log.error("METADATA ERROR: %s", e)
+        log.error(
+            "Article '%s' failed metadata validation — skipping.",
+            article_data.get('title', '')[:60],
+        )
         return False
     return True
 
@@ -99,6 +118,9 @@ def run_cycle() -> bool:
         article_data = write_bulletin(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
+        if not _run_metadata_validation(article_data):
+            return False
+
         images = _source_images(article_data)
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
@@ -149,6 +171,9 @@ def feature_cycle() -> bool:
         log.info("Writing feature inspired by: %s", selected['title'][:80])
         article_data = write_feature(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
+
+        if not _run_metadata_validation(article_data):
+            return False
 
         # Skip if the same artist was featured within the last 7 days.
         # Only check the first tag (the artist name, per the writer schema).
@@ -215,6 +240,9 @@ def review_cycle() -> bool:
         article_data = write_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
+        if not _run_metadata_validation(article_data):
+            return False
+
         images = _source_images(article_data, 'vinyl record music studio')
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
@@ -247,6 +275,9 @@ def classic_review_cycle() -> bool:
 
         article_data = write_classic_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
+
+        if not _run_metadata_validation(article_data):
+            return False
 
         images = _source_images(article_data, 'vintage vinyl record collection')
         if not images:

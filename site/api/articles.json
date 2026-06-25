@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "id": "20260625-kirk-hammett-is-right-about-pop-music-hes-also-wrong",
+      "title": "Kirk Hammett Is Right About Pop Music. He's Also Wrong.",
+      "deck": "Metallica's lead guitarist has spent four decades earning the right to an opinion — which makes it worth interrogating the one he just offered.",
+      "type": "feature",
+      "genre": "Rock",
+      "date": "2026-06-25",
+      "url": "articles/20260625-kirk-hammett-is-right-about-pop-music-hes-also-wrong.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/3/37/Kirk_Hammett_2025_Marvel_Stadium_%284%29.jpg",
+      "tags": [
+        "Kirk Hammett",
+        "Metallica",
+        "rock",
+        "heavy-metal",
+        "pop-music",
+        "cultural-criticism"
+      ],
+      "source": "Music News | First For Music News | NME",
+      "sourceUrl": "https://www.nme.com/news/music/after-the-taylor-swift-t-shirt-controversy-metallicas-kirk-hammett-says-right-now-songwriting-and-pop-music-is-crap-3953226?utm_source=rss&utm_medium=rss&utm_campaign=after-the-taylor-swift-t-shirt-controversy-metallicas-kirk-hammett-says-right-now-songwriting-and-pop-music-is-crap",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260625-olivia-rodrigos-daisy-chain-fields-festival-sells-out-in-thirty-minutes",
       "title": "Olivia Rodrigo's Daisy Chain Fields Festival Sells Out in Thirty Minutes",
       "deck": "The pop star's inaugural all-women festival moves from announcement to sellout before most fans reached the checkout.",
@@ -430,7 +452,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T11:32:05.554411+00:00",
+  "lastUpdated": "2026-06-25T15:39:15.987145+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

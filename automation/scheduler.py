@@ -12,7 +12,12 @@ import argparse
 import logging
 import sys
 
-from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY
+from config import (
+    PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY,
+    QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, QUALITY_FACT_FAIL_OPEN,
+    QUALITY_IMAGE_VALIDATION, QUALITY_IMAGE_FAIL_OPEN,
+    GOOGLE_GEMINI_API_KEY,
+)
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
 from feature_writer import write_feature
@@ -20,6 +25,7 @@ from review_writer import write_review, write_classic_review
 from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums
 from image_sourcer import get_article_image, get_article_images
 from publisher import publish_article, load_index, is_duplicate, is_artist_covered, count_today, count_today_by_type
+from validators.metadata import validate_metadata
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,6 +40,156 @@ def _check_api_key() -> bool:
     if not ANTHROPIC_API_KEY:
         log.error("ANTHROPIC_API_KEY is not set. Add it as a GitHub Actions secret.")
         log.error("Go to: repo → Settings → Secrets and variables → Actions → New secret")
+        return False
+    return True
+
+
+_fact_provider = None
+_vision_provider = None
+
+
+def _get_fact_provider():
+    global _fact_provider
+    if _fact_provider is None:
+        from providers.impl.gemini_fact import GeminiFactProvider
+        _fact_provider = GeminiFactProvider(api_key=GOOGLE_GEMINI_API_KEY)
+    return _fact_provider
+
+
+def _get_vision_provider():
+    global _vision_provider
+    if _vision_provider is None:
+        from providers.impl.gemini_vision import GeminiVisionProvider
+        _vision_provider = GeminiVisionProvider(api_key=GOOGLE_GEMINI_API_KEY)
+    return _vision_provider
+
+
+def _run_vision_verification(image: dict, article_data: dict) -> bool:
+    """Run visual editorial verification gate if enabled. Returns False to abort on FAIL."""
+    if not QUALITY_IMAGE_VALIDATION:
+        return True
+    if not GOOGLE_GEMINI_API_KEY:
+        log.warning("QUALITY_IMAGE_VALIDATION=true but GOOGLE_GEMINI_API_KEY not set — skipping gate.")
+        return True
+
+    image_url = image.get('url', '')
+    if not image_url:
+        log.warning("Vision QA: no URL on hero image — skipping gate.")
+        return True
+
+    import requests
+    try:
+        resp = requests.get(image_url, timeout=15, headers={'User-Agent': 'LORD/1.0'})
+        resp.raise_for_status()
+        mime_type = resp.headers.get('Content-Type', 'image/jpeg').split(';')[0].strip()
+        if mime_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/gif'):
+            mime_type = 'image/jpeg'
+        image_bytes = resp.content
+    except Exception as exc:
+        log.warning("Vision QA: failed to fetch hero image %s: %s", image_url, exc)
+        if QUALITY_IMAGE_FAIL_OPEN:
+            log.warning("Image fetch failed — proceeding (fail-open mode).")
+            return True
+        log.error("Image fetch failed — blocking (fail-closed). Set QUALITY_IMAGE_FAIL_OPEN=true to allow through.")
+        return False
+
+    provider = _get_vision_provider()
+    result = provider.verify_image(image_bytes, mime_type, article_data)
+
+    for w in result.warnings:
+        log.warning("VISION WARN: %s", w)
+
+    log.info(
+        "VISION VERIFICATION: %s (confidence: %.2f, person=%s, context=%s, technical=%s, editorial=%s)",
+        result.result, result.confidence,
+        result.person_match, result.context_match, result.technical_pass,
+        result.editorial_quality,
+    )
+
+    if result.result == 'FAIL':
+        for e in result.errors:
+            log.error("VISION ERROR: %s", e)
+        log.error(
+            "Hero image for '%s' failed visual verification — skipping.",
+            article_data.get('title', '')[:60],
+        )
+        return False
+
+    if result.result == 'UNCERTAIN':
+        if QUALITY_IMAGE_FAIL_OPEN:
+            log.warning(
+                "Vision verification uncertain for '%s' — proceeding (fail-open mode).",
+                article_data.get('title', '')[:60],
+            )
+        else:
+            log.error(
+                "Vision verification uncertain for '%s' — blocking (fail-closed, default). "
+                "Set QUALITY_IMAGE_FAIL_OPEN=true to allow uncertain results through.",
+                article_data.get('title', '')[:60],
+            )
+            return False
+
+    return True
+
+
+def _run_fact_verification(article_data: dict) -> bool:
+    """Run fact verification gate if enabled. Returns False to abort on FAIL."""
+    if not QUALITY_FACT_VERIFICATION:
+        return True
+    if not GOOGLE_GEMINI_API_KEY:
+        log.warning("QUALITY_FACT_VERIFICATION=true but GOOGLE_GEMINI_API_KEY not set — skipping gate.")
+        return True
+
+    provider = _get_fact_provider()
+    result = provider.verify(article_data)
+
+    for w in result.warnings:
+        log.warning("FACT WARN: %s", w)
+
+    src_summary = ', '.join(s.name for s in result.sources[:3]) or 'none'
+    log.info("FACT VERIFICATION: %s (confidence: %.2f, sources: %s)",
+             result.result, result.confidence, src_summary)
+
+    if result.result == 'FAIL':
+        for e in result.errors:
+            log.error("FACT ERROR: %s", e)
+        log.error(
+            "Article '%s' failed fact verification — skipping.",
+            article_data.get('title', '')[:60],
+        )
+        return False
+
+    if result.result == 'UNCERTAIN':
+        if QUALITY_FACT_FAIL_OPEN:
+            log.warning(
+                "Fact verification uncertain for '%s' — proceeding (fail-open mode).",
+                article_data.get('title', '')[:60],
+            )
+        else:
+            log.error(
+                "Fact verification uncertain for '%s' — blocking (fail-closed, default). "
+                "Set QUALITY_FACT_FAIL_OPEN=true to allow uncertain results through.",
+                article_data.get('title', '')[:60],
+            )
+            return False
+
+    return True
+
+
+def _run_metadata_validation(article_data: dict) -> bool:
+    """Run metadata gate if enabled. Returns False to abort the cycle on failure."""
+    if not QUALITY_METADATA_VALIDATION:
+        return True
+    result = validate_metadata(article_data)
+    for w in result['warnings']:
+        log.warning("METADATA WARN: %s", w)
+    if result['result'] == 'FAIL':
+        for e in result['errors']:
+            log.error("METADATA ERROR: %s", e)
+        log.error(
+            "Article '%s' failed metadata validation — skipping.",
+            article_data.get('title', '')[:60],
+        )
         return False
     return True
 
@@ -99,9 +255,17 @@ def run_cycle() -> bool:
         article_data = write_bulletin(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
+        if not _run_metadata_validation(article_data):
+            return False
+        if not _run_fact_verification(article_data):
+            return False
+
         images = _source_images(article_data)
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
+        if not _run_vision_verification(images[0], article_data):
             return False
 
         entry = publish_article(article_data, images)
@@ -150,6 +314,11 @@ def feature_cycle() -> bool:
         article_data = write_feature(selected)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
+        if not _run_metadata_validation(article_data):
+            return False
+        if not _run_fact_verification(article_data):
+            return False
+
         # Skip if the same artist was featured within the last 7 days.
         # Only check the first tag (the artist name, per the writer schema).
         # Checking every tag would match shared genre labels like "indie-rock"
@@ -163,6 +332,9 @@ def feature_cycle() -> bool:
         images = _source_images(article_data, 'musician portrait studio')
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
+        if not _run_vision_verification(images[0], article_data):
             return False
 
         entry = publish_article(article_data, images)
@@ -215,9 +387,17 @@ def review_cycle() -> bool:
         article_data = write_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
+        if not _run_metadata_validation(article_data):
+            return False
+        if not _run_fact_verification(article_data):
+            return False
+
         images = _source_images(article_data, 'vinyl record music studio')
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
+        if not _run_vision_verification(images[0], article_data):
             return False
 
         entry = publish_article(article_data, images)
@@ -248,9 +428,17 @@ def classic_review_cycle() -> bool:
         article_data = write_classic_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
+        if not _run_metadata_validation(article_data):
+            return False
+        if not _run_fact_verification(article_data):
+            return False
+
         images = _source_images(article_data, 'vintage vinyl record collection')
         if not images:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
+            return False
+
+        if not _run_vision_verification(images[0], article_data):
             return False
 
         entry = publish_article(article_data, images)

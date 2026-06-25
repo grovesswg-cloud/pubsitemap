@@ -11,13 +11,16 @@ API_DIR      = SITE_DIR / 'api'
 ARTICLES_JSON = API_DIR / 'articles.json'
 
 # ─── API Keys (set via environment variables / GitHub Secrets) ─────────────────
-ANTHROPIC_API_KEY   = os.getenv('ANTHROPIC_API_KEY', '')
-UNSPLASH_ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY', '')
-NEWS_API_KEY        = os.getenv('NEWS_API_KEY', '')      # optional: newsapi.org
-PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
-PIXABAY_API_KEY     = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
-GETTY_API_KEY       = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.com editorial embeds
-GOOGLE_INDEXING_KEY = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
+ANTHROPIC_API_KEY    = os.getenv('ANTHROPIC_API_KEY', '')
+UNSPLASH_ACCESS_KEY  = os.getenv('UNSPLASH_ACCESS_KEY', '')
+NEWS_API_KEY         = os.getenv('NEWS_API_KEY', '')      # optional: newsapi.org
+PEXELS_API_KEY       = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
+PIXABAY_API_KEY      = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
+GETTY_API_KEY        = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.com editorial embeds
+GOOGLE_INDEXING_KEY  = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
+GOOGLE_GEMINI_API_KEY  = os.getenv('GOOGLE_GEMINI_API_KEY', '')   # required for fact + vision verification
+GEMINI_FACT_MODEL      = os.getenv('GEMINI_FACT_MODEL',   'gemini-1.5-pro')  # override to upgrade model
+GEMINI_VISION_MODEL    = os.getenv('GEMINI_VISION_MODEL', 'gemini-1.5-pro')  # must support vision input
 
 # Public domain for sitemap + indexing API (no trailing slash)
 SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'https://lordmedia.live')
@@ -48,6 +51,17 @@ RSS_FEEDS = [
     'https://uproxx.com/music/feed/',
     'https://www.complex.com/music/rss',
 ]
+
+# ─── Quality Pipeline Feature Flags ──────────────────────────────────────────
+# Toggle any stage off instantly via environment variable (e.g. on API outage).
+# Metadata validation is on by default; all others are off until their PR lands.
+QUALITY_METADATA_VALIDATION = os.getenv('QUALITY_METADATA_VALIDATION', 'true').lower()  == 'true'
+QUALITY_FACT_VERIFICATION   = os.getenv('QUALITY_FACT_VERIFICATION',   'false').lower() == 'true'
+QUALITY_FACT_FAIL_OPEN      = os.getenv('QUALITY_FACT_FAIL_OPEN',      'false').lower() == 'true'
+QUALITY_IMAGE_VALIDATION    = os.getenv('QUALITY_IMAGE_VALIDATION',    'false').lower() == 'true'
+QUALITY_IMAGE_FAIL_OPEN     = os.getenv('QUALITY_IMAGE_FAIL_OPEN',     'false').lower() == 'true'
+QUALITY_EDITORIAL_REVIEW    = os.getenv('QUALITY_EDITORIAL_REVIEW',    'false').lower() == 'true'
+QUALITY_SEO_VALIDATION      = os.getenv('QUALITY_SEO_VALIDATION',      'false').lower() == 'true'
 
 # ─── LORD Voice prompt (injected into every generation request) ───────────────
 LORD_VOICE = """

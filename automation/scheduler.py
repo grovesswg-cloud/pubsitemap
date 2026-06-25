@@ -12,7 +12,11 @@ import argparse
 import logging
 import sys
 
-from config import PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY, QUALITY_METADATA_VALIDATION
+from config import (
+    PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY,
+    QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, QUALITY_FACT_FAIL_OPEN,
+    GOOGLE_GEMINI_API_KEY,
+)
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
 from feature_writer import write_feature
@@ -36,6 +40,61 @@ def _check_api_key() -> bool:
         log.error("ANTHROPIC_API_KEY is not set. Add it as a GitHub Actions secret.")
         log.error("Go to: repo → Settings → Secrets and variables → Actions → New secret")
         return False
+    return True
+
+
+_fact_provider = None
+
+
+def _get_fact_provider():
+    global _fact_provider
+    if _fact_provider is None:
+        from providers.impl.gemini_fact import GeminiFactProvider
+        _fact_provider = GeminiFactProvider(api_key=GOOGLE_GEMINI_API_KEY)
+    return _fact_provider
+
+
+def _run_fact_verification(article_data: dict) -> bool:
+    """Run fact verification gate if enabled. Returns False to abort on FAIL."""
+    if not QUALITY_FACT_VERIFICATION:
+        return True
+    if not GOOGLE_GEMINI_API_KEY:
+        log.warning("QUALITY_FACT_VERIFICATION=true but GOOGLE_GEMINI_API_KEY not set — skipping gate.")
+        return True
+
+    provider = _get_fact_provider()
+    result = provider.verify(article_data)
+
+    for w in result.warnings:
+        log.warning("FACT WARN: %s", w)
+
+    src_summary = ', '.join(s.name for s in result.sources[:3]) or 'none'
+    log.info("FACT VERIFICATION: %s (confidence: %.2f, sources: %s)",
+             result.result, result.confidence, src_summary)
+
+    if result.result == 'FAIL':
+        for e in result.errors:
+            log.error("FACT ERROR: %s", e)
+        log.error(
+            "Article '%s' failed fact verification — skipping.",
+            article_data.get('title', '')[:60],
+        )
+        return False
+
+    if result.result == 'UNCERTAIN':
+        if QUALITY_FACT_FAIL_OPEN:
+            log.warning(
+                "Fact verification uncertain for '%s' — proceeding (fail-open mode).",
+                article_data.get('title', '')[:60],
+            )
+        else:
+            log.error(
+                "Fact verification uncertain for '%s' — blocking (fail-closed, default). "
+                "Set QUALITY_FACT_FAIL_OPEN=true to allow uncertain results through.",
+                article_data.get('title', '')[:60],
+            )
+            return False
+
     return True
 
 
@@ -120,6 +179,8 @@ def run_cycle() -> bool:
 
         if not _run_metadata_validation(article_data):
             return False
+        if not _run_fact_verification(article_data):
+            return False
 
         images = _source_images(article_data)
         if not images:
@@ -173,6 +234,8 @@ def feature_cycle() -> bool:
         log.info("Written: %s", article_data.get('title', '')[:60])
 
         if not _run_metadata_validation(article_data):
+            return False
+        if not _run_fact_verification(article_data):
             return False
 
         # Skip if the same artist was featured within the last 7 days.
@@ -242,6 +305,8 @@ def review_cycle() -> bool:
 
         if not _run_metadata_validation(article_data):
             return False
+        if not _run_fact_verification(article_data):
+            return False
 
         images = _source_images(article_data, 'vinyl record music studio')
         if not images:
@@ -277,6 +342,8 @@ def classic_review_cycle() -> bool:
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
         if not _run_metadata_validation(article_data):
+            return False
+        if not _run_fact_verification(article_data):
             return False
 
         images = _source_images(article_data, 'vintage vinyl record collection')

@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260625-camilles-triple-album-is-an-act-of-radical-witness",
+      "title": "Camille's Triple Album Is an Act of Radical Witness",
+      "deck": "Fifteen years in the making, this vast, strange, and necessary record earns every minute of its ambition.",
+      "type": "review",
+      "genre": "Pop",
+      "date": "2026-06-25",
+      "url": "articles/20260625-camilles-triple-album-is-an-act-of-radical-witness.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/74/Camille_Dalmais_in_2024.jpg",
+      "tags": [
+        "camille",
+        "triple-album-about-motherhood",
+        "pop",
+        "french",
+        "experimental"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Camille",
+      "albumName": "Triple Album About Motherhood"
+    },
+    {
       "id": "20260625-fiona-apples-tidal-was-never-the-record-they-said-it-was",
       "title": "Fiona Apple's Tidal Was Never the Record They Said It Was",
       "deck": "Nearly thirty years on, Apple's debut reveals itself not as the work of a gifted teenager but as one of the most formally lucid documents of female self-possession American pop has ever produced.",
@@ -320,7 +341,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T00:02:16.001301+00:00",
+  "lastUpdated": "2026-06-25T03:32:55.688649+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

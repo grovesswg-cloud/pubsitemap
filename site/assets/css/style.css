@@ -412,10 +412,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   color: var(--smoke);
 }
 
-/* Featured card — spans 2 columns */
-.article-card.featured {
-  grid-column: span 2;
-}
 .article-card.featured .card-title {
   font-size: clamp(1.5rem, 2.5vw, 2rem);
 }

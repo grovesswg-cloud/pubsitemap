@@ -12,10 +12,18 @@ from dataclasses import dataclass, field
 
 
 @dataclass
+class VerificationSource:
+    """A single source used to verify a factual claim."""
+    name: str
+    url: str = ''
+    claim: str = ''   # which entity or claim this source confirmed
+
+
+@dataclass
 class FactVerificationResult:
-    result: str             # "PASS" | "FAIL" | "UNCERTAIN"
-    confidence: float       # 0.0 – 1.0
-    sources: list[str] = field(default_factory=list)
+    result: str                             # "PASS" | "FAIL" | "UNCERTAIN"
+    confidence: float                       # 0.0 – 1.0
+    sources: list[VerificationSource] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 

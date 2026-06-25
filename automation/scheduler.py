@@ -14,7 +14,8 @@ import sys
 
 from config import (
     PUBLISH_TIMES_UTC, MAX_BULLETINS_PER_DAY, MAX_FEATURES_PER_DAY, MAX_REVIEWS_PER_DAY,
-    QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, GOOGLE_GEMINI_API_KEY,
+    QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, QUALITY_FACT_FAIL_OPEN,
+    GOOGLE_GEMINI_API_KEY,
 )
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
@@ -67,7 +68,7 @@ def _run_fact_verification(article_data: dict) -> bool:
     for w in result.warnings:
         log.warning("FACT WARN: %s", w)
 
-    src_summary = ', '.join(result.sources[:3]) or 'none'
+    src_summary = ', '.join(s.name for s in result.sources[:3]) or 'none'
     log.info("FACT VERIFICATION: %s (confidence: %.2f, sources: %s)",
              result.result, result.confidence, src_summary)
 
@@ -81,10 +82,18 @@ def _run_fact_verification(article_data: dict) -> bool:
         return False
 
     if result.result == 'UNCERTAIN':
-        log.warning(
-            "Fact verification uncertain for '%s' — proceeding.",
-            article_data.get('title', '')[:60],
-        )
+        if QUALITY_FACT_FAIL_OPEN:
+            log.warning(
+                "Fact verification uncertain for '%s' — proceeding (fail-open mode).",
+                article_data.get('title', '')[:60],
+            )
+        else:
+            log.error(
+                "Fact verification uncertain for '%s' — blocking (fail-closed, default). "
+                "Set QUALITY_FACT_FAIL_OPEN=true to allow uncertain results through.",
+                article_data.get('title', '')[:60],
+            )
+            return False
 
     return True
 

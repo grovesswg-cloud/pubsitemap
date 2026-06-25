@@ -68,8 +68,27 @@ def _get_vision_provider():
     return _vision_provider
 
 
-def _run_vision_verification(image: dict, article_data: dict) -> bool:
-    """Run visual editorial verification gate if enabled. Returns False to abort on FAIL."""
+def _fetch_image_bytes(image_url: str) -> tuple[bytes, str] | None:
+    """Download image bytes and mime type. Returns None on failure."""
+    import requests
+    try:
+        resp = requests.get(image_url, timeout=15, headers={'User-Agent': 'LORD/1.0'})
+        resp.raise_for_status()
+        mime_type = resp.headers.get('Content-Type', 'image/jpeg').split(';')[0].strip()
+        if mime_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/gif'):
+            mime_type = 'image/jpeg'
+        return resp.content, mime_type
+    except Exception as exc:
+        log.warning("Vision QA: failed to fetch image %s: %s", image_url, exc)
+        return None
+
+
+def _check_one_image(image: dict, article_data: dict, role: str, image_index: int = 0) -> bool:
+    """
+    Run vision + entity identity check on a single image.
+    role: 'hero' or 'inline', image_index: position in the images list (0-based).
+    Returns True if the image passes (or gate is disabled).
+    """
     if not QUALITY_IMAGE_VALIDATION:
         return True
     if not GOOGLE_GEMINI_API_KEY:
@@ -78,62 +97,93 @@ def _run_vision_verification(image: dict, article_data: dict) -> bool:
 
     image_url = image.get('url', '')
     if not image_url:
-        log.warning("Vision QA: no URL on hero image — skipping gate.")
+        log.warning("Vision QA: no URL on %s image (idx=%d) — skipping.", role, image_index)
         return True
 
-    import requests
-    try:
-        resp = requests.get(image_url, timeout=15, headers={'User-Agent': 'LORD/1.0'})
-        resp.raise_for_status()
-        mime_type = resp.headers.get('Content-Type', 'image/jpeg').split(';')[0].strip()
-        if mime_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/gif'):
-            mime_type = 'image/jpeg'
-        image_bytes = resp.content
-    except Exception as exc:
-        log.warning("Vision QA: failed to fetch hero image %s: %s", image_url, exc)
+    fetched = _fetch_image_bytes(image_url)
+    if fetched is None:
         if QUALITY_IMAGE_FAIL_OPEN:
-            log.warning("Image fetch failed — proceeding (fail-open mode).")
+            log.warning("Image fetch failed (%s idx=%d) — proceeding (fail-open mode).", role, image_index)
             return True
-        log.error("Image fetch failed — blocking (fail-closed). Set QUALITY_IMAGE_FAIL_OPEN=true to allow through.")
+        log.error(
+            "Image fetch failed (%s idx=%d) — blocking (fail-closed). Set QUALITY_IMAGE_FAIL_OPEN=true to allow through.",
+            role, image_index,
+        )
         return False
+    image_bytes, mime_type = fetched
 
     provider = _get_vision_provider()
-    result = provider.verify_image(image_bytes, mime_type, article_data)
+    result   = provider.verify_image(image_bytes, mime_type, article_data)
 
     for w in result.warnings:
-        log.warning("VISION WARN: %s", w)
+        log.warning("VISION WARN [%s|idx=%d]: %s", role, image_index, w)
 
+    tier = image.get('evidenceTier', 'UNKNOWN')
     log.info(
-        "VISION VERIFICATION: %s (confidence: %.2f, person=%s, context=%s, technical=%s, editorial=%s)",
-        result.result, result.confidence,
-        result.person_match, result.context_match, result.technical_pass,
+        "VISION [%s|idx=%d|tier=%s]: %s (confidence: %.2f, person=%s, entity=%s, technical=%s, editorial=%s)",
+        role, image_index, tier, result.result, result.confidence,
+        result.person_match, result.entity_match, result.technical_pass,
         result.editorial_quality,
     )
 
     if result.result == 'FAIL':
         for e in result.errors:
-            log.error("VISION ERROR: %s", e)
-        log.error(
-            "Hero image for '%s' failed visual verification — skipping.",
-            article_data.get('title', '')[:60],
-        )
+            log.error("VISION FAIL [%s|idx=%d]: %s", role, image_index, e)
+        if not result.entity_match:
+            log.error(
+                "VISION ENTITY MISMATCH [%s|idx=%d]: expected=%r detected=%r confidence=%.2f reason=%s",
+                role, image_index,
+                result.expected_entity, result.detected_entity,
+                result.entity_confidence, result.mismatch_reason,
+            )
         return False
 
     if result.result == 'UNCERTAIN':
         if QUALITY_IMAGE_FAIL_OPEN:
-            log.warning(
-                "Vision verification uncertain for '%s' — proceeding (fail-open mode).",
-                article_data.get('title', '')[:60],
-            )
+            log.warning("Vision uncertain [%s|idx=%d] — proceeding (fail-open mode).", role, image_index)
         else:
             log.error(
-                "Vision verification uncertain for '%s' — blocking (fail-closed, default). "
+                "Vision uncertain [%s|idx=%d] — blocking (fail-closed, default). "
                 "Set QUALITY_IMAGE_FAIL_OPEN=true to allow uncertain results through.",
-                article_data.get('title', '')[:60],
+                role, image_index,
             )
             return False
 
     return True
+
+
+def _run_vision_verification(images: list, article_data: dict) -> list:
+    """
+    Run vision/entity verification on all images.
+
+    Hero (images[0]): failure blocks publication — returns empty list.
+    Inline images: failure drops that image only; others continue.
+
+    Returns the verified image list (hero + passing inlines), or [] to signal abort.
+    """
+    if not images:
+        return []
+
+    # Hero is mandatory — block the article if it fails
+    if not _check_one_image(images[0], article_data, role='hero', image_index=0):
+        log.error(
+            "Hero image failed vision verification for '%s' — skipping article.",
+            article_data.get('title', '')[:60],
+        )
+        return []
+
+    # Inline images — drop failures, never block the article
+    verified = [images[0]]
+    for idx, img in enumerate(images[1:], start=1):
+        if _check_one_image(img, article_data, role='inline', image_index=idx):
+            verified.append(img)
+        else:
+            log.warning(
+                "Inline image idx=%d (provider=%s, tier=%s) failed vision check — dropped.",
+                idx, img.get('provider', '?'), img.get('evidenceTier', '?'),
+            )
+
+    return verified
 
 
 def _get_editorial_provider():
@@ -393,7 +443,8 @@ def run_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
-        if not _run_vision_verification(images[0], article_data):
+        images = _run_vision_verification(images, article_data)
+        if not images:
             return False
 
         if not _run_editorial_review(article_data):
@@ -468,7 +519,8 @@ def feature_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
-        if not _run_vision_verification(images[0], article_data):
+        images = _run_vision_verification(images, article_data)
+        if not images:
             return False
 
         if not _run_editorial_review(article_data):
@@ -537,7 +589,8 @@ def review_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
-        if not _run_vision_verification(images[0], article_data):
+        images = _run_vision_verification(images, article_data)
+        if not images:
             return False
 
         if not _run_editorial_review(article_data):
@@ -584,7 +637,8 @@ def classic_review_cycle() -> bool:
             log.warning("No editorial image found for '%s' — skipping publication.", article_data.get('title', '')[:60])
             return False
 
-        if not _run_vision_verification(images[0], article_data):
+        images = _run_vision_verification(images, article_data)
+        if not images:
             return False
 
         if not _run_editorial_review(article_data):

@@ -2,11 +2,13 @@
 """LORD Automation — Scheduler & Entry Point
 
 Run modes:
-  python scheduler.py --run-now                      Publish one bulletin (default)
-  python scheduler.py --run-now --type feature       Publish one feature
-  python scheduler.py --run-now --type review        Publish a current album review
-  python scheduler.py --run-now --type classic-review  Publish a classic album review
-  python scheduler.py                                Persistent daemon (local use)
+  python scheduler.py --run-now                                    Publish one bulletin (default)
+  python scheduler.py --run-now --type feature                     Publish one feature
+  python scheduler.py --run-now --type review                      Publish a current album review
+  python scheduler.py --run-now --type classic-review              Publish a classic album review
+  python scheduler.py --run-now --type classic-review \\
+    --target-artist "Massive Attack" --target-album "Mezzanine"    Force a specific album (Golden Article / QA)
+  python scheduler.py                                              Persistent daemon (local use)
 """
 import argparse
 import logging
@@ -50,6 +52,10 @@ _fact_provider              = None
 _vision_provider            = None
 _editorial_provider         = None
 _search_readiness_provider  = None
+
+# Albums selected this process lifetime that failed to publish (wrong image, parse error, etc.).
+# Passed to pick_classic_album() so the same candidate isn't re-selected in daemon mode.
+_classic_attempted: list[str] = []
 
 
 def _get_fact_provider():
@@ -609,8 +615,18 @@ def review_cycle() -> bool:
         return False
 
 
-def classic_review_cycle() -> bool:
-    """Execute one classic album (historical reassessment) review cycle."""
+def classic_review_cycle(target_artist: str = '', target_album: str = '') -> bool:
+    """Execute one classic album (historical reassessment) review cycle.
+
+    target_artist / target_album: when both are non-empty, bypass automatic
+    album selection and use the supplied values. Intended for Golden Article
+    validation runs and deterministic regression testing.
+    """
+    global _classic_attempted
+    using_target = bool(target_artist and target_album)
+    album_info: dict | None = None
+    published = False
+
     log.info("─── Classic Review cycle starting ─────────────────────────")
     try:
         if not _check_api_key():
@@ -620,9 +636,19 @@ def classic_review_cycle() -> bool:
         reviewed = _get_reviewed_albums(index)
         log.info("Albums already reviewed: %d", len(reviewed))
 
-        log.info("Selecting classic album for reassessment...")
-        album_info = pick_classic_album(reviewed)
-        log.info("Selected: %s — %s (%s)", album_info['artist'], album_info['album'], album_info.get('year', ''))
+        if using_target:
+            album_info = {
+                'artist': target_artist,
+                'album': target_album,
+                'year': '',
+                'context': f'Golden Article validation: {target_artist} — {target_album}',
+                'imageQuery': f'{target_artist} musician portrait',
+            }
+            log.info("Target override: %s — %s", target_artist, target_album)
+        else:
+            log.info("Selecting classic album for reassessment...")
+            album_info = pick_classic_album(reviewed, attempted=_classic_attempted)
+            log.info("Selected: %s — %s (%s)", album_info['artist'], album_info['album'], album_info.get('year', ''))
 
         article_data = write_classic_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
@@ -650,11 +676,18 @@ def classic_review_cycle() -> bool:
         entry = publish_article(article_data, images)
         log.info("Published classic review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
+        published = True
         return True
 
     except Exception as exc:
         log.error("Classic review cycle failed: %s", exc, exc_info=True)
         return False
+
+    finally:
+        # Track failed non-target selections so daemon mode doesn't immediately
+        # re-select the same candidate on the next scheduling tick.
+        if album_info and not using_target and not published:
+            _classic_attempted.append(f"{album_info['artist']} — {album_info['album']}")
 
 
 def run_daemon() -> None:
@@ -688,6 +721,16 @@ def main() -> None:
         choices=['bulletin', 'feature', 'review', 'classic-review'],
         help='Content type to publish (default: bulletin)',
     )
+    parser.add_argument(
+        '--target-artist',
+        default='',
+        help='Force a specific artist for classic-review (Golden Article / QA)',
+    )
+    parser.add_argument(
+        '--target-album',
+        default='',
+        help='Force a specific album for classic-review (Golden Article / QA)',
+    )
     args = parser.parse_args()
 
     if args.run_now:
@@ -695,7 +738,10 @@ def main() -> None:
             'bulletin':       run_cycle,
             'feature':        feature_cycle,
             'review':         review_cycle,
-            'classic-review': classic_review_cycle,
+            'classic-review': lambda: classic_review_cycle(
+                target_artist=args.target_artist,
+                target_album=args.target_album,
+            ),
         }
         dispatch[args.type]()
         sys.exit(0)  # Always exit 0 — never fail the CI step

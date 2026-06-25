@@ -11,12 +11,12 @@ Answers five questions about every hero image before publication:
 Swap this file to switch vision verification to a different AI provider.
 All Gemini-specific details are contained entirely within this file.
 """
-import base64
 import json
 import logging
 import re
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from config import GEMINI_VISION_MODEL
 from providers.base import VisionVerificationProvider, VisionVerificationResult
@@ -33,8 +33,7 @@ def _strip_fences(text: str) -> str:
 
 class GeminiVisionProvider(VisionVerificationProvider):
     def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
-        self._model = genai.GenerativeModel(GEMINI_VISION_MODEL)
+        self._client = genai.Client(api_key=api_key)
 
     def verify_image(self, image_bytes: bytes, mime_type: str, article_data: dict) -> VisionVerificationResult:
         tags = article_data.get('tags') or []
@@ -51,12 +50,12 @@ class GeminiVisionProvider(VisionVerificationProvider):
         prompt = self._build_prompt(artist, title, deck, article_type, album, body_excerpt)
 
         try:
-            image_part = {
-                'mime_type': mime_type,
-                'data': base64.b64encode(image_bytes).decode(),
-            }
-            response = self._model.generate_content(
-                contents=[{'parts': [{'inline_data': image_part}, {'text': prompt}]}]
+            response = self._client.models.generate_content(
+                model=GEMINI_VISION_MODEL,
+                contents=[
+                    types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                    prompt,
+                ],
             )
             return self._parse_response(response.text)
         except Exception as exc:

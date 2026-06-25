@@ -10,7 +10,8 @@ import json
 import logging
 import re
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from config import GEMINI_FACT_MODEL
 from providers.base import FactVerificationProvider, FactVerificationResult, VerificationSource
@@ -18,6 +19,8 @@ from providers.base import FactVerificationProvider, FactVerificationResult, Ver
 log = logging.getLogger('lord.fact_verification')
 
 _STRIP_RE = re.compile(r'^```(?:json)?\s*|\s*```$', re.MULTILINE)
+_SEARCH_TOOL = types.Tool(google_search=types.GoogleSearch())
+_SEARCH_CONFIG = types.GenerateContentConfig(tools=[_SEARCH_TOOL])
 
 
 def _strip_fences(text: str) -> str:
@@ -26,11 +29,7 @@ def _strip_fences(text: str) -> str:
 
 class GeminiFactProvider(FactVerificationProvider):
     def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
-        self._model = genai.GenerativeModel(
-            GEMINI_FACT_MODEL,
-            tools='google_search_retrieval',
-        )
+        self._client = genai.Client(api_key=api_key)
 
     def verify(self, article_data: dict) -> FactVerificationResult:
         tags = article_data.get('tags') or []
@@ -53,7 +52,11 @@ class GeminiFactProvider(FactVerificationProvider):
         prompt = self._build_prompt(artist, album, title, article_type, body)
 
         try:
-            response = self._model.generate_content(prompt)
+            response = self._client.models.generate_content(
+                model=GEMINI_FACT_MODEL,
+                contents=prompt,
+                config=_SEARCH_CONFIG,
+            )
             grounding_sources = self._extract_grounding_sources(response)
             return self._parse_response(response.text, grounding_sources)
         except Exception as exc:

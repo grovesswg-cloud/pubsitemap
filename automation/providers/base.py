@@ -83,6 +83,23 @@ class EditorialReviewResult:
     revised_body: str | None = None   # reserved for future surgical rewrite workflow
 
 
+@dataclass
+class SearchReadinessIssue:
+    severity: str        # "FAIL" | "WARN" | "INFO"
+    category: str        # "title" | "meta_description" | "duplicate_metadata" | "headings" |
+                         # "open_graph" | "image_metadata" | "structured_data" | "slug" |
+                         # "internal_links" | "accessibility"
+    description: str
+    recommendation: str = ''
+
+
+@dataclass
+class SearchReadinessResult:
+    result: str          # "PASS" | "FAIL"
+    issues: list[SearchReadinessIssue] = field(default_factory=list)
+    summary: str = ''
+
+
 class FactVerificationProvider(ABC):
     @abstractmethod
     def verify(self, article_data: dict) -> FactVerificationResult:
@@ -105,6 +122,23 @@ class EditorialReviewProvider(ABC):
         Returns EditorialReviewResult with structured issues classified by severity:
           FAIL — prevents publication (incoherent structure, absent conclusion, etc.)
           WARN — editorial weakness, allows publication with warning logged
+          INFO — minor observation, no publication impact
+        """
+        ...
+
+
+class SearchReadinessProvider(ABC):
+    @abstractmethod
+    def evaluate(self, article_data: dict) -> SearchReadinessResult:
+        """Evaluate article for technical publication quality and search readiness.
+
+        Philosophy: optimize for understanding, not manipulation. A technically
+        excellent article naturally satisfies modern search requirements without
+        keyword density hacks or algorithmic gaming.
+
+        Returns SearchReadinessResult with structured issues classified by severity:
+          FAIL — objective failure blocking publication (e.g. missing title)
+          WARN — meaningful gap, allows publication with warning logged
           INFO — minor observation, no publication impact
         """
         ...

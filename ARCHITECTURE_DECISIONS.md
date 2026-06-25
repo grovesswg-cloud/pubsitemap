@@ -209,3 +209,23 @@ Each entry documents a significant architectural decision: what was chosen, what
 - Same provider for all AI tasks — rejected because it couples vendor choice for unrelated tasks and forecloses competition between providers for different roles.
 
 **Consequences:** The pipeline now has a two-provider architecture: Gemini (objective) and Claude (editorial). Both implement interfaces in `providers/base.py`. Either can be replaced by editing one file. Editorial issues are classified as FAIL / WARN / INFO. Only FAIL prevents publication. `QUALITY_EDITORIAL_REVIEW` feature flag defaults to `false`; `QUALITY_EDITORIAL_FAIL_OPEN` controls UNCERTAIN behavior.
+
+---
+
+## ADR-013: Search Readiness, not SEO
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** The fifth quality gate is named "Search Readiness," not "SEO validation." The distinction is architectural, not cosmetic. SEO validation implies keyword density analysis, ranking signal manipulation, and algorithmic gaming. Search Readiness evaluates whether an article is technically excellent, machine-readable, and correctly structured so that search engines can understand it without assistance. The philosophy: optimize for understanding, not manipulation.
+
+**Context:** A technically excellent publication should naturally satisfy modern search requirements. Keyword density checks, trend-chasing, and ranking hacks are antithetical to LORD's editorial philosophy — and, increasingly, to how modern search engines actually work. The gate checks structural correctness (title quality, heading hierarchy, meta description, Open Graph completeness, image alt text, structured data prerequisites) — all of which are objective, deterministic, and provider-agnostic.
+
+**Implementation:** `LocalSearchReadinessProvider` — pure Python, no AI, no external API. All checks are deterministic. There is no UNCERTAIN state: FAIL is objective (e.g. missing title), WARN is meaningful but allows publication, INFO is advisory only. No fail-open flag is needed because the only FAIL conditions are unambiguous blockers.
+
+**Alternatives considered:**
+- AI-assisted SEO scoring (keyword density, trend matching) — rejected because it contradicts LORD's editorial philosophy and optimises for manipulation rather than quality.
+- External SEO API (Moz, SEMrush) — rejected because it adds a paid dependency for deterministic structural checks that require no external data.
+- Keyword density threshold — explicitly rejected; will never be added to this gate.
+
+**Consequences:** `SearchReadinessProvider` ABC added to `providers/base.py`. `LocalSearchReadinessProvider` in `providers/impl/`. `QUALITY_SEO_VALIDATION` feature flag (already in `config.py`) enables/disables the gate. Gate runs after Editorial, before Publisher. Future additions (Google News schema, Bing News, Apple News, JSON-LD injection) can extend the provider without architectural changes.

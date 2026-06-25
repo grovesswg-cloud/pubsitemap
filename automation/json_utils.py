@@ -20,44 +20,87 @@ def strip_fences(text: str) -> str:
     return text
 
 
-def _fix_string_newlines(text: str) -> str:
+def _repair_json_strings(text: str) -> str:
     """
-    Walk the JSON character-by-character and replace bare newlines inside
-    string values with the two-character sequence \\n.
+    Single-pass repair of two Claude JSON generation bugs:
 
-    Claude occasionally writes a 1500-word body field that spans multiple
-    real lines inside the JSON string. json.loads rejects those because JSON
-    strings must not contain unescaped control characters (RFC 7159 §7).
+    1. Bare newlines/tabs inside string values (illegal per RFC 7159 §7).
+       Claude occasionally writes a multi-line body field whose real newlines
+       are inside the JSON string rather than escaped as \\n.
+
+    2. Unescaped double quotes inside string values.
+       HTML body content sometimes includes <a href="url"> attributes or
+       prose like He called it "revolutionary" without escaping the inner
+       quotes. When we see a `"` while already inside a string, we look ahead
+       for the next non-whitespace character: if it is a valid JSON delimiter
+       (`:`, `,`, `}`, `]`) we treat the `"` as the closing delimiter;
+       otherwise we escape it as `\"`.
     """
     result = []
     in_string = False
     escape_next = False
-    for ch in text:
+    i = 0
+
+    while i < len(text):
+        ch = text[i]
+
         if escape_next:
             result.append(ch)
             escape_next = False
-        elif ch == '\\' and in_string:
+            i += 1
+            continue
+
+        if ch == '\\' and in_string:
             result.append(ch)
             escape_next = True
-        elif ch == '"':
-            result.append(ch)
-            in_string = not in_string
-        elif ch == '\n' and in_string:
-            result.append('\\n')
-        elif ch == '\r' and in_string:
-            pass  # strip bare CR
+            i += 1
+            continue
+
+        if ch == '"':
+            if not in_string:
+                result.append(ch)
+                in_string = True
+            else:
+                # Determine whether this " closes the string or is stray content.
+                # Skip whitespace (including newlines) to find the next structural
+                # character. If it's a valid JSON delimiter the " is closing;
+                # otherwise it's an unescaped quote inside the value.
+                j = i + 1
+                while j < len(text) and text[j] in ' \t\n\r':
+                    j += 1
+                next_ch = text[j] if j < len(text) else ''
+                if next_ch in (':', ',', '}', ']', ''):
+                    result.append(ch)
+                    in_string = False
+                else:
+                    result.append('\\"')
+            i += 1
+            continue
+
+        if in_string:
+            if ch == '\n':
+                result.append('\\n')
+            elif ch == '\r':
+                pass  # strip bare CR
+            elif ch == '\t':
+                result.append('\\t')
+            else:
+                result.append(ch)
         else:
             result.append(ch)
+
+        i += 1
+
     return ''.join(result)
 
 
 def parse_writer_json(raw: str) -> dict:
     """
-    Strip fences, fix bare newlines in strings, then parse.
+    Strip fences, repair bare newlines/tabs and unescaped quotes in strings, then parse.
     Raises ValueError (not JSONDecodeError) on failure so callers get a clean message.
     """
     cleaned = strip_fences(raw)
-    fixed = _fix_string_newlines(cleaned)
+    fixed = _repair_json_strings(cleaned)
     try:
         return json.loads(fixed)
     except json.JSONDecodeError as exc:

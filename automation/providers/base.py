@@ -47,11 +47,40 @@ class VisionVerificationResult:
 
 
 @dataclass
+class EditorialStandard:
+    """Publication-specific editorial configuration.
+
+    Passed to EditorialReviewProvider so the same provider implementation
+    can evaluate different publications without modification.
+
+    Example usage:
+        lord_standard = EditorialStandard(
+            publication_name='LORD',
+            voice_prompt=LORD_VOICE,
+        )
+        provider = ClaudeEditorialProvider(api_key=..., model=..., editorial_standard=lord_standard)
+    """
+    publication_name: str    # e.g. "LORD"
+    voice_prompt: str        # full voice/tone description injected into the review prompt
+
+
+@dataclass
+class EditorialIssue:
+    severity: str       # "FAIL" | "WARN" | "INFO"
+    category: str       # e.g. "clarity" | "structure" | "tone" | "pacing" | "repetition" ...
+    description: str    # what the issue is
+    quote: str = ''     # offending text excerpt (optional)
+
+
+@dataclass
 class EditorialReviewResult:
-    result: str             # "PASS" | "FAIL"
+    result: str             # "PASS" | "FAIL" | "UNCERTAIN"
     confidence: float       # 0.0 – 1.0
-    revised_body: str | None = None   # optional surgical rewrite
+    summary: str = ''
+    issues: list[EditorialIssue] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    revised_body: str | None = None   # reserved for future surgical rewrite workflow
 
 
 class FactVerificationProvider(ABC):
@@ -71,5 +100,11 @@ class VisionVerificationProvider(ABC):
 class EditorialReviewProvider(ABC):
     @abstractmethod
     def review(self, article_data: dict) -> EditorialReviewResult:
-        """Review article for voice, structure, and editorial standards."""
+        """Review article for voice, structure, and editorial standards.
+
+        Returns EditorialReviewResult with structured issues classified by severity:
+          FAIL — prevents publication (incoherent structure, absent conclusion, etc.)
+          WARN — editorial weakness, allows publication with warning logged
+          INFO — minor observation, no publication impact
+        """
         ...

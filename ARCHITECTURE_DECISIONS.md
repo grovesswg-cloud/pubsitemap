@@ -173,3 +173,39 @@ Each entry documents a significant architectural decision: what was chosen, what
 - Deterministic entity lookup (MusicBrainz/Wikidata cross-reference) — considered for future improvement; AI vision is required for the actual image-side of the check regardless.
 
 **Consequences:** `VisionVerificationResult` gained five new fields (`entity_match`, `expected_entity`, `detected_entity`, `entity_confidence`, `mismatch_reason`). `entity_match` defaults to `True` for backwards compatibility. Regression tests in `automation/tests/test_vision_entity.py` cover 12 known ambiguous entity pairs and must be extended whenever a new editorial failure of this class is discovered.
+
+---
+
+## ADR-011: Legacy Editorial Certification deferred until Quality Framework v1 is complete
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** Auditing the existing article archive is deferred until the full editorial quality framework is complete. Once all core gates are implemented and stable (metadata, facts, vision, entity identity, editorial review, SEO, publishing gate, quality reporting, corrections), a separate project milestone — **Legacy Editorial Certification (Quality Framework v1)** — will run every published article through the finished framework, generate quality reports, identify corrections, and certify the entire archive against a single stable standard.
+
+**Context:** Each new quality gate changes the definition of "passing." Auditing the archive now would require re-auditing it after every subsequent gate is added. A single certification pass against the completed framework produces a stronger, more coherent result and avoids repeated audit work on evolving standards.
+
+**Implementation constraint:** All validators and providers built during the roadmap phase must be modular and discoverable — each quality gate should be self-contained and registerable so the Legacy Certification audit framework can execute every gate automatically without custom integration work per gate.
+
+**Alternatives considered:**
+- Audit archive incrementally as each gate is added — rejected because it produces inconsistent certification (different articles cleared different gate sets) and wastes audit effort on gates that may evolve.
+- Never audit the archive — rejected because pre-framework articles represent unknown editorial risk.
+
+**Consequences:** No archive-touching code is written during the roadmap phase. The Legacy Editorial Certification phase is a separate milestone, not a PR. The modularity constraint applies to every quality gate added from this point forward.
+
+---
+
+## ADR-012: Claude as the Editorial Review provider; Gemini for objective verification
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** `ClaudeEditorialProvider` is the first implementation of `EditorialReviewProvider`. Claude evaluates articles as a senior magazine editor: structure, voice, pacing, coherence, tone consistency, and conclusion strength. Gemini handles objective verification (facts, entity identity, image QA). Claude handles editorial judgment.
+
+**Context:** The pipeline already uses Gemini with Google Search grounding for fact verification — a task where live web retrieval is a clear advantage. Editorial review is a different task: it requires sustained literary judgment, voice consistency evaluation, and nuanced assessment of whether prose earns the reader's attention. Keeping the two domains separate plays to each model's strengths and maintains a clean architectural separation between objective and subjective checks.
+
+**Alternatives considered:**
+- Gemini for editorial review — rejected because editorial judgment is a different task from factual retrieval; no search grounding is needed, and literary sensitivity is the primary requirement.
+- Same provider for all AI tasks — rejected because it couples vendor choice for unrelated tasks and forecloses competition between providers for different roles.
+
+**Consequences:** The pipeline now has a two-provider architecture: Gemini (objective) and Claude (editorial). Both implement interfaces in `providers/base.py`. Either can be replaced by editing one file. Editorial issues are classified as FAIL / WARN / INFO. Only FAIL prevents publication. `QUALITY_EDITORIAL_REVIEW` feature flag defaults to `false`; `QUALITY_EDITORIAL_FAIL_OPEN` controls UNCERTAIN behavior.

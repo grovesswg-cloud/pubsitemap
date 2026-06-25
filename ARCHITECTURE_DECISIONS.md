@@ -229,3 +229,21 @@ Each entry documents a significant architectural decision: what was chosen, what
 - Keyword density threshold — explicitly rejected; will never be added to this gate.
 
 **Consequences:** `SearchReadinessProvider` ABC added to `providers/base.py`. `LocalSearchReadinessProvider` in `providers/impl/`. `QUALITY_SEO_VALIDATION` feature flag (already in `config.py`) enables/disables the gate. Gate runs after Editorial, before Publisher. Future additions (Google News schema, Bing News, Apple News, JSON-LD injection) can extend the provider without architectural changes.
+
+---
+
+## ADR-014: Vision verification runs on every published image, not just the hero
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** `_run_vision_verification` accepts the full image list and verifies every image before publication. Hero image failure blocks the article entirely. Inline image failure drops that image only — the article continues with the remaining verified images. The function signature changed from `(image: dict, article_data: dict) -> bool` to `(images: list, article_data: dict) -> list`.
+
+**Context:** A production failure (Linea Personal, 2026-06-25) revealed that vision verification was only applied to `images[0]`. A feature article sourcing three images via `imageQueries` had its hero verified and its two inline images published without any identity check. Both inline images were of unrelated people. Additionally, `QUALITY_IMAGE_VALIDATION` had never been set to `true` in any production workflow file — the gate was built and merged but never activated.
+
+**Alternatives considered:**
+- Verify hero only, add manual review flag for inlines — rejected because it still allows wrong-identity images to publish automatically.
+- Block entire article on any inline failure — rejected because one bad inline image should not suppress an otherwise correct article; dropping it is proportionate.
+- Parallel verification of all images — considered for future optimisation; sequential is correct and simpler for now.
+
+**Consequences:** `_run_vision_verification` now returns a verified image list. A return value of `[]` signals abort. All four cycle functions (run_cycle, feature_cycle, review_cycle, classic_review_cycle) updated to use the list-returning signature. `QUALITY_IMAGE_VALIDATION: 'true'` added to all three production workflow files. Log lines include image index, expected entity, detected entity, entity confidence, and mismatch reason to support production debugging without additional code changes.

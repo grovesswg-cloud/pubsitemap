@@ -158,6 +158,7 @@ def fetch_wikipedia(query: str) -> dict | None:
             'creditUrl': page_url,
             'altText':   page.get('description') or title,
             'provider':  'Wikipedia',
+            'evidenceTier': 'AUTHORITATIVE',
         }
     except Exception as exc:
         log.warning("Wikipedia error: %s", exc)
@@ -273,7 +274,9 @@ def fetch_wikimedia_commons(query: str, prefer_portrait: bool = False) -> dict |
             reverse=True,
         )
         best = best_candidates[0]
-        return {k: v for k, v in best.items() if k not in ('width', 'height', 'is_jpeg', 'is_portrait')}
+        result = {k: v for k, v in best.items() if k not in ('width', 'height', 'is_jpeg', 'is_portrait')}
+        result['evidenceTier'] = 'AUTHORITATIVE'
+        return result
 
     except Exception as exc:
         log.warning("Wikimedia Commons error: %s", exc)
@@ -341,14 +344,15 @@ def fetch_getty(query: str) -> dict | None:
                 break
 
         return {
-            'embedType': 'getty',
-            'embedHtml': embed_html,
-            'url':       thumb_url,
-            'thumbUrl':  thumb_url,
-            'credit':    'Getty Images',
-            'creditUrl': f'https://www.gettyimages.com/detail/{img_id}',
-            'altText':   title,
-            'provider':  'Getty',
+            'embedType':    'getty',
+            'embedHtml':    embed_html,
+            'url':          thumb_url,
+            'thumbUrl':     thumb_url,
+            'credit':       'Getty Images',
+            'creditUrl':    f'https://www.gettyimages.com/detail/{img_id}',
+            'altText':      title,
+            'provider':     'Getty',
+            'evidenceTier': 'AUTHORITATIVE',
         }
     except Exception as exc:
         log.warning("Getty error: %s", exc)
@@ -376,13 +380,14 @@ def fetch_unsplash(query: str, orientation: str = 'landscape') -> dict | None:
 
         d = resp.json()
         return {
-            'url':        d['urls']['regular'],
-            'fullUrl':    d['urls']['full'],
-            'thumbUrl':   d['urls']['small'],
-            'credit':     d['user']['name'],
-            'creditUrl':  d['user']['links']['html'] + '?utm_source=lord_music&utm_medium=referral',
-            'altText':    d.get('alt_description') or query,
-            'provider':   'Unsplash',
+            'url':          d['urls']['regular'],
+            'fullUrl':      d['urls']['full'],
+            'thumbUrl':     d['urls']['small'],
+            'credit':       d['user']['name'],
+            'creditUrl':    d['user']['links']['html'] + '?utm_source=lord_music&utm_medium=referral',
+            'altText':      d.get('alt_description') or query,
+            'provider':     'Unsplash',
+            'evidenceTier': 'LOW_CONFIDENCE',
         }
     except Exception as exc:
         log.warning("Unsplash error: %s", exc)
@@ -435,13 +440,17 @@ def fetch_openverse(query: str, exclude_flickr: bool = False) -> dict | None:
             'smithsonian':      'Smithsonian',
         }.get(source, source.replace('_', ' ').title())
 
+        # Non-Flickr sources (Wikimedia/StockSnap/Rawpixel) are more reliable;
+        # Flickr is a crowdsourced last-resort with variable identity accuracy.
+        evidence_tier = 'ACCEPTABLE' if exclude_flickr else 'LOW_CONFIDENCE'
         return {
-            'url':       d['url'],
-            'thumbUrl':  d.get('thumbnail', d['url']),
-            'credit':    creator or source_label,
-            'creditUrl': creator_url,
-            'altText':   d.get('title', '') or query,
-            'provider':  source_label,
+            'url':          d['url'],
+            'thumbUrl':     d.get('thumbnail', d['url']),
+            'credit':       creator or source_label,
+            'creditUrl':    creator_url,
+            'altText':      d.get('title', '') or query,
+            'provider':     source_label,
+            'evidenceTier': evidence_tier,
         }
     except Exception as exc:
         log.warning("Openverse error: %s", exc)
@@ -476,12 +485,13 @@ def fetch_pixabay(query: str) -> dict | None:
 
         p = random.choice(hits[:5])
         return {
-            'url':       p.get('largeImageURL') or p['webformatURL'],
-            'thumbUrl':  p['previewURL'],
-            'credit':    p.get('user', 'Pixabay'),
-            'creditUrl': p['pageURL'],
-            'altText':   query,
-            'provider':  'Pixabay',
+            'url':          p.get('largeImageURL') or p['webformatURL'],
+            'thumbUrl':     p['previewURL'],
+            'credit':       p.get('user', 'Pixabay'),
+            'creditUrl':    p['pageURL'],
+            'altText':      query,
+            'provider':     'Pixabay',
+            'evidenceTier': 'LOW_CONFIDENCE',
         }
     except Exception as exc:
         log.warning("Pixabay error: %s", exc)
@@ -508,13 +518,14 @@ def fetch_pexels(query: str) -> dict | None:
 
         p = random.choice(photos[:5])
         return {
-            'url':       p['src']['large'],
-            'fullUrl':   p['src']['original'],
-            'thumbUrl':  p['src']['small'],
-            'credit':    p['photographer'],
-            'creditUrl': p['photographer_url'],
-            'altText':   p.get('alt') or query,
-            'provider':  'Pexels',
+            'url':          p['src']['large'],
+            'fullUrl':      p['src']['original'],
+            'thumbUrl':     p['src']['small'],
+            'credit':       p['photographer'],
+            'creditUrl':    p['photographer_url'],
+            'altText':      p.get('alt') or query,
+            'provider':     'Pexels',
+            'evidenceTier': 'LOW_CONFIDENCE',
         }
     except Exception as exc:
         log.warning("Pexels error: %s", exc)

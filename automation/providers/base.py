@@ -47,6 +47,24 @@ class VisionVerificationResult:
 
 
 @dataclass
+class EditorialStandard:
+    """Publication-specific editorial configuration.
+
+    Passed to EditorialReviewProvider so the same provider implementation
+    can evaluate different publications without modification.
+
+    Example usage:
+        lord_standard = EditorialStandard(
+            publication_name='LORD',
+            voice_prompt=LORD_VOICE,
+        )
+        provider = ClaudeEditorialProvider(api_key=..., model=..., editorial_standard=lord_standard)
+    """
+    publication_name: str    # e.g. "LORD"
+    voice_prompt: str        # full voice/tone description injected into the review prompt
+
+
+@dataclass
 class EditorialIssue:
     severity: str       # "FAIL" | "WARN" | "INFO"
     category: str       # e.g. "clarity" | "structure" | "tone" | "pacing" | "repetition" ...

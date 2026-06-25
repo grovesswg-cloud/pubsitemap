@@ -137,9 +137,18 @@ def _run_vision_verification(image: dict, article_data: dict) -> bool:
 def _get_editorial_provider():
     global _editorial_provider
     if _editorial_provider is None:
-        from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL
+        from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL, LORD_VOICE
+        from providers.base import EditorialStandard
         from providers.impl.claude_editorial import ClaudeEditorialProvider
-        _editorial_provider = ClaudeEditorialProvider(api_key=ANTHROPIC_API_KEY, model=ANTHROPIC_MODEL)
+        lord_standard = EditorialStandard(
+            publication_name='LORD',
+            voice_prompt=LORD_VOICE,
+        )
+        _editorial_provider = ClaudeEditorialProvider(
+            api_key=ANTHROPIC_API_KEY,
+            model=ANTHROPIC_MODEL,
+            editorial_standard=lord_standard,
+        )
     return _editorial_provider
 
 

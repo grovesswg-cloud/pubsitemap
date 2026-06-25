@@ -22,8 +22,7 @@ import re
 
 import anthropic
 
-from config import LORD_VOICE
-from providers.base import EditorialReviewProvider, EditorialReviewResult, EditorialIssue
+from providers.base import EditorialReviewProvider, EditorialReviewResult, EditorialIssue, EditorialStandard
 
 log = logging.getLogger('lord.editorial_review')
 
@@ -37,9 +36,10 @@ def _strip_fences(text: str) -> str:
 
 
 class ClaudeEditorialProvider(EditorialReviewProvider):
-    def __init__(self, api_key: str, model: str):
-        self._client = anthropic.Anthropic(api_key=api_key)
-        self._model  = model
+    def __init__(self, api_key: str, model: str, editorial_standard: EditorialStandard):
+        self._client   = anthropic.Anthropic(api_key=api_key)
+        self._model    = model
+        self._standard = editorial_standard
 
     def review(self, article_data: dict) -> EditorialReviewResult:
         title        = (article_data.get('title')      or '').strip()
@@ -89,10 +89,12 @@ class ClaudeEditorialProvider(EditorialReviewProvider):
         album: str,
     ) -> str:
         album_line = f'\nAlbum: "{album}"' if album else ''
+        pub        = self._standard.publication_name
+        voice      = self._standard.voice_prompt
         return f"""\
-{LORD_VOICE}
+{voice}
 
-You are a senior editor at LORD, an independent music publication with the editorial voice described above.
+You are a senior editor at {pub}, an independent music publication with the editorial voice described above.
 
 An article has been submitted for editorial review before publication.
 Facts have already been verified by a separate system — do not question factual accuracy.

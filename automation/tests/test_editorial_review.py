@@ -14,9 +14,14 @@ from unittest.mock import MagicMock, patch
 
 
 def _make_provider():
+    from providers.base import EditorialStandard
+    standard = EditorialStandard(
+        publication_name='TestPub',
+        voice_prompt='TestPub has a clear, precise editorial voice.',
+    )
     with patch('anthropic.Anthropic', return_value=MagicMock()):
         from providers.impl.claude_editorial import ClaudeEditorialProvider
-        return ClaudeEditorialProvider(api_key='test-key', model='test-model')
+        return ClaudeEditorialProvider(api_key='test-key', model='test-model', editorial_standard=standard)
 
 
 def _response_json(

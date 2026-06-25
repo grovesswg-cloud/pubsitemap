@@ -17,6 +17,7 @@ from config import (
     QUALITY_METADATA_VALIDATION, QUALITY_FACT_VERIFICATION, QUALITY_FACT_FAIL_OPEN,
     QUALITY_IMAGE_VALIDATION, QUALITY_IMAGE_FAIL_OPEN,
     QUALITY_EDITORIAL_REVIEW, QUALITY_EDITORIAL_FAIL_OPEN,
+    QUALITY_SEO_VALIDATION,
     GOOGLE_GEMINI_API_KEY,
 )
 from news_fetcher import get_trending_music_news
@@ -45,9 +46,10 @@ def _check_api_key() -> bool:
     return True
 
 
-_fact_provider      = None
-_vision_provider    = None
-_editorial_provider = None
+_fact_provider              = None
+_vision_provider            = None
+_editorial_provider         = None
+_search_readiness_provider  = None
 
 
 def _get_fact_provider():
@@ -202,6 +204,62 @@ def _run_editorial_review(article_data: dict) -> bool:
     return True
 
 
+def _get_search_readiness_provider():
+    global _search_readiness_provider
+    if _search_readiness_provider is None:
+        from providers.impl.local_search_readiness import LocalSearchReadinessProvider
+        _search_readiness_provider = LocalSearchReadinessProvider()
+    return _search_readiness_provider
+
+
+def _run_search_readiness(article_data: dict, images: list) -> bool:
+    """Run search readiness gate if enabled. Returns False to abort on FAIL."""
+    if not QUALITY_SEO_VALIDATION:
+        return True
+
+    # Build check context with hero image metadata without mutating article_data
+    # (image fields are formally attached by publish_article — we preview them here)
+    check_data = dict(article_data)
+    if images:
+        hero = images[0]
+        check_data['image']        = hero.get('url', '')
+        check_data['imageAlt']     = hero.get('altText', '')
+        check_data['inlineImages'] = images[1:]
+    else:
+        check_data.setdefault('image', '')
+        check_data.setdefault('imageAlt', '')
+        check_data['inlineImages'] = []
+
+    provider = _get_search_readiness_provider()
+    result   = provider.evaluate(check_data)
+
+    fail_issues = [i for i in result.issues if i.severity == 'FAIL']
+    warn_issues = [i for i in result.issues if i.severity == 'WARN']
+    info_issues = [i for i in result.issues if i.severity == 'INFO']
+
+    for issue in info_issues:
+        log.info("SEARCH INFO [%s]: %s", issue.category, issue.description)
+    for issue in warn_issues:
+        log.warning("SEARCH WARN [%s]: %s", issue.category, issue.description)
+
+    log.info(
+        "SEARCH READINESS: %s (FAIL=%d, WARN=%d, INFO=%d) — %s",
+        result.result, len(fail_issues), len(warn_issues), len(info_issues),
+        result.summary[:100] if result.summary else '',
+    )
+
+    if result.result == 'FAIL':
+        for issue in fail_issues:
+            log.error("SEARCH FAIL [%s]: %s", issue.category, issue.description)
+        log.error(
+            "Article '%s' failed search readiness — skipping.",
+            article_data.get('title', '')[:60],
+        )
+        return False
+
+    return True
+
+
 def _run_fact_verification(article_data: dict) -> bool:
     """Run fact verification gate if enabled. Returns False to abort on FAIL."""
     if not QUALITY_FACT_VERIFICATION:
@@ -341,6 +399,9 @@ def run_cycle() -> bool:
         if not _run_editorial_review(article_data):
             return False
 
+        if not _run_search_readiness(article_data, images):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -413,6 +474,9 @@ def feature_cycle() -> bool:
         if not _run_editorial_review(article_data):
             return False
 
+        if not _run_search_readiness(article_data, images):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published feature: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -479,6 +543,9 @@ def review_cycle() -> bool:
         if not _run_editorial_review(article_data):
             return False
 
+        if not _run_search_readiness(article_data, images):
+            return False
+
         entry = publish_article(article_data, images)
         log.info("Published review: %s", entry['url'])
         log.info("──────────────────────────────────────────────────────────")
@@ -521,6 +588,9 @@ def classic_review_cycle() -> bool:
             return False
 
         if not _run_editorial_review(article_data):
+            return False
+
+        if not _run_search_readiness(article_data, images):
             return False
 
         entry = publish_article(article_data, images)

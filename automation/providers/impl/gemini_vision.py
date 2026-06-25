@@ -14,7 +14,6 @@ import json
 import logging
 import re
 
-import requests
 import google.generativeai as genai
 
 from config import GEMINI_VISION_MODEL
@@ -30,22 +29,12 @@ def _strip_fences(text: str) -> str:
     return _STRIP_RE.sub('', text.strip()).strip()
 
 
-def _fetch_image_bytes(url: str) -> tuple[bytes, str]:
-    """Download image and return (bytes, mime_type)."""
-    resp = requests.get(url, timeout=15, headers={'User-Agent': 'LORD/1.0'})
-    resp.raise_for_status()
-    content_type = resp.headers.get('Content-Type', 'image/jpeg').split(';')[0].strip()
-    if content_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/gif'):
-        content_type = 'image/jpeg'
-    return resp.content, content_type
-
-
 class GeminiVisionProvider(VisionVerificationProvider):
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
         self._model = genai.GenerativeModel(GEMINI_VISION_MODEL)
 
-    def verify_image(self, image_url: str, article_data: dict) -> VisionVerificationResult:
+    def verify_image(self, image_bytes: bytes, mime_type: str, article_data: dict) -> VisionVerificationResult:
         tags = article_data.get('tags') or []
         artist = (
             article_data.get('artistName')
@@ -56,22 +45,12 @@ class GeminiVisionProvider(VisionVerificationProvider):
         article_type = (article_data.get('type') or '').strip()
         album        = (article_data.get('albumName') or '').strip()
 
-        try:
-            img_bytes, mime_type = _fetch_image_bytes(image_url)
-        except Exception as exc:
-            log.warning("Vision QA: failed to fetch image %s: %s", image_url, exc)
-            return VisionVerificationResult(
-                result='UNCERTAIN',
-                confidence=0.0,
-                errors=[f"Could not fetch image for verification: {exc}"],
-            )
-
         prompt = self._build_prompt(artist, title, deck, article_type, album)
 
         try:
             image_part = {
                 'mime_type': mime_type,
-                'data': base64.b64encode(img_bytes).decode(),
+                'data': base64.b64encode(image_bytes).decode(),
             }
             response = self._model.generate_content(
                 contents=[{'parts': [{'inline_data': image_part}, {'text': prompt}]}]

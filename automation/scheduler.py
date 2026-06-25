@@ -77,8 +77,24 @@ def _run_vision_verification(image: dict, article_data: dict) -> bool:
         log.warning("Vision QA: no URL on hero image — skipping gate.")
         return True
 
+    import requests
+    try:
+        resp = requests.get(image_url, timeout=15, headers={'User-Agent': 'LORD/1.0'})
+        resp.raise_for_status()
+        mime_type = resp.headers.get('Content-Type', 'image/jpeg').split(';')[0].strip()
+        if mime_type not in ('image/jpeg', 'image/png', 'image/webp', 'image/gif'):
+            mime_type = 'image/jpeg'
+        image_bytes = resp.content
+    except Exception as exc:
+        log.warning("Vision QA: failed to fetch hero image %s: %s", image_url, exc)
+        if QUALITY_IMAGE_FAIL_OPEN:
+            log.warning("Image fetch failed — proceeding (fail-open mode).")
+            return True
+        log.error("Image fetch failed — blocking (fail-closed). Set QUALITY_IMAGE_FAIL_OPEN=true to allow through.")
+        return False
+
     provider = _get_vision_provider()
-    result = provider.verify_image(image_url, article_data)
+    result = provider.verify_image(image_bytes, mime_type, article_data)
 
     for w in result.warnings:
         log.warning("VISION WARN: %s", w)

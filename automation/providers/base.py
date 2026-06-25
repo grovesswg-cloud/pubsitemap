@@ -58,7 +58,7 @@ class FactVerificationProvider(ABC):
 
 class VisionVerificationProvider(ABC):
     @abstractmethod
-    def verify_image(self, image_url: str, article_data: dict) -> VisionVerificationResult:
+    def verify_image(self, image_bytes: bytes, mime_type: str, article_data: dict) -> VisionVerificationResult:
         """Verify image shows the correct person in the correct context."""
         ...
 

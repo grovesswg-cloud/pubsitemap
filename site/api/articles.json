@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260625-camille-releases-triple-album-fifteen-years-in-the-making",
+      "title": "Camille Releases Triple Album Fifteen Years in the Making",
+      "deck": "The Sound of Milk documents birth, childhood, and adolescence across three records — and a decade and a half of deliberate silence.",
+      "type": "bulletin",
+      "genre": "Pop",
+      "date": "2026-06-25",
+      "url": "articles/20260625-camille-releases-triple-album-fifteen-years-in-the-making.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/7/74/Camille_Dalmais_in_2024.jpg",
+      "tags": [
+        "Camille",
+        "the-sound-of-milk",
+        "clement-ducol",
+        "french-music",
+        "triple-album"
+      ],
+      "source": "Music | The Guardian",
+      "sourceUrl": "https://www.theguardian.com/music/2026/jun/24/pain-oscar-winning-singer-camille-triple-album-motherhood",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260625-the-miseducation-of-lauryn-hill-was-always-a-warning",
       "title": "The Miseducation of Lauryn Hill Was Always a Warning",
       "deck": "Twenty-five years on, Hill's masterwork reveals itself not as a celebration of Black feminine genius but as the document of what the industry does to it.",
@@ -364,7 +385,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T05:02:59.473678+00:00",
+  "lastUpdated": "2026-06-25T09:38:18.667769+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

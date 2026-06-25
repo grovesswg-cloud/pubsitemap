@@ -18,8 +18,7 @@ from unittest.mock import MagicMock, patch
 
 
 def _make_provider():
-    with patch('google.generativeai.configure'), \
-         patch('google.generativeai.GenerativeModel', return_value=MagicMock()):
+    with patch('google.genai.Client', return_value=MagicMock()):
         from providers.impl.gemini_vision import GeminiVisionProvider
         return GeminiVisionProvider(api_key='test-key')
 

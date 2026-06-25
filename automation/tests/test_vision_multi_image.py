@@ -28,8 +28,7 @@ from unittest.mock import MagicMock, patch
 
 # Stub heavy external packages and scheduler sibling modules so the test runner
 # doesn't need the full production dependency set installed.
-for _mod in ('feedparser', 'anthropic', 'requests', 'schedule',
-             'google', 'google.generativeai'):
+for _mod in ('feedparser', 'anthropic', 'schedule'):
     sys.modules.setdefault(_mod, MagicMock())
 for _mod in ('news_fetcher', 'article_writer', 'feature_writer', 'review_writer',
              'album_finder', 'image_sourcer', 'publisher'):

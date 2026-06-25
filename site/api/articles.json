@@ -1,6 +1,29 @@
 {
   "articles": [
     {
+      "id": "20260625-olivia-rodrigos-daisy-chain-fields-festival-sells-out-in-thirty-minutes",
+      "title": "Olivia Rodrigo's Daisy Chain Fields Festival Sells Out in Thirty Minutes",
+      "deck": "The pop star's inaugural all-women festival moves from announcement to sellout before most fans reached the checkout.",
+      "type": "bulletin",
+      "genre": "Pop",
+      "date": "2026-06-25",
+      "url": "articles/20260625-olivia-rodrigos-daisy-chain-fields-festival-sells-out-in-thirty-minutes.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Glasto2025-546_%28cropped%29_%282%29.jpg",
+      "tags": [
+        "Olivia Rodrigo",
+        "Daisy Chain Fields",
+        "Stevie Nicks",
+        "Mitski",
+        "Bikini Kill",
+        "Doechii",
+        "festival"
+      ],
+      "source": "Music News",
+      "sourceUrl": "https://www.rollingstone.com/music/music-news/daisy-chain-fields-music-festival-sold-out-30-minutes-1235583588/",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260625-línea-personal-are-drawing-the-border-on-their-own-terms",
       "title": "Línea Personal Are Drawing the Border on Their Own Terms",
       "deck": "With a first US headlining tour and a sophomore record that refuses easy translation, the música Mexicana quartet are redefining what crossover means — and who it's for.",
@@ -407,7 +430,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T10:17:10.096408+00:00",
+  "lastUpdated": "2026-06-25T11:32:05.554411+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

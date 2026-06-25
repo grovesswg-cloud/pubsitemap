@@ -985,6 +985,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   .pillars-grid { grid-template-columns: 1fr 1fr; }
 
   .article-page { padding: 40px var(--gutter-sm) 60px; }
+  .article-title { margin-bottom: 28px; }
 }
 
 @media (max-width: 480px) {

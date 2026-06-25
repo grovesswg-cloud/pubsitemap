@@ -11,13 +11,14 @@ API_DIR      = SITE_DIR / 'api'
 ARTICLES_JSON = API_DIR / 'articles.json'
 
 # ─── API Keys (set via environment variables / GitHub Secrets) ─────────────────
-ANTHROPIC_API_KEY   = os.getenv('ANTHROPIC_API_KEY', '')
-UNSPLASH_ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY', '')
-NEWS_API_KEY        = os.getenv('NEWS_API_KEY', '')      # optional: newsapi.org
-PEXELS_API_KEY      = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
-PIXABAY_API_KEY     = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
-GETTY_API_KEY       = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.com editorial embeds
-GOOGLE_INDEXING_KEY = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
+ANTHROPIC_API_KEY    = os.getenv('ANTHROPIC_API_KEY', '')
+UNSPLASH_ACCESS_KEY  = os.getenv('UNSPLASH_ACCESS_KEY', '')
+NEWS_API_KEY         = os.getenv('NEWS_API_KEY', '')      # optional: newsapi.org
+PEXELS_API_KEY       = os.getenv('PEXELS_API_KEY', '')   # optional: pexels.com
+PIXABAY_API_KEY      = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
+GETTY_API_KEY        = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.com editorial embeds
+GOOGLE_INDEXING_KEY  = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
+GOOGLE_GEMINI_API_KEY = os.getenv('GOOGLE_GEMINI_API_KEY', '')  # required for PR-002 fact verification
 
 # Public domain for sitemap + indexing API (no trailing slash)
 SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'https://lordmedia.live')

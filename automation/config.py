@@ -19,8 +19,8 @@ PIXABAY_API_KEY      = os.getenv('PIXABAY_API_KEY', '')  # optional: pixabay.com
 GETTY_API_KEY        = os.getenv('GETTY_API_KEY', '')    # optional: gettyimages.com editorial embeds
 GOOGLE_INDEXING_KEY  = os.getenv('GOOGLE_INDEXING_KEY', '')  # optional: Google Indexing API service account JSON
 GOOGLE_GEMINI_API_KEY  = os.getenv('GOOGLE_GEMINI_API_KEY', '')   # required for fact + vision verification
-GEMINI_FACT_MODEL      = os.getenv('GEMINI_FACT_MODEL',   'gemini-2.0-flash')  # override to upgrade model
-GEMINI_VISION_MODEL    = os.getenv('GEMINI_VISION_MODEL', 'gemini-2.0-flash')  # must support vision input
+GEMINI_FACT_MODEL      = os.getenv('GEMINI_FACT_MODEL',   'gemini-2.5-flash')  # override to upgrade model
+GEMINI_VISION_MODEL    = os.getenv('GEMINI_VISION_MODEL', 'gemini-2.5-flash')  # must support vision input
 
 # Public domain for sitemap + indexing API (no trailing slash)
 SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'https://lordmedia.live')

@@ -1,6 +1,29 @@
 {
   "articles": [
     {
+      "id": "20260626-mezzanine-at-twenty-five-the-album-that-predicted-the-dark",
+      "title": "Mezzanine at Twenty-Five: The Album That Predicted the Dark",
+      "deck": "Massive Attack's 1998 masterwork was never really about trip-hop — it was about dread, and dread has only become more fluent.",
+      "type": "review",
+      "genre": "Electronic",
+      "date": "2026-06-26",
+      "url": "articles/20260626-mezzanine-at-twenty-five-the-album-that-predicted-the-dark.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/4/41/Massive_Attack%2C_Saint-Petersburg%2C_2010-09-26_%28cropped%29.jpg",
+      "tags": [
+        "massive-attack",
+        "mezzanine",
+        "electronic",
+        "trip-hop",
+        "classic",
+        "archive-review",
+        "british-music"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Massive Attack",
+      "albumName": "Mezzanine"
+    },
+    {
       "id": "20260625-kirk-hammett-is-right-about-pop-music-hes-also-wrong",
       "title": "Kirk Hammett Is Right About Pop Music. He's Also Wrong.",
       "deck": "Metallica's lead guitarist has spent four decades earning the right to an opinion — which makes it worth interrogating the one he just offered.",
@@ -452,7 +475,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-25T15:39:15.987145+00:00",
+  "lastUpdated": "2026-06-26T01:05:44.572512+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260626-phoebe-bridgers-returns-with-new-album-lost-boys",
+      "title": "Phoebe Bridgers Returns With New Album Lost Boys",
+      "deck": "The singer-songwriter's first solo record since 2020's Punisher arrives on Dead Oceans after a deliberate withdrawal from public life.",
+      "type": "bulletin",
+      "genre": "Indie Folk",
+      "date": "2026-06-26",
+      "url": "articles/20260626-phoebe-bridgers-returns-with-new-album-lost-boys.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/BoygeniusKingstonEarly240823_%2829_of_45%29_%2853138924957%29_Cropped.jpg",
+      "tags": [
+        "phoebe-bridgers",
+        "lost-boys",
+        "dead-oceans",
+        "boygenius",
+        "punisher"
+      ],
+      "source": "Music | The Guardian",
+      "sourceUrl": "https://www.theguardian.com/music/2026/jun/26/phoebe-bridgers-lost-boys-review",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260626-robert-smith-has-always-been-the-last-man-standing",
       "title": "Robert Smith Has Always Been the Last Man Standing",
       "deck": "At seventy-five, he is still finding new rooms in the house he built — and the house keeps growing.",
@@ -517,7 +538,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-26T10:26:32.717374+00:00",
+  "lastUpdated": "2026-06-26T11:37:52.984895+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

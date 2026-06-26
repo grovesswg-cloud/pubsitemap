@@ -247,3 +247,33 @@ Each entry documents a significant architectural decision: what was chosen, what
 - Parallel verification of all images — considered for future optimisation; sequential is correct and simpler for now.
 
 **Consequences:** `_run_vision_verification` now returns a verified image list. A return value of `[]` signals abort. All four cycle functions (run_cycle, feature_cycle, review_cycle, classic_review_cycle) updated to use the list-returning signature. `QUALITY_IMAGE_VALIDATION: 'true'` added to all three production workflow files. Log lines include image index, expected entity, detected entity, entity confidence, and mismatch reason to support production debugging without additional code changes.
+
+---
+
+## ADR-015: Golden Article Policy
+
+**Status:** Accepted  
+**Date:** 2026-06-25
+
+**Decision:** Every major infrastructure change to the LORD pipeline must be validated by running a designated Golden Article end-to-end and confirming the full pipeline completes: Writer → Metadata → Facts → Images → Vision → Editorial → Search Readiness → Publish → visible on site. The validation run is a required step in the merge checklist for any PR that changes providers, SDK dependencies, model configuration, the scheduler, or JSON parsing.
+
+**Context:** PR-005.7 (Gemini SDK migration) was merged and validated by running a classic review cycle. The run revealed a pre-existing JSON parsing bug in `json_utils.py` — unescaped double quotes in the writer's HTML body output — that had gone undetected because it only surfaces on certain responses. The bug was caught in controlled conditions (known article, deterministic pipeline) rather than in unmonitored production. This demonstrated the value of exercising the full pipeline under known conditions after every infrastructure change.
+
+**Golden Article catalogue:** As of 2026-06-25, the primary Golden Article is:
+
+| Article | Type | Status |
+|---------|------|--------|
+| Solange — *A Seat at the Table* (2016) | classic-review | Active |
+
+Additional Golden Articles should be added as the system matures to cover: major artist bulletin, band feature, niche artist review, news bulletin.
+
+**Procedure:**
+1. After any infrastructure PR is merged to main, trigger the relevant workflow manually (`workflow_dispatch`) with the Golden Article type.
+2. Inspect the GitHub Actions log — "No new content to commit" is not a success signal; it means the pipeline failed silently. Check for `JSON parse failed`, `cycle failed`, or `UNCERTAIN` in the log.
+3. If the run fails, fix, merge a follow-up PR, and re-run. Do not declare the pipeline validated until a clean end-to-end run produces an article visible on the site.
+
+**Alternatives considered:**
+- Unit and integration tests only — rejected because tests verify contracts but cannot catch configuration issues, API deprecations, model behaviour changes, or cross-component failures that only surface when the full pipeline runs against live services.
+- Automated scheduled Golden Article — deferred; manual trigger is sufficient until the pipeline is stable enough to justify the automation cost.
+
+**Consequences:** Each infrastructure PR now has an additional checklist item: Golden Article validation. The designated article(s) are documented here and in the LESSONS files. "No new content to commit" in GitHub Actions logs is a failure indicator, not a success indicator.

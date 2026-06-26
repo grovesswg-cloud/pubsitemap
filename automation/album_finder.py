@@ -95,21 +95,31 @@ If no clear current album release is found, return:
         return None
 
 
-def pick_classic_album(reviewed: list[dict]) -> dict:
+def pick_classic_album(reviewed: list[dict], attempted: list[str] | None = None) -> dict:
     """
     Use Claude to select a classic album (10+ years old) for the monthly historical review.
     Returns dict with {artist, album, year, context, imageQuery}.
+
+    attempted: flat list of "Artist — Album" strings that were selected this session
+    but failed to publish (wrong image, parse error, etc.). Passed to the prompt so
+    Claude doesn't re-select the same candidate.
     """
     cutoff_year = datetime.now(tz=timezone.utc).year - 10
     reviewed_summary = '\n'.join(
         f"- {r.get('title', '')}" for r in reviewed[:30]
     ) or '(none yet)'
 
+    attempted_summary = ''
+    if attempted:
+        attempted_summary = '\n\nAlso do NOT select these (attempted this session but failed to publish):\n' + '\n'.join(
+            f"- {a}" for a in attempted[:20]
+        )
+
     prompt = f"""\
 Select one classic album (released {cutoff_year} or earlier) for LORD to give a historical reassessment review.
 
 Already reviewed (do not repeat these):
-{reviewed_summary}
+{reviewed_summary}{attempted_summary}
 
 Choose an album that is:
 - Culturally significant and still resonant today

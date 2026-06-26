@@ -15,6 +15,12 @@ on:
           - review
           - classic-review
         default: review
+      target_artist:
+        description: 'Target artist for classic-review (leave blank for automatic selection)'
+        default: ''
+      target_album:
+        description: 'Target album for classic-review (leave blank for automatic selection)'
+        default: ''
 
 permissions:
   contents: write
@@ -63,9 +69,16 @@ jobs:
           GOOGLE_GEMINI_API_KEY:      ${{ secrets.GOOGLE_GEMINI_API_KEY }}
           SITE_DOMAIN:                ${{ secrets.SITE_DOMAIN }}
           QUALITY_IMAGE_VALIDATION:   'true'
+          TARGET_ARTIST:              ${{ github.event.inputs.target_artist || '' }}
+          TARGET_ALBUM:               ${{ github.event.inputs.target_album || '' }}
         run: |
           cd automation
-          python scheduler.py --run-now --type ${{ steps.review_type.outputs.type }}
+          if [ -n "${TARGET_ARTIST}" ] && [ -n "${TARGET_ALBUM}" ]; then
+            python scheduler.py --run-now --type ${{ steps.review_type.outputs.type }} \
+              --target-artist "${TARGET_ARTIST}" --target-album "${TARGET_ALBUM}"
+          else
+            python scheduler.py --run-now --type ${{ steps.review_type.outputs.type }}
+          fi
 
       - name: Commit and push new content
         run: |

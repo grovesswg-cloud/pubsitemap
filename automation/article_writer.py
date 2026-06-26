@@ -7,7 +7,8 @@ import re
 
 import anthropic
 
-from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL, LORD_VOICE
+from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL
+from editorial import load_editorial
 from json_utils import parse_writer_json
 
 log = logging.getLogger('lord.writer')
@@ -25,7 +26,7 @@ def _get_client() -> anthropic.Anthropic:
 BULLETIN_SYSTEM = f"""\
 You are a senior editor at LORD, an independent music publication.
 
-{LORD_VOICE}
+{load_editorial()}
 
 ABSOLUTE RULE — NO INVENTED ENTITIES:
 Every artist, band, album, song, tour, label, and project you mention MUST be real

@@ -63,27 +63,3 @@ QUALITY_IMAGE_FAIL_OPEN     = os.getenv('QUALITY_IMAGE_FAIL_OPEN',     'false').
 QUALITY_EDITORIAL_REVIEW      = os.getenv('QUALITY_EDITORIAL_REVIEW',      'false').lower() == 'true'
 QUALITY_EDITORIAL_FAIL_OPEN   = os.getenv('QUALITY_EDITORIAL_FAIL_OPEN',   'false').lower() == 'true'
 QUALITY_SEO_VALIDATION        = os.getenv('QUALITY_SEO_VALIDATION',        'false').lower() == 'true'
-
-# ─── LORD Voice prompt (injected into every generation request) ───────────────
-LORD_VOICE = """
-LORD is an independent online music publication with an authoritative, literary editorial voice.
-
-TONE SPECTRUM:
-- Authoritative but not arrogant
-- Reverent but not sycophantic
-- Precise but not cold
-- Literary but not inaccessible
-- Critical but not cruel
-
-LORD WRITES LIKE THIS:
-- Feature lede: "Kendrick Lamar does not make albums. He builds indictments."
-- Review opener: "The record opens on silence. Two full seconds of it. Then the snare."
-- Closing line: "The question the album raises is the question it refuses to answer. That is the point."
-
-LORD NEVER WRITES LIKE THIS:
-- Hype: "This album is a MASTERPIECE. You NEED to hear this!!"
-- Clickbait: "You won't believe what this artist said..."
-- Vague praise: "The production is amazing and the lyrics really hit different."
-- Opinion as fact: "Everyone agrees this is the best rap album of the decade."
-- Apology writing: "It might not be for everyone, but some could argue that..."
-"""

@@ -1,6 +1,29 @@
 {
   "articles": [
     {
+      "id": "20260626-mezzanine-at-twenty-six-the-architecture-of-dread-holds",
+      "title": "Mezzanine at Twenty-Six: The Architecture of Dread Holds",
+      "deck": "Massive Attack's 1998 masterwork was misread as atmosphere; it was always diagnosis.",
+      "type": "review",
+      "genre": "Electronic",
+      "date": "2026-06-26",
+      "url": "articles/20260626-mezzanine-at-twenty-six-the-architecture-of-dread-holds.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/4/41/Massive_Attack%2C_Saint-Petersburg%2C_2010-09-26_%28cropped%29.jpg",
+      "tags": [
+        "massive-attack",
+        "mezzanine",
+        "electronic",
+        "trip-hop",
+        "classic",
+        "1998",
+        "archive-review"
+      ],
+      "source": "",
+      "sourceUrl": "",
+      "artistName": "Massive Attack",
+      "albumName": "Mezzanine"
+    },
+    {
       "id": "20260626-mezzanine-at-twenty-five-the-album-that-predicted-the-dark",
       "title": "Mezzanine at Twenty-Five: The Album That Predicted the Dark",
       "deck": "Massive Attack's 1998 masterwork was never really about trip-hop — it was about dread, and dread has only become more fluent.",
@@ -475,7 +498,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-26T01:05:44.572512+00:00",
+  "lastUpdated": "2026-06-26T01:42:22.923658+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

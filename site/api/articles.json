@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260626-phoebe-bridgers-returns-with-new-album-lost-boys-on-dead-oceans",
+      "title": "Phoebe Bridgers Returns With New Album Lost Boys on Dead Oceans",
+      "deck": "The singer-songwriter's first solo record since 2020's Punisher arrives after a public withdrawal following Boygenius's hiatus.",
+      "type": "bulletin",
+      "genre": "Indie Rock",
+      "date": "2026-06-26",
+      "url": "articles/20260626-phoebe-bridgers-returns-with-new-album-lost-boys-on-dead-oceans.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/BoygeniusKingstonEarly240823_%2829_of_45%29_%2853138924957%29_Cropped.jpg",
+      "tags": [
+        "Phoebe Bridgers",
+        "Lost Boys",
+        "Dead Oceans",
+        "Boygenius",
+        "Punisher"
+      ],
+      "source": "Music | The Guardian",
+      "sourceUrl": "https://www.theguardian.com/music/2026/jun/26/phoebe-bridgers-lost-boys-review",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260626-mezzanine-at-twenty-six-the-architecture-of-dread-holds",
       "title": "Mezzanine at Twenty-Six: The Architecture of Dread Holds",
       "deck": "Massive Attack's 1998 masterwork was misread as atmosphere; it was always diagnosis.",
@@ -475,7 +496,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-26T01:42:22.923658+00:00",
+  "lastUpdated": "2026-06-26T09:45:28.053762+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

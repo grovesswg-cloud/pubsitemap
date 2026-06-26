@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "20260626-robert-smith-has-always-been-the-last-man-standing",
+      "title": "Robert Smith Has Always Been the Last Man Standing",
+      "deck": "At seventy-five, he is still finding new rooms in the house he built — and the house keeps growing.",
+      "type": "feature",
+      "genre": "Rock",
+      "date": "2026-06-26",
+      "url": "articles/20260626-robert-smith-has-always-been-the-last-man-standing.html",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/2/26/Robert_Smith_%28musician%29_crop.jpg",
+      "tags": [
+        "Robert Smith",
+        "Rock",
+        "Post-Punk",
+        "The Cure",
+        "Legacy"
+      ],
+      "source": "Stereogum",
+      "sourceUrl": "https://stereogum.com/2503427/the-rolling-stones-share-new-song-with-the-cures-robert-smith/music/",
+      "artistName": "",
+      "albumName": ""
+    },
+    {
       "id": "20260626-phoebe-bridgers-returns-with-new-album-lost-boys-on-dead-oceans",
       "title": "Phoebe Bridgers Returns With New Album Lost Boys on Dead Oceans",
       "deck": "The singer-songwriter's first solo record since 2020's Punisher arrives after a public withdrawal following Boygenius's hiatus.",
@@ -496,7 +517,7 @@
       "imageProvider": "Wikimedia"
     }
   ],
-  "lastUpdated": "2026-06-26T09:45:28.053762+00:00",
+  "lastUpdated": "2026-06-26T10:26:32.717374+00:00",
   "publication": "LORD",
   "tagline": "Music. Power. Sovereignty."
 }

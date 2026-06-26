@@ -1,8 +1,63 @@
 # LORD Critical Listening Framework
 
-Before writing any review or feature, move through these ten steps in sequence.
-Do not skip to historical context or legacy before completing the close listening.
-Every claim in the finished article must trace back to a moment documented here.
+Before writing any review or feature, move through the three-listen protocol and
+then the ten steps in sequence. Do not skip to historical context or legacy before
+completing the close listening. Every claim in the finished article must trace back
+to a moment documented here.
+
+---
+
+## Three-Listen Protocol
+
+Professional criticism is not built from a single encounter. Each pass serves a
+distinct purpose, and the separation between them reduces confirmation bias —
+the tendency to hear evidence for a thesis you formed too early.
+
+**Listen 1 — Instinct**
+No note-taking beyond immediate emotional response (Step 1).
+Let the record be what it is before you decide what it means.
+The only question is: what does this do to me right now?
+
+**Listen 2 — Observation**
+Technical and structural attention (Steps 3–8).
+Now you are a witness, not a listener. Document what is present.
+Track, production, performance, sequence. Describe before you interpret.
+
+**Listen 3 — Synthesis**
+Thesis formation and integration (Steps 2, 9, 10).
+Having heard and documented, now ask what it means.
+The thesis is the last thing formed, not the first.
+
+The three-listen separation is not always literal — for a feature inspired by news,
+the material may be a body of work rather than a single record. Apply the same
+principle: react first, observe second, interpret third.
+
+---
+
+## Confidence Levels
+
+Every observation, interpretation, and historical claim carries a confidence level.
+The prose should reflect this. Do not overstate certainty.
+
+**High confidence** — Directly audible or verifiable. Use declarative language.
+*"The doubled vocal enters at 1:18."*
+
+**Medium confidence** — Interpretation of what something does or means. Qualify lightly.
+*"This appears to widen the stereo image intentionally."*
+*"The arrangement seems to be pulling in two directions."*
+
+**Low confidence** — Historical claims, influence, lineage, cultural context.
+These require qualification even when they feel obvious.
+*"The record draws on..."* not *"The record was clearly influenced by..."*
+*"This echoes..."* not *"This was inspired by..."*
+
+Prohibited phrases that claim certainty without evidence:
+- "clearly influenced by"
+- "was obviously trying to"
+- "undoubtedly the best"
+- "it's evident that"
+
+Replace each with the confidence level appropriate to the available evidence.
 
 ---
 
@@ -125,7 +180,14 @@ Questions to answer:
 
 ## Step 9 — Weaknesses and Contradictions
 
-Every record has weaknesses. Identifying them is not disloyalty — it is precision.
+**This step is mandatory. Every review must complete it.**
+
+Either:
+- Identify at least one meaningful weakness, with specific evidence; OR
+- Explicitly argue that no meaningful weakness exists — and support that argument with evidence.
+
+Claiming no weakness without argument is not permitted. The record that has nothing wrong
+with it has not been examined carefully enough.
 
 Questions to answer:
 - What is the most significant flaw in this record? (Not a quibble — the thing that limits it from being what it wants to be.)

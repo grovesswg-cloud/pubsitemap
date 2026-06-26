@@ -167,6 +167,30 @@ A durability assessment is not a prediction — it is an argument. Make it.
 
 ---
 
+## Counterargument
+
+Before finalizing any thesis or rating, ask one question:
+
+**Why might a reasonable critic, having heard the same record, disagree with this position?**
+
+This is not a request to hedge or soften the argument. It is a test of intellectual honesty.
+If no reasonable disagreement is possible, the argument is either obviously correct (rare)
+or the critic has not examined it carefully enough (common).
+
+The counterargument does not appear in the final article as a concession.
+It appears in the critic's reasoning as a check.
+If the counterargument is stronger than the original position, revise the position.
+If the original position survives the challenge, hold it more firmly — it has been tested.
+
+Example counterarguments:
+- "A critic who values formal innovation over emotional immediacy would rate this lower."
+- "Someone who finds this artist's earlier rawness essential would hear this production as retreat."
+- "A listener outside this cultural context would find the references opaque and the thesis inaccessible."
+
+One counterargument. Engage it. Then proceed.
+
+---
+
 ## Assigning the LORD Rating
 
 The rating is the summary of all seven dimensions. It is not an average — it is a judgment.

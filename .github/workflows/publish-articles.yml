@@ -1,13 +1,15 @@
 name: LORD — Publish Daily Bulletins
 
 on:
-  schedule:
-    - cron: '0 6 * * *'    # 06:00 UTC
-    - cron: '0 9 * * *'    # 09:00 UTC
-    - cron: '0 12 * * *'   # 12:00 UTC
-    - cron: '0 15 * * *'   # 15:00 UTC
-    - cron: '0 18 * * *'   # 18:00 UTC
-    - cron: '0 21 * * *'   # 21:00 UTC
+  # Schedule paused — automated publishing disabled while Reasoning Engine (PR-006.2)
+  # and Revision Engine (PR-006.3) are under development. Re-enable when complete.
+  # schedule:
+  #   - cron: '0 6 * * *'    # 06:00 UTC
+  #   - cron: '0 9 * * *'    # 09:00 UTC
+  #   - cron: '0 12 * * *'   # 12:00 UTC
+  #   - cron: '0 15 * * *'   # 15:00 UTC
+  #   - cron: '0 18 * * *'   # 18:00 UTC
+  #   - cron: '0 21 * * *'   # 21:00 UTC
   workflow_dispatch:        # Manual trigger from GitHub Actions tab
 
 permissions:

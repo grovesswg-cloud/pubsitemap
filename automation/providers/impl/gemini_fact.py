@@ -30,6 +30,7 @@ def _strip_fences(text: str) -> str:
 class GeminiFactProvider(FactVerificationProvider):
     def __init__(self, api_key: str):
         self._client = genai.Client(api_key=api_key)
+        log.info("Fact provider: Google GenAI SDK | model: %s", GEMINI_FACT_MODEL)
 
     def verify(self, article_data: dict) -> FactVerificationResult:
         tags = article_data.get('tags') or []

@@ -34,6 +34,7 @@ def _strip_fences(text: str) -> str:
 class GeminiVisionProvider(VisionVerificationProvider):
     def __init__(self, api_key: str):
         self._client = genai.Client(api_key=api_key)
+        log.info("Vision provider: Google GenAI SDK | model: %s", GEMINI_VISION_MODEL)
 
     def verify_image(self, image_bytes: bytes, mime_type: str, article_data: dict) -> VisionVerificationResult:
         tags = article_data.get('tags') or []

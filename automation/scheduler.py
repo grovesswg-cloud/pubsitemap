@@ -26,7 +26,7 @@ from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
 from feature_writer import write_feature
 from review_writer import write_review, write_classic_review
-from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums
+from album_finder import extract_album_from_news, pick_classic_album, _get_reviewed_albums, is_already_reviewed
 from image_sourcer import get_article_image, get_article_images
 from publisher import publish_article, load_index, is_duplicate, is_artist_covered, count_today, count_today_by_type
 from validators.metadata import validate_metadata
@@ -652,6 +652,22 @@ def classic_review_cycle(target_artist: str = '', target_album: str = '') -> boo
             log.info("Selecting classic album for reassessment...")
             album_info = pick_classic_album(reviewed, attempted=_classic_attempted)
             log.info("Selected: %s — %s (%s)", album_info['artist'], album_info['album'], album_info.get('year', ''))
+
+        # Hard duplicate guard — exits before any API calls are made.
+        # For target overrides (Golden Article / QA), log a warning and continue
+        # since the run is intentionally forced for validation.
+        if is_already_reviewed(album_info, reviewed):
+            if using_target:
+                log.warning(
+                    "Duplicate guard (bypassed — target override): %s — %s was already reviewed.",
+                    album_info.get('artist'), album_info.get('album'),
+                )
+            else:
+                log.info(
+                    "Duplicate guard: %s — %s already reviewed — skipping.",
+                    album_info.get('artist'), album_info.get('album'),
+                )
+                return False
 
         article_data = write_classic_review(album_info)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))

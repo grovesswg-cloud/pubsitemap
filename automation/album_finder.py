@@ -4,6 +4,7 @@ Discovers current album releases from news and selects classic albums for monthl
 import json
 import logging
 import re
+import unicodedata
 from datetime import datetime, timezone
 
 from config import ANTHROPIC_MODEL, ANTHROPIC_API_KEY
@@ -29,13 +30,46 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
+def _normalize(text: str) -> str:
+    """Normalize text for duplicate comparison: Unicode NFC, casefolded, whitespace collapsed."""
+    text = unicodedata.normalize('NFKD', text)
+    text = text.casefold()
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+
 def _get_reviewed_albums(index: dict) -> list[dict]:
-    """Return list of already-reviewed albums from the article index."""
-    return [
-        {'title': a.get('title', ''), 'tags': a.get('tags', [])}
-        for a in index.get('articles', [])
-        if a.get('type') == 'review'
-    ]
+    """Return canonical {artist, album} identities for all reviewed articles in the index.
+
+    Keyed on structured metadata (artistName/albumName) rather than generated
+    article titles, so duplicate detection survives title variation across runs.
+    """
+    result = []
+    for a in index.get('articles', []):
+        if a.get('type') not in ('review', 'classic-review'):
+            continue
+        artist = (a.get('artistName') or '').strip()
+        album  = (a.get('albumName')  or '').strip()
+        if artist or album:
+            result.append({'artist': artist, 'album': album})
+    return result
+
+
+def is_already_reviewed(album_info: dict, reviewed: list[dict]) -> bool:
+    """Return True if this artist+album already has a review in the index.
+
+    Comparison is normalized (case, whitespace, Unicode) so casing or spacing
+    variations between runs don't create false negatives.
+    """
+    target_artist = _normalize(album_info.get('artist', ''))
+    target_album  = _normalize(album_info.get('album', ''))
+    if not target_artist and not target_album:
+        return False
+    return any(
+        _normalize(r.get('artist', '')) == target_artist and
+        _normalize(r.get('album', '')) == target_album
+        for r in reviewed
+    )
 
 
 def extract_album_from_news(news_items: list[dict], reviewed: list[dict] | None = None) -> dict | None:
@@ -55,7 +89,9 @@ def extract_album_from_news(news_items: list[dict], reviewed: list[dict] | None 
     already_reviewed = ''
     if reviewed:
         already_reviewed = '\n\nAlready covered (do NOT select these artists or albums again):\n' + '\n'.join(
-            f"- {r.get('title', '')}" for r in reviewed[:30]
+            f"- {r.get('artist', '')} — {r.get('album', '')}"
+            for r in reviewed[:30]
+            if r.get('artist') or r.get('album')
         )
 
     prompt = f"""\
@@ -106,7 +142,9 @@ def pick_classic_album(reviewed: list[dict], attempted: list[str] | None = None)
     """
     cutoff_year = datetime.now(tz=timezone.utc).year - 10
     reviewed_summary = '\n'.join(
-        f"- {r.get('title', '')}" for r in reviewed[:30]
+        f"- {r.get('artist', '')} — {r.get('album', '')}"
+        for r in reviewed[:30]
+        if r.get('artist') or r.get('album')
     ) or '(none yet)'
 
     attempted_summary = ''

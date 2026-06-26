@@ -6,7 +6,7 @@ import logging
 import re
 
 from config import ANTHROPIC_MODEL, ANTHROPIC_API_KEY
-from editorial import load_editorial
+from editorial import load_criticism_context
 from json_utils import parse_writer_json
 
 log = logging.getLogger('lord.review')
@@ -25,7 +25,7 @@ def _get_client():
 REVIEW_SYSTEM = f"""\
 You are a senior critic at LORD, an independent music publication.
 
-{load_editorial()}
+{load_criticism_context()}
 
 ABSOLUTE RULE — NO INVENTED ENTITIES:
 Every artist, band, album, song, tour, label, and project you mention MUST be real
@@ -74,7 +74,7 @@ IMAGE RULES — read carefully:
 CLASSIC_REVIEW_SYSTEM = f"""\
 You are a senior critic at LORD, an independent music publication.
 
-{load_editorial()}
+{load_criticism_context()}
 
 ABSOLUTE RULE — NO INVENTED ENTITIES:
 Every artist, band, album, song, tour, label, and project you mention MUST be real

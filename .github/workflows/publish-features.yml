@@ -1,10 +1,12 @@
 name: LORD — Publish Daily Feature
 
 on:
-  schedule:
-    - cron: '0 7 * * *'    # 07:00 UTC
-    - cron: '0 13 * * *'   # 13:00 UTC
-    - cron: '0 19 * * *'   # 19:00 UTC
+  # Schedule paused — automated publishing disabled while Reasoning Engine (PR-006.2)
+  # and Revision Engine (PR-006.3) are under development. Re-enable when complete.
+  # schedule:
+  #   - cron: '0 7 * * *'    # 07:00 UTC
+  #   - cron: '0 13 * * *'   # 13:00 UTC
+  #   - cron: '0 19 * * *'   # 19:00 UTC
   workflow_dispatch:        # Manual trigger from GitHub Actions tab
 
 permissions:

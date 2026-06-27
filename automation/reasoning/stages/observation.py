@@ -24,13 +24,12 @@ import json
 import logging
 
 from json_utils import parse_writer_json
+from reasoning.llm import call_stage
 
 log = logging.getLogger('engine.observation')
 
-_SYSTEM = """\
+_INSTRUCTIONS = """\
 You are performing the Observation and Interpretation stages of the editorial reasoning process.
-
-{editorial_context}
 
 Your task is NOT to write an article. You are gathering structured observations
 and interpreting each one, following the Observation stage protocol.
@@ -84,8 +83,6 @@ def run(subject: dict, editorial_context: str, client, model: str) -> tuple[list
     Returns:
         (observations, interpretations, weaknesses_observed) — all list[str].
     """
-    system = _SYSTEM.format(editorial_context=editorial_context)
-
     artist = subject.get('artist', '') or subject.get('artistName', '')
     album = subject.get('album', '') or subject.get('albumName', '')
     context = subject.get('context', '') or subject.get('summary', '')
@@ -115,14 +112,14 @@ def run(subject: dict, editorial_context: str, client, model: str) -> tuple[list
         'Carry confidence levels (HIGH/MEDIUM/LOW) in each observation.',
     ]
 
-    message = client.messages.create(
-        model=model,
+    raw = call_stage(
+        client, model,
+        editorial_context=editorial_context,
+        stage_instructions=_INSTRUCTIONS,
+        user_prompt='\n'.join(prompt_parts),
+        stage='observation',
         max_tokens=2000,
-        system=system,
-        messages=[{'role': 'user', 'content': '\n'.join(prompt_parts)}],
     )
-
-    raw = message.content[0].text
     try:
         data = parse_writer_json(raw)
     except ValueError:

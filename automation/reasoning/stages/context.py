@@ -1,13 +1,18 @@
-"""Groves Engine — Stage 1: Research
+"""Groves Engine — Stage 1: Context
 
-Populates two fields of the ReasoningBrief:
+Assembles everything the reasoning needs to know before it begins. This is the
+umbrella over two genuinely separate sources, deliberately co-located here while
+both are stubs:
 
-  publication_memory  — what this publication has already said about this subject
-  positioning         — what the broader critical conversation has said; where the gap is
+  publication_memory  — what THIS publication has already said (internal memory)
+  positioning         — what EVERYONE ELSE is saying (external discourse)
 
-Both are stubs in this implementation. PR-006.5 (Publication Intelligence) enriches
-publication_memory with pattern analysis across 200 articles. PR-006.6 (Editorial
-Positioning Engine) enriches positioning with real-time critical discourse mapping.
+These are different engines with different owners. PR-006.5 (Publication
+Intelligence) grows publication_memory into pattern analysis across 200 articles;
+PR-006.6 (Editorial Positioning Engine) grows positioning into real-time critical
+discourse mapping. When they become real engines they split into memory.py and
+positioning.py, and this file becomes the coordinator that calls both. The
+umbrella name 'context' is chosen so that split requires no rename of the stage.
 
 The interfaces are stable. The stub data is enough to prevent LORD from repeating
 prior positions on the same artist and to surface the dominant critical angle from
@@ -21,7 +26,7 @@ import logging
 import unicodedata
 import re
 
-log = logging.getLogger('engine.research')
+log = logging.getLogger('engine.context')
 
 
 def _normalise(text: str) -> str:

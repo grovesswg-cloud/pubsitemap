@@ -19,14 +19,13 @@ from __future__ import annotations
 import logging
 
 from json_utils import parse_writer_json
+from reasoning.llm import call_stage
 
 log = logging.getLogger('engine.thesis')
 
-_SYSTEM = """\
+_INSTRUCTIONS = """\
 You are performing the Synthesis, Perspective, Thesis, and Counterargument stages
 of the editorial reasoning process.
-
-{editorial_context}
 
 You have already gathered observations and interpretations about the subject.
 Now you will move through four reasoning stages in strict sequence.
@@ -96,8 +95,6 @@ def run(
     Returns:
         (synthesis, perspective, thesis, rejected_theses, counterargument)
     """
-    system = _SYSTEM.format(editorial_context=editorial_context)
-
     artist = subject.get('artist', '') or subject.get('artistName', '')
     album = subject.get('album', '') or subject.get('albumName', '')
 
@@ -133,14 +130,14 @@ def run(
         'Do not skip directly to thesis generation.',
     ]
 
-    message = client.messages.create(
-        model=model,
+    raw = call_stage(
+        client, model,
+        editorial_context=editorial_context,
+        stage_instructions=_INSTRUCTIONS,
+        user_prompt='\n'.join(parts),
+        stage='thesis',
         max_tokens=2500,
-        system=system,
-        messages=[{'role': 'user', 'content': '\n'.join(parts)}],
     )
-
-    raw = message.content[0].text
     try:
         data = parse_writer_json(raw)
     except ValueError:

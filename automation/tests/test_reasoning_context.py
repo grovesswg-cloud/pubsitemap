@@ -1,10 +1,10 @@
-"""Tests for the Research stage (publication memory + positioning stubs)."""
+"""Tests for the Context stage (publication memory + positioning stubs)."""
 import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from reasoning.stages.research import run, _build_publication_memory, _build_positioning
+from reasoning.stages.context import run, _build_publication_memory, _build_positioning
 
 
 _SAMPLE_INDEX = {

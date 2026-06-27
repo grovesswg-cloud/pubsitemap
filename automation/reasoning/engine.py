@@ -25,8 +25,8 @@ import logging
 import anthropic
 
 from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL
-from reasoning.brief import ReasoningBrief
-from reasoning.stages import research, observation, thesis as thesis_stage, outline as outline_stage
+from reasoning.brief import ReasoningBrief, derive_thesis_confidence
+from reasoning.stages import context, observation, thesis as thesis_stage, outline as outline_stage
 
 log = logging.getLogger('engine')
 
@@ -75,16 +75,16 @@ def run(
 
     brief = ReasoningBrief()
 
-    # ── Stage 1: Research ──────────────────────────────────────────────────────
+    # ── Stage 1: Context ───────────────────────────────────────────────────────
     # Fail-open: errors here do not abort the pipeline.
     try:
-        pub_memory, positioning = research.run(subject, articles_index)
+        pub_memory, positioning = context.run(subject, articles_index)
         brief.publication_memory = pub_memory
         brief.positioning = positioning
-        log.info("Stage 1 (Research): complete — %d prior articles, consensus=%s",
+        log.info("Stage 1 (Context): complete — %d prior articles, consensus=%s",
                  pub_memory.get('coverage_count', 0), bool(positioning.get('consensus')))
     except Exception as exc:
-        log.warning("Stage 1 (Research): failed (%s) — proceeding with empty memory", exc)
+        log.warning("Stage 1 (Context): failed (%s) — proceeding with empty memory", exc)
         brief.publication_memory = {'prior_coverage': [], 'previous_ratings': [], 'coverage_count': 0}
         brief.positioning = {'consensus': '', 'underexplored': ''}
 
@@ -140,9 +140,12 @@ def run(
     brief.outline = outline
     brief.editor_notes = editor_notes
     brief.confidence = confidence
-    log.info("Stage 7–8 (Outline): %d evidence items, %d paragraphs, confidence=%s",
-             len(evidence), len(outline), confidence)
+    # thesis_confidence is derived mechanically from the evidence map — distinct
+    # from the holistic self-report above. Confidence must survive the pipeline.
+    brief.thesis_confidence = derive_thesis_confidence(evidence)
+    log.info("Stage 7–8 (Outline): %d evidence items, %d paragraphs, confidence=%s, thesis_confidence=%s",
+             len(evidence), len(outline), confidence, brief.thesis_confidence)
 
-    log.info("Editorial Intelligence Engine: complete — brief ready (confidence=%s, thesis='%s...')",
-             confidence, selected_thesis[:60])
+    log.info("Editorial Intelligence Engine: complete — brief ready (confidence=%s, thesis_confidence=%s, thesis='%s...')",
+             confidence, brief.thesis_confidence, selected_thesis[:60])
     return brief

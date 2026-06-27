@@ -13,13 +13,42 @@ import json
 from dataclasses import dataclass, field, asdict
 
 
+_CONFIDENCE_WEIGHT = {'high': 3, 'medium': 2, 'low': 1}
+
+
 @dataclass
 class EvidenceItem:
-    """A single piece of evidence mapping an observation to a thesis claim."""
+    """A single piece of evidence mapping an observation to a thesis claim.
+
+    The id (E-001, E-002, …) is stable within a brief and lets the Revision
+    Engine (PR-006.3) reference a specific claim — "E-014 is weak" — rather
+    than "the third bullet under paragraph six".
+    """
     observation: str         # what was directly observed
     evidence: str            # specific moment (track, timestamp, lyric, production detail)
     supports: str            # which part of the thesis this evidence supports
     confidence: str          # 'high' | 'medium' | 'low'
+    id: str = ''             # E-001 style; auto-assigned by the outline stage
+
+
+def derive_thesis_confidence(evidence: list[EvidenceItem]) -> str:
+    """Compute thesis confidence from the evidence that supports it.
+
+    This is distinct from the brief's overall self-reported confidence. It is
+    mechanical and auditable: a thesis resting mostly on HIGH-confidence
+    evidence is itself high-confidence; one resting on LOW evidence is not,
+    regardless of how assured the prose sounds. Confidence must survive the
+    pipeline rather than being asserted at the end.
+    """
+    weights = [_CONFIDENCE_WEIGHT.get(e.confidence, 2) for e in evidence]
+    if not weights:
+        return 'low'
+    avg = sum(weights) / len(weights)
+    if avg >= 2.34:
+        return 'high'
+    if avg >= 1.67:
+        return 'medium'
+    return 'low'
 
 
 @dataclass
@@ -59,8 +88,11 @@ class ReasoningBrief:
     # Internal — never published; seeds the future Editorial Notebook
     editor_notes: list[str] = field(default_factory=list)
 
-    # Overall confidence in the reasoning
-    confidence: str = 'medium'   # 'high' | 'medium' | 'low'
+    # Confidence — two distinct signals:
+    #   confidence        — overall, self-reported by the outline stage (holistic)
+    #   thesis_confidence — derived mechanically from the evidence map (auditable)
+    confidence: str = 'medium'          # 'high' | 'medium' | 'low'
+    thesis_confidence: str = 'medium'   # 'high' | 'medium' | 'low'
 
     # ── Serialisation ──────────────────────────────────────────────────────────
 
@@ -88,7 +120,7 @@ class ReasoningBrief:
             'EDITORIAL REASONING BRIEF',
             '=' * 40,
             '',
-            f'THESIS\n{self.thesis}',
+            f'THESIS  (confidence: {self.thesis_confidence})\n{self.thesis}',
             '',
         ]
 
@@ -114,8 +146,9 @@ class ReasoningBrief:
         if self.evidence:
             lines += ['EVIDENCE MAP']
             for e in self.evidence:
+                id_tag = f'{e.id} ' if e.id else ''
                 conf_tag = f'[{e.confidence.upper()}]'
-                lines.append(f'  {conf_tag} {e.observation}')
+                lines.append(f'  {id_tag}{conf_tag} {e.observation}')
                 lines.append(f'       ↳ {e.evidence}')
                 lines.append(f'       ↳ supports: {e.supports}')
             lines += ['']

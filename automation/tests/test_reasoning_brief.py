@@ -5,7 +5,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from reasoning.brief import ReasoningBrief, EvidenceItem
+from reasoning.brief import ReasoningBrief, EvidenceItem, derive_thesis_confidence
 
 
 def _sample_brief() -> ReasoningBrief:
@@ -34,12 +34,14 @@ def _sample_brief() -> ReasoningBrief:
                 evidence="Track 1 begins with 4.3 seconds of silence",
                 supports="Thesis: grief is recursive — re-entry each time",
                 confidence="high",
+                id="E-001",
             ),
             EvidenceItem(
                 observation="Compressed vocals",
                 evidence="Tracks 2, 5, 8 — consistently narrow dynamic range",
                 supports="Loss of agency thesis",
                 confidence="medium",
+                id="E-002",
             ),
         ],
         weaknesses=["The second half loses thematic coherence — tracks 7–9 feel like fragments rather than development."],
@@ -155,3 +157,63 @@ def test_from_dict_preserves_evidence_items():
     restored = ReasoningBrief.from_dict(d)
     assert isinstance(restored.evidence[0], EvidenceItem)
     assert restored.evidence[1].supports == "Loss of agency thesis"
+
+
+def test_evidence_id_roundtrips():
+    brief = _sample_brief()
+    restored = ReasoningBrief.from_dict(brief.to_dict())
+    assert restored.evidence[0].id == "E-001"
+    assert restored.evidence[1].id == "E-002"
+
+
+def test_writer_context_shows_evidence_ids():
+    brief = _sample_brief()
+    ctx = brief.to_writer_context()
+    assert "E-001" in ctx
+    assert "E-002" in ctx
+
+
+def test_thesis_confidence_field_present():
+    brief = _sample_brief()
+    restored = ReasoningBrief.from_dict(brief.to_dict())
+    assert restored.thesis_confidence in ('high', 'medium', 'low')
+
+
+def test_writer_context_shows_thesis_confidence():
+    brief = ReasoningBrief(thesis="X", thesis_confidence="low")
+    ctx = brief.to_writer_context()
+    assert "confidence: low" in ctx
+
+
+def test_derive_thesis_confidence_all_high():
+    ev = [EvidenceItem('o', 'e', 's', 'high') for _ in range(3)]
+    assert derive_thesis_confidence(ev) == 'high'
+
+
+def test_derive_thesis_confidence_all_low():
+    ev = [EvidenceItem('o', 'e', 's', 'low') for _ in range(3)]
+    assert derive_thesis_confidence(ev) == 'low'
+
+
+def test_derive_thesis_confidence_mixed_is_medium():
+    ev = [
+        EvidenceItem('o', 'e', 's', 'high'),
+        EvidenceItem('o', 'e', 's', 'medium'),
+        EvidenceItem('o', 'e', 's', 'low'),
+    ]
+    assert derive_thesis_confidence(ev) == 'medium'
+
+
+def test_derive_thesis_confidence_empty_is_low():
+    assert derive_thesis_confidence([]) == 'low'
+
+
+def test_derive_thesis_confidence_mostly_low_drags_down():
+    # A thesis resting mostly on low-confidence evidence is not high-confidence,
+    # regardless of one strong supporting item.
+    ev = [
+        EvidenceItem('o', 'e', 's', 'high'),
+        EvidenceItem('o', 'e', 's', 'low'),
+        EvidenceItem('o', 'e', 's', 'low'),
+    ]
+    assert derive_thesis_confidence(ev) == 'low'

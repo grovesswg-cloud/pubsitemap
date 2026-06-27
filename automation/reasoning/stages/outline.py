@@ -19,14 +19,13 @@ import logging
 
 from json_utils import parse_writer_json
 from reasoning.brief import EvidenceItem
+from reasoning.llm import call_stage
 
 log = logging.getLogger('engine.outline')
 
-_SYSTEM = """\
+_INSTRUCTIONS = """\
 You are performing the Evidence Mapping and Outline stages of the editorial
 reasoning process.
-
-{editorial_context}
 
 You have a completed thesis, synthesis, observations, and counterargument.
 Your task is to map evidence to the thesis and produce a paragraph outline.
@@ -103,8 +102,6 @@ def run(
     Returns:
         (evidence, weaknesses, outline, editor_notes, confidence)
     """
-    system = _SYSTEM.format(editorial_context=editorial_context)
-
     artist = subject.get('artist', '') or subject.get('artistName', '')
     album = subject.get('album', '') or subject.get('albumName', '')
     article_type = subject.get('_article_type', 'review')
@@ -134,14 +131,14 @@ def run(
         'The outline must have a clear arc: opening → evidence → counterargument → thesis return.',
     ]
 
-    message = client.messages.create(
-        model=model,
+    raw = call_stage(
+        client, model,
+        editorial_context=editorial_context,
+        stage_instructions=_INSTRUCTIONS,
+        user_prompt='\n'.join(parts),
+        stage='outline',
         max_tokens=2500,
-        system=system,
-        messages=[{'role': 'user', 'content': '\n'.join(parts)}],
     )
-
-    raw = message.content[0].text
     try:
         data = parse_writer_json(raw)
     except ValueError:
@@ -150,13 +147,14 @@ def run(
 
     raw_evidence = data.get('evidence', [])
     evidence = []
-    for e in raw_evidence:
+    for idx, e in enumerate(raw_evidence, 1):
         try:
             evidence.append(EvidenceItem(
                 observation=e.get('observation', ''),
                 evidence=e.get('evidence', ''),
                 supports=e.get('supports', ''),
                 confidence=e.get('confidence', 'medium').lower(),
+                id=f'E-{idx:03d}',
             ))
         except Exception as exc:
             log.warning("Outline stage: skipping malformed evidence item: %s", exc)

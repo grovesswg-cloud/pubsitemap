@@ -22,6 +22,13 @@ Two layers, deliberately:
       • weak_ending — the close introduces a new argument or trails off
       • pacing — a section drags or rushes relative to its weight
       • weak_opening — opens on biography/cliché instead of the record
+      • metaphor_saturation — too many metaphors/analogies accumulated across
+          the piece without relief; the reader has nowhere to land
+      • thesis_overreinforcement — the central thesis (or a paraphrase of it)
+          is restated in too many paragraphs; the argument circles rather than
+          advances
+      • cadence_monotony — sentence rhythm is uniform throughout; long
+          analytical sentences with no shorter breaks for emphasis or breath
 
 Each note carries an impact rating (high/medium/low). That rating is the
 editor's judgment; the plan stage triages on it mechanically. The critique
@@ -62,12 +69,27 @@ FIDELITY (check the prose against the brief — this is the objective layer):
   • counterargument_skipped — the brief's counterargument is never addressed
 
 CRAFT (judge the prose itself):
-  • shallow_analysis    — a musical claim asserted but never heard or shown
-  • weak_transition     — paragraphs abut without connective logic
-  • repetition          — an idea or phrase recurs without development
-  • weak_ending         — the close introduces a new argument or trails off
-  • pacing              — a section drags or rushes relative to its weight
-  • weak_opening        — opens on biography or cliché instead of the record
+  • shallow_analysis         — a musical claim asserted but never heard or shown
+  • weak_transition          — paragraphs abut without connective logic
+  • repetition               — an idea or phrase recurs without development
+  • weak_ending              — the close introduces a new argument or trails off
+  • pacing                   — a section drags or rushes relative to its weight
+  • weak_opening             — opens on biography or cliché instead of the record
+  • metaphor_saturation      — metaphors and analogies accumulate across paragraphs
+                               without relief; the reader has nowhere to land. Count
+                               distinct metaphoric frameworks: if five or more are
+                               active simultaneously, raise this note. Assign to the
+                               paragraph where saturation becomes a problem, or 0
+                               for a whole-draft pattern.
+  • thesis_overreinforcement — the central thesis (or a close paraphrase of it) is
+                               restated in most paragraphs rather than advanced. Each
+                               paragraph should do new argumentative work. Assign 0
+                               if the pattern spans the whole piece; a paragraph
+                               number if there is a single worst offender.
+  • cadence_monotony         — sentence rhythm is uniform throughout: long
+                               analytical sentences with no shorter breaks for
+                               emphasis or breath. Assign 0 for a whole-draft
+                               pattern; a paragraph number for a local pocket.
 
 RULES:
   • Be specific. "Paragraph 4 asserts the production is 'cavernous' but never
@@ -75,9 +97,12 @@ RULES:
   • Assign each note a paragraph number. Use 0 only for whole-draft/structural
     issues that do not belong to a single paragraph.
   • Rate impact honestly. A dropped mandatory weakness or thesis drift is HIGH.
-    A slightly soft transition is LOW. Most drafts have only one or two HIGH
-    issues — do not inflate. Reserve HIGH for things that, left unfixed, make
-    the article worse than the brief deserved.
+    A slightly soft transition or mild cadence repetition is LOW. Most drafts
+    have only one or two HIGH issues — do not inflate. Reserve HIGH for things
+    that, left unfixed, make the article worse than the brief deserved.
+    metaphor_saturation, thesis_overreinforcement, and cadence_monotony are
+    typically MEDIUM unless severe — rate them HIGH only when the pattern
+    dominates the piece and actively undermines its argument.
   • For each note, the "fix" is an INSTRUCTION for the rewrite — what the
     revised paragraph must accomplish — NOT the rewritten prose.
   • If the draft is genuinely strong, return few notes. Do not invent weaknesses

@@ -6,13 +6,30 @@ import re
 def strip_fences(text: str) -> str:
     """Remove markdown code fences Claude may have wrapped the JSON in.
     Handles preamble prose appearing before the opening fence.
+
+    Truncation is handled honestly. If the response opened a fence but never
+    closed it — the fingerprint of a response cut off at max_tokens — we strip
+    only the opening fence and return the rest unchanged, so json.loads reports
+    the failure at the TRUE end of the output. The earlier behaviour (rewind to
+    the last '}') silently discarded the truncated tail and relocated the error
+    to a much earlier brace, misreporting a truncation as a mid-document
+    structural bug (the GNX calibration incident). A truncated response and a
+    malformed one are different incidents and must read differently.
     """
     text = text.strip()
-    # Extract content between fences regardless of leading prose
+    # Both fences present — extract the content between them.
     fence_match = re.search(r'```(?:json)?\s*\n?(.*?)```', text, re.DOTALL)
     if fence_match:
         return fence_match.group(1).strip()
-    # No fences at all — find first { and last } and extract that range
+    # Opening fence but no closing fence — truncation fingerprint. Strip just the
+    # opening fence; do NOT rewind to the last '}'. The parser then fails at the
+    # real cut-off point, which (with stop_reason=max_tokens in the telemetry)
+    # names the truncation unambiguously.
+    open_fence = re.match(r'```(?:json)?[ \t]*\n?', text)
+    if open_fence:
+        return text[open_fence.end():].strip()
+    # No fences at all — model wrapped JSON in prose. Extract the outermost
+    # braces. (A complete-but-unfenced response with trailing prose lands here.)
     start = text.find('{')
     end = text.rfind('}')
     if start != -1 and end != -1 and end > start:

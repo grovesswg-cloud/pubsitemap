@@ -12,11 +12,14 @@ These pin two things:
 They also DOCUMENT the failure modes reproduced while diagnosing the calibration
 sprint's first engine bug — so we never re-confuse them:
 
-  • A missing structural comma between array objects -> "Expecting ',' delimiter"
-    (the reported error). The repair pass does NOT touch structural commas, so
-    this surfaces unchanged — it is a genuine model-output bug, not a quote bug.
-  • A truncated response (max_tokens) -> "Unterminated string" at the very end,
-    a DIFFERENT error. Truncation is therefore ruled out for the reported case.
+  • A missing structural comma between array objects -> "Expecting ',' delimiter".
+    The repair pass does NOT touch structural commas, so this surfaces unchanged.
+  • A truncation (stop_reason=max_tokens) was the ACTUAL cause of the GNX failure.
+    It originally read as "Expecting ',' delimiter" near an early object only
+    because strip_fences rewound to the last '}' (see test_json_utils.py). With
+    that fixed, truncation reads as "Unterminated string" at the true end, and the
+    evidence folder stamps stop_reason=max_tokens. Truncation and malformed-JSON
+    are now distinct incidents.
   • Unescaped inner quotes are handled by the repair pass and do NOT raise; in
     pathological cases they corrupt silently rather than erroring.
 """
@@ -30,6 +33,16 @@ import pytest
 
 from json_utils import parse_writer_json, repair_json, WriterJSONError
 import engine_debug
+import engine_telemetry
+
+
+@pytest.fixture(autouse=True)
+def _clean_telemetry():
+    # parse_stage_json reads engine_telemetry.latest() to stamp the evidence;
+    # isolate each test from records left by another.
+    engine_telemetry.reset()
+    yield
+    engine_telemetry.reset()
 
 
 # ─── json_utils enrichment ──────────────────────────────────────────────────
@@ -138,3 +151,44 @@ def test_parse_stage_json_includes_extra_context(tmp_path, monkeypatch):
     folder = next(tmp_path.iterdir())
     ctx = json.loads((folder / 'context.json').read_text())
     assert ctx['subject'] == 'Massive Attack — Mezzanine'
+
+
+# ─── telemetry stamped into the evidence ────────────────────────────────────
+
+class _Usage:
+    def __init__(self, i, o):
+        self.input_tokens = i
+        self.output_tokens = o
+        self.cache_read_input_tokens = 0
+        self.cache_creation_input_tokens = 0
+
+
+class _Message:
+    def __init__(self, stop_reason, usage):
+        self.stop_reason = stop_reason
+        self.usage = usage
+
+
+def test_evidence_stamps_stop_reason_from_telemetry(tmp_path, monkeypatch):
+    monkeypatch.setenv('ENGINE_DEBUG_DIR', str(tmp_path))
+    # Simulate the failing call's telemetry having been recorded by call_stage.
+    engine_telemetry.record('outline', _Message('end_turn', _Usage(1200, 800)), 4096)
+    with pytest.raises(ValueError):
+        engine_debug.parse_stage_json('{"a":', stage='outline', prompt='p')
+    ctx = json.loads((next(tmp_path.iterdir()) / 'context.json').read_text())
+    assert ctx['stop_reason'] == 'end_turn'
+    assert ctx['max_tokens'] == 4096
+    assert ctx['truncated'] is False
+
+
+def test_truncated_call_gets_banner_and_flag(tmp_path, monkeypatch):
+    monkeypatch.setenv('ENGINE_DEBUG_DIR', str(tmp_path))
+    engine_telemetry.record('outline', _Message('max_tokens', _Usage(1200, 4096)), 4096)
+    with pytest.raises(ValueError):
+        engine_debug.parse_stage_json('{"evidence": [{"x": 1}', stage='outline', prompt='p')
+    folder = next(tmp_path.iterdir())
+    ctx = json.loads((folder / 'context.json').read_text())
+    assert ctx['truncated'] is True
+    assert ctx['stop_reason'] == 'max_tokens'
+    # error.txt leads with the TRUNCATED banner so it is not mistaken for a bug.
+    assert (folder / 'error.txt').read_text().startswith('TRUNCATED')

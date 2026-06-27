@@ -19,6 +19,8 @@ What it shares with reasoning/llm.py by design:
 from __future__ import annotations
 import logging
 
+import engine_telemetry
+
 log = logging.getLogger('revision.llm')
 
 # Critique should be reliable and close to repeatable — the same draft should
@@ -69,6 +71,7 @@ def call_stage(
 
     _log_cache_usage(stage, message)
     _warn_if_truncated(stage, message, max_tokens)
+    engine_telemetry.record(stage, message, max_tokens)
     return message.content[0].text
 
 

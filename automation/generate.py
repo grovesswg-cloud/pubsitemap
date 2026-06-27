@@ -25,7 +25,8 @@ Output (one folder per run):
     article.json   ← full article dict
     brief.json     ← ReasoningBrief (when engine ran)
     revision.json  ← RevisionReport (when revision ran)
-    run.json       ← run metadata (git commit, model, flags)
+    run.json       ← run metadata (git commit, model, flags, per-stage tokens)
+    telemetry.json ← per-stage token usage + stop_reason (engine + revision)
     failures/      ← only if a stage failed to parse the model's JSON:
                      <stage>/raw_response.txt, repaired.txt, prompt.txt, error.txt
 """
@@ -96,6 +97,10 @@ def _make_run_dir(article_type: str, subject: dict, tag: str = '') -> Path:
     # engine_debug at failure time, so setting it here — before the engine runs —
     # is sufficient.
     os.environ['ENGINE_DEBUG_DIR'] = str(path / 'failures')
+    # Start this run's token telemetry from a clean slate so telemetry.json holds
+    # exactly the stages of this article and nothing from a prior invocation.
+    import engine_telemetry
+    engine_telemetry.reset()
     return path
 
 
@@ -294,6 +299,13 @@ def _save_artifacts(
     use_revision: bool,
     tag: str,
 ) -> None:
+    # Per-stage token telemetry for this run (engine + revision stages).
+    import engine_telemetry
+    telemetry = engine_telemetry.snapshot()
+    if telemetry:
+        (run_dir / 'telemetry.json').write_text(
+            json.dumps(telemetry, indent=2, ensure_ascii=False), encoding='utf-8')
+
     # run.json — reproducibility record
     run_meta = {
         'article_type': article_type,
@@ -312,6 +324,11 @@ def _save_artifacts(
             'revised': getattr(revision_report, 'revised', None),
             'paragraphs_rewritten': len(getattr(revision_report, 'revised_paragraphs', {})),
         },
+        'telemetry': [
+            {'stage': t['stage'], 'output_tokens': t['output_tokens'],
+             'max_tokens': t['max_tokens'], 'stop_reason': t['stop_reason']}
+            for t in telemetry
+        ],
     }
     (run_dir / 'run.json').write_text(
         json.dumps(run_meta, indent=2, ensure_ascii=False), encoding='utf-8')

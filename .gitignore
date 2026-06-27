@@ -27,3 +27,7 @@ Thumbs.db
 # LORD operational artifacts (not source code — back up separately)
 evidence/
 review/
+
+# Editorial Calibration Sprint — generated articles for editorial review
+# Working artifacts, not source code. Back up separately if needed.
+calibration/

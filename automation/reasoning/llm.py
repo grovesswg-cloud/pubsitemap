@@ -25,6 +25,8 @@ gives us three things uniformly across the pipeline:
 from __future__ import annotations
 import logging
 
+import engine_telemetry
+
 log = logging.getLogger('engine.llm')
 
 # Per-stage temperature. Exploration is concentrated in the thesis stage;
@@ -76,6 +78,7 @@ def call_stage(
 
     _log_cache_usage(stage, message)
     _warn_if_truncated(stage, message, max_tokens)
+    engine_telemetry.record(stage, message, max_tokens)
     return message.content[0].text
 
 

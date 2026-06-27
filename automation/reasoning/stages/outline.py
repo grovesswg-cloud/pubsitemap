@@ -138,7 +138,12 @@ def run(
         stage_instructions=_INSTRUCTIONS,
         user_prompt=user_prompt,
         stage='outline',
-        max_tokens=2500,
+        # The outline stage is the heaviest producer in the engine: it emits the
+        # evidence map, weaknesses, the full paragraph outline, editor notes, and
+        # confidence in a single response. A 2500-token budget truncated rich
+        # subjects mid-output (see the GNX calibration incident); 4096 gives the
+        # reasoning room to finish. Revisit from telemetry if runs approach it.
+        max_tokens=4096,
     )
     data = parse_stage_json(raw, stage='outline', prompt=user_prompt, log=log,
                             extra={'subject': f'{artist} — {album}' if album else artist,

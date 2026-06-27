@@ -20,7 +20,12 @@ Each failure writes a self-contained evidence folder:
         raw_response.txt   the model's raw output, untouched
         repaired.txt       the output after fence-stripping + quote/newline repair
                            — i.e. the exact bytes json.loads() choked on
-        context.json       article subject, model, article_type (when provided)
+        context.json       article subject, model, article_type, and the failing
+                           call's telemetry (stop_reason, input/output/max tokens)
+
+When the failing call's stop_reason is max_tokens, error.txt leads with a
+TRUNCATED banner — the parse error is then a downstream symptom of a token-budget
+issue, not a malformed-JSON bug, and the evidence says so up front.
 
 Where the folder lands is controlled by the ENGINE_DEBUG_DIR environment
 variable:
@@ -42,6 +47,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+import engine_telemetry
 from json_utils import parse_writer_json, WriterJSONError
 
 _ROOT_DIR = Path(__file__).parent.parent
@@ -89,6 +95,7 @@ def dump_stage_failure(
     repaired: str | None = None,
     decode_error: json.JSONDecodeError | None = None,
     extra: dict | None = None,
+    truncated: bool = False,
 ) -> Path | None:
     """Write the full evidence for a stage failure. Returns the folder, or None
     if debugging is disabled (ENGINE_DEBUG_DIR=off) or writing fails.
@@ -109,6 +116,15 @@ def dump_stage_failure(
             (folder / 'repaired.txt').write_text(repaired, encoding='utf-8')
 
         error_text = _error_context(repaired, decode_error) or f'{type(error).__name__}: {error}\n'
+        if truncated:
+            # The response was cut off at max_tokens — the parse error is a
+            # downstream symptom, not the cause. Say so first, so nobody hunts
+            # for a malformed-JSON bug that isn't there.
+            error_text = (
+                'TRUNCATED: stop_reason=max_tokens. The response was cut off mid-output; '
+                'the JSON is incomplete, not malformed. This is a token-budget issue '
+                '(raise the stage max_tokens), not a parser or generation bug.\n\n'
+            ) + error_text
         (folder / 'error.txt').write_text(error_text, encoding='utf-8')
 
         if extra:
@@ -143,16 +159,28 @@ def parse_stage_json(
     try:
         return parse_writer_json(raw)
     except WriterJSONError as exc:
+        # Annotate the evidence with the failing call's telemetry. stop_reason is
+        # the single most useful fact here: max_tokens means truncation, not a
+        # malformed-JSON or generation bug.
+        tel = engine_telemetry.latest(stage)
+        merged_extra = dict(extra or {})
+        truncated = False
+        if tel:
+            truncated = bool(tel.get('truncated'))
+            for key in ('input_tokens', 'output_tokens', 'max_tokens', 'stop_reason', 'truncated'):
+                merged_extra[key] = tel.get(key)
         folder = dump_stage_failure(
             stage, prompt, raw, exc,
-            repaired=exc.repaired, decode_error=exc.decode_error, extra=extra,
+            repaired=exc.repaired, decode_error=exc.decode_error,
+            extra=merged_extra, truncated=truncated,
         )
+        detail = 'TRUNCATED at max_tokens' if truncated else str(exc.decode_error)
         if log is not None:
             if folder is not None:
                 log.error("%s stage: JSON parse failed (%s). Evidence saved to %s",
-                          stage, exc.decode_error, folder)
+                          stage, detail, folder)
             else:
-                log.error("%s stage: JSON parse failed (%s)", stage, exc.decode_error)
+                log.error("%s stage: JSON parse failed (%s)", stage, detail)
         if folder is not None:
             raise ValueError(f"{exc} — evidence saved to {folder}") from exc
         raise

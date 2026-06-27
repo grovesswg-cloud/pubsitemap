@@ -22,6 +22,7 @@ from config import (
     QUALITY_SEO_VALIDATION,
     GOOGLE_GEMINI_API_KEY,
     REASONING_ENGINE,
+    REVISION_ENGINE,
 )
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
@@ -294,6 +295,36 @@ def _run_reasoning_engine(subject: dict, article_type: str, articles_index: dict
     return brief
 
 
+def _run_revision_engine(article_data: dict, brief, article_type: str):
+    """Run the Editorial Revision Engine and apply its targeted rewrites in place.
+
+    Only called when REVISION_ENGINE=true. The internal editor critiques the
+    draft against its brief, triages the highest-impact weaknesses, and rewrites
+    only those paragraphs. On success the article_data['body'] is replaced with
+    the revised body. Raises on a fail-closed stage error — which propagates to
+    the cycle's outer handler (article does not publish: fail-fast pre-launch).
+
+    brief may be None on the legacy path; the critique then runs craft-only.
+    article_type: 'review' | 'feature' (framing only).
+    """
+    from revision import run as revision_run
+    from editorial import load_criticism_context
+    log.info("Editorial Revision Engine: starting (%s)...", article_type)
+    report = revision_run(
+        draft=article_data,
+        brief=brief,
+        editorial_context=load_criticism_context(),
+        article_type=article_type,
+    )
+    log.info("Editorial Revision Engine: %s", report.summary())
+    if report.revised:
+        article_data['body'] = report.revised_body
+        log.info("Editorial Revision Engine: applied %d targeted rewrite(s)", len(report.revised_paragraphs))
+    else:
+        log.info("Editorial Revision Engine: draft published as written (no edits)")
+    return report
+
+
 def _run_search_readiness(article_data: dict, images: list) -> bool:
     """Run search readiness gate if enabled. Returns False to abort on FAIL."""
     if not QUALITY_SEO_VALIDATION:
@@ -540,6 +571,9 @@ def feature_cycle() -> bool:
         article_data = write_feature(selected, brief=brief)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
+        if REVISION_ENGINE:
+            _run_revision_engine(article_data, brief, 'feature')
+
         if not _run_metadata_validation(article_data):
             return False
         if not _run_fact_verification(article_data):
@@ -627,6 +661,9 @@ def review_cycle() -> bool:
             brief = _run_reasoning_engine(subject, 'review', index)
         article_data = write_review(album_info, brief=brief)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
+
+        if REVISION_ENGINE:
+            _run_revision_engine(article_data, brief, 'review')
 
         if not _run_metadata_validation(article_data):
             return False
@@ -723,6 +760,9 @@ def classic_review_cycle(target_artist: str = '', target_album: str = '') -> boo
             brief = _run_reasoning_engine(subject, 'review', index)
         article_data = write_classic_review(album_info, brief=brief)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
+
+        if REVISION_ENGINE:
+            _run_revision_engine(article_data, brief, 'review')
 
         if not _run_metadata_validation(article_data):
             return False

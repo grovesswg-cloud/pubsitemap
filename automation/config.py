@@ -69,3 +69,10 @@ QUALITY_SEO_VALIDATION        = os.getenv('QUALITY_SEO_VALIDATION',        'fals
 # before writing. Set REASONING_ENGINE=false to use the direct-writer path
 # for quality comparison or debugging.
 REASONING_ENGINE = os.getenv('REASONING_ENGINE', 'true').lower() == 'true'
+
+# ─── Editorial Revision Engine ────────────────────────────────────────────────
+# When true (default), reviews and features pass through the internal-editor
+# revision pass (critique → triage → targeted rewrites) after writing and before
+# the quality gates. Set REVISION_ENGINE=false to publish the writer's first
+# draft unedited (quality comparison or debugging). Bulletins never run revision.
+REVISION_ENGINE = os.getenv('REVISION_ENGINE', 'true').lower() == 'true'

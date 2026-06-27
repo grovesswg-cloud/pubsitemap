@@ -53,6 +53,16 @@ HARD RULES:
   • Each rewritten paragraph must remain a single <p>…</p> block. You may use
     <em> sparingly, as the draft does. No headers.
   • Address the fix. Each edit names what it must accomplish — accomplish it.
+  • When whole-draft guidance names thesis_overreinforcement: do not restate
+    the central thesis in any paragraph you rewrite unless that paragraph is
+    doing new argumentative work. Remove or transform restatements into
+    progression — show what the argument adds, not what it already said.
+  • When whole-draft guidance names cadence_monotony: vary sentence length in
+    every paragraph you rewrite. A short sentence after a long one does real
+    work. Do not let three consecutive sentences run to the same rhythm.
+  • When whole-draft guidance names metaphor_saturation: retire any metaphor in
+    the paragraphs you rewrite that is competing with a metaphor active
+    elsewhere in the draft. Prefer description over substituting a new one.
 
 Return ONLY a valid JSON object mapping each edited paragraph number (as a
 string key) to its rewritten HTML:

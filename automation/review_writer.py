@@ -1,13 +1,19 @@
 """LORD Automation — Review Writer
 Writes LORD Reviews: current album reviews and classic album reassessments.
-"""
-import json
-import logging
-import re
 
-from config import ANTHROPIC_MODEL, ANTHROPIC_API_KEY
+The writer is the final stage of the pipeline: the Editorial Intelligence Engine
+has already reasoned, and the writer renders the brief into prose, returning a
+structured JSON article. Like every reasoning and revision stage, a writer whose
+JSON cannot be parsed fails closed and leaves behind a full evidence folder
+(raw response, repaired text, the exact break position, and the call's
+stop_reason / token telemetry) via engine_debug.parse_stage_json — so a writer
+failure is debuggable to the same standard as the engine, not a 400-char mystery.
+"""
+import logging
+
+from config import ANTHROPIC_API_KEY
 from editorial import load_criticism_context
-from json_utils import parse_writer_json
+from writer_llm import write_article
 
 log = logging.getLogger('lord.review')
 
@@ -20,6 +26,18 @@ def _get_client():
     if _client is None:
         _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     return _client
+
+
+# The writer's token budget. Reviews are 800–1,200 words of body plus the
+# surrounding JSON fields; 2,500 tokens covers that with headroom. If a writer
+# call ever stops on max_tokens, the telemetry stamps the evidence folder so the
+# truncation names itself rather than reading as a malformed-JSON bug.
+_WRITER_MAX_TOKENS = 2500
+
+
+def _subject(album_info: dict) -> str:
+    return ' — '.join(p for p in (album_info.get('artist', ''),
+                                  album_info.get('album', '')) if p)
 
 
 REVIEW_SYSTEM = f"""\
@@ -132,14 +150,6 @@ IMAGE RULES — read carefully:
 """
 
 
-def _strip_fences(text: str) -> str:
-    text = text.strip()
-    if text.startswith('```'):
-        text = re.sub(r'^```(?:json)?\s*', '', text)
-        text = re.sub(r'\s*```$', '', text)
-    return text.strip()
-
-
 def write_review(album_info: dict, brief=None) -> dict:
     """
     Write a LORD Review for a current album release.
@@ -173,20 +183,11 @@ CONTEXT: {album_info.get('context', '')}
 Review this album on its own terms. Be specific about tracks, production, and lyrics.
 Stake a clear position and justify it with the rating."""
 
-    client = _get_client()
-    message = client.messages.create(
-        model=ANTHROPIC_MODEL,
-        max_tokens=2500,
-        system=REVIEW_SYSTEM,
-        messages=[{'role': 'user', 'content': prompt}],
+    data = write_article(
+        client=_get_client(), system=REVIEW_SYSTEM, prompt=prompt,
+        stage='writer', subject=_subject(album_info), article_type='review',
+        max_tokens=_WRITER_MAX_TOKENS, log=log,
     )
-
-    raw = message.content[0].text
-    try:
-        data = parse_writer_json(raw)
-    except ValueError as exc:
-        log.error("JSON parse failed for review. Raw:\n%s", raw[:500])
-        raise
 
     data['type'] = 'review'
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
@@ -231,20 +232,11 @@ WHY NOW: {album_info.get('context', '')}
 Reassess this record with the benefit of time. What does it mean today?
 What did contemporary criticism get wrong or right? Where does it stand in history?"""
 
-    client = _get_client()
-    message = client.messages.create(
-        model=ANTHROPIC_MODEL,
-        max_tokens=2500,
-        system=CLASSIC_REVIEW_SYSTEM,
-        messages=[{'role': 'user', 'content': prompt}],
+    data = write_article(
+        client=_get_client(), system=CLASSIC_REVIEW_SYSTEM, prompt=prompt,
+        stage='writer-classic', subject=_subject(album_info),
+        article_type='classic-review', max_tokens=_WRITER_MAX_TOKENS, log=log,
     )
-
-    raw = message.content[0].text
-    try:
-        data = parse_writer_json(raw)
-    except ValueError as exc:
-        log.error("JSON parse failed for classic review. Raw:\n%s", raw[:500])
-        raise
 
     data['type'] = 'review'
     data['isClassic'] = True

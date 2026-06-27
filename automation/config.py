@@ -10,7 +10,7 @@ ROOT_DIR     = Path(__file__).parent.parent
 # Environment variables already set in the shell take precedence over .env values.
 try:
     from dotenv import load_dotenv
-    load_dotenv(ROOT_DIR / '.env', override=False)
+    load_dotenv(ROOT_DIR / '.env', override=True)
 except ImportError:
     pass  # dotenv not installed — rely on shell environment only
 SITE_DIR     = ROOT_DIR / 'site'

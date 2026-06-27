@@ -15,8 +15,6 @@
     }
   },
   "remoteEnv": {
-    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
-    "GOOGLE_GEMINI_API_KEY": "${localEnv:GOOGLE_GEMINI_API_KEY}",
     "UNSPLASH_ACCESS_KEY": "${localEnv:UNSPLASH_ACCESS_KEY}"
   }
 }

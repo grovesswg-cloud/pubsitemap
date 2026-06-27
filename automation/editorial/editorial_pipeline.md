@@ -183,26 +183,44 @@ Positioning is not about disagreeing with consensus — it is about finding wher
 a contribution is still possible.
 
 ### Revision Engine (PR-006.3)
-Post-writing critique and targeted rewriting. Input: draft article.
+The publication's internal editor. Runs after the writer and before the quality
+gates. Input: the draft article + its ReasoningBrief. A single disciplined pass —
+not a loop. Publication-agnostic: the caller supplies the editorial context.
 
 ```
-Draft
+Draft + ReasoningBrief
   ↓
-Structured critique
-  (identify weak sections by type: claim without evidence,
-   vague language, unsupported rating, argument drift)
+Stage 1 — Critique  (fail-closed; low temperature)
+  Two layers, each note rated high/medium/low impact:
+    FIDELITY — checked against the brief (the objective layer):
+      thesis_drift · dropped_evidence · overconfident (low-conf claim stated as fact)
+      · missing_weakness · smuggled_argument · counterargument_skipped
+    CRAFT — judgment about the prose:
+      shallow_analysis · weak_transition · repetition · weak_ending
+      · pacing · weak_opening
   ↓
-Rewrite plan
-  (targeted — only the sections that need it)
+Stage 2 — Plan  (mechanical, deterministic — no LLM call)
+  Triage policy that encodes "highest-impact, not endless rewriting":
+    fix every HIGH issue → then MEDIUM by rank → never LOW
+    → cap the number of paragraphs touched (default 4)
   ↓
-Targeted rewrites
+Stage 3 — Targeted Rewrites  (fail-closed; moderate temperature)
+  Rewrite ONLY the selected paragraphs. Bound to the brief (no new arguments).
+  Sees the whole draft read-only so transitions into/out of each edit survive.
   ↓
-Final QA
-  (does rating match argument? does opening connect to thesis?
-   are all claims evidenced? is Step 9 present?)
+RevisionReport { notes, plan, revised_paragraphs, revised_body }
   ↓
-Revised draft → quality pipeline
+Revised body → existing quality pipeline (Final QA is the existing gates,
+  not a new subsystem: metadata → fact → vision → editorial review → search)
 ```
+
+**Brief-grounded:** the critique's fidelity layer is what makes this an editor
+rather than a prose polisher — it can check, objectively, whether the prose
+delivered the assigned argument. On the legacy path (no brief) the critique runs
+craft-only.
+
+**Fail-fast (pre-launch):** a fail-closed stage error aborts the article rather
+than publishing an un-revised draft. Toggle with `REVISION_ENGINE=false`.
 
 ### Editorial Notebook (future — PR-010 or later)
 Persistent per-article reasoning record. Stores:
@@ -239,8 +257,8 @@ reusable across publications).
 | PR-038 | Canonical album deduplication | ✅ Merged |
 | PR-006.1 | Editorial Constitution + Playbook | ✅ Merged |
 | PR-008 | Critical Listening System | ✅ Merged |
-| PR-006.2 | Reasoning Engine | 🔨 Next |
-| PR-006.3 | Revision Engine | Pending |
+| PR-006.2 | Reasoning Engine | ✅ Merged |
+| PR-006.3 | Revision Engine | 🔨 This PR |
 | PR-006.5 | Editorial Intelligence (Publication Intelligence) | Pending |
 | PR-006.6 | Editorial Positioning Engine | Pending |
 | PR-009 | Multi-layer Knowledge Base | Pending |

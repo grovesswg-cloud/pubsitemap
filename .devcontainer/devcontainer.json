@@ -1,0 +1,20 @@
+{
+  "name": "LORD / Groves Engine",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -r automation/requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "editor.formatOnSave": false
+      }
+    }
+  },
+  "remoteEnv": {
+    "UNSPLASH_ACCESS_KEY": "${localEnv:UNSPLASH_ACCESS_KEY}"
+  }
+}

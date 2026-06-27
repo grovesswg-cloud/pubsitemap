@@ -72,14 +72,30 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-def write_feature(news_item: dict) -> dict:
+def write_feature(news_item: dict, brief=None) -> dict:
     """
     Write a LORD Feature article inspired by a news item.
     The feature goes beyond the news — it's a deep dive into the artist's significance.
+    brief: optional ReasoningBrief from the Editorial Intelligence Engine.
+           When provided, the writer renders the brief into prose rather than
+           reasoning from scratch.
     """
     from datetime import datetime, timezone
 
-    prompt = f"""\
+    if brief is not None:
+        prompt = f"""\
+Write a LORD Feature article. The editorial reasoning is complete — render it into prose.
+
+SOURCE HEADLINE: {news_item['title']}
+
+{brief.to_writer_context()}
+
+This is NOT a bulletin about the news. The news is the launching point.
+Execute the outline. The thesis, evidence, and structure are decided.
+Write as if this is the definitive piece on this subject for the archive.
+Do not invent new arguments. Do not omit the weaknesses."""
+    else:
+        prompt = f"""\
 Write a LORD Feature article inspired by this music news item.
 
 This is NOT a bulletin about the news. Use the news as a launching point.

@@ -63,3 +63,9 @@ QUALITY_IMAGE_FAIL_OPEN     = os.getenv('QUALITY_IMAGE_FAIL_OPEN',     'false').
 QUALITY_EDITORIAL_REVIEW      = os.getenv('QUALITY_EDITORIAL_REVIEW',      'false').lower() == 'true'
 QUALITY_EDITORIAL_FAIL_OPEN   = os.getenv('QUALITY_EDITORIAL_FAIL_OPEN',   'false').lower() == 'true'
 QUALITY_SEO_VALIDATION        = os.getenv('QUALITY_SEO_VALIDATION',        'false').lower() == 'true'
+
+# ─── Editorial Intelligence Engine ────────────────────────────────────────────
+# When true (default), reviews and features run the full reasoning pipeline
+# before writing. Set REASONING_ENGINE=false to use the direct-writer path
+# for quality comparison or debugging.
+REASONING_ENGINE = os.getenv('REASONING_ENGINE', 'true').lower() == 'true'

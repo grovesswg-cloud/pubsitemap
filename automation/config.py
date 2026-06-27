@@ -4,6 +4,15 @@ from pathlib import Path
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 ROOT_DIR     = Path(__file__).parent.parent
+
+# Load .env from the repo root if present. This is the recommended way to
+# supply API keys locally and in Codespaces (create a .env file, never commit it).
+# Environment variables already set in the shell take precedence over .env values.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(ROOT_DIR / '.env', override=False)
+except ImportError:
+    pass  # dotenv not installed — rely on shell environment only
 SITE_DIR     = ROOT_DIR / 'site'
 ARTICLES_DIR = SITE_DIR / 'articles'
 SECTIONS_DIR = SITE_DIR / 'sections'

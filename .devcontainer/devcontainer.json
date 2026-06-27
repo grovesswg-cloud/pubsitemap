@@ -1,0 +1,22 @@
+{
+  "name": "LORD / Groves Engine",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -r automation/requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "editor.formatOnSave": false
+      }
+    }
+  },
+  "remoteEnv": {
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+    "GOOGLE_GEMINI_API_KEY": "${localEnv:GOOGLE_GEMINI_API_KEY}",
+    "UNSPLASH_ACCESS_KEY": "${localEnv:UNSPLASH_ACCESS_KEY}"
+  }
+}

@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 import logging
 
-from json_utils import parse_writer_json
+from engine_debug import parse_stage_json
 from reasoning.llm import call_stage
 
 log = logging.getLogger('engine.observation')
@@ -112,19 +112,18 @@ def run(subject: dict, editorial_context: str, client, model: str) -> tuple[list
         'Carry confidence levels (HIGH/MEDIUM/LOW) in each observation.',
     ]
 
+    user_prompt = '\n'.join(prompt_parts)
     raw = call_stage(
         client, model,
         editorial_context=editorial_context,
         stage_instructions=_INSTRUCTIONS,
-        user_prompt='\n'.join(prompt_parts),
+        user_prompt=user_prompt,
         stage='observation',
         max_tokens=2000,
     )
-    try:
-        data = parse_writer_json(raw)
-    except ValueError:
-        log.error("Observation stage: JSON parse failed. Raw:\n%s", raw[:400])
-        raise
+    data = parse_stage_json(raw, stage='observation', prompt=user_prompt, log=log,
+                            extra={'subject': f'{artist} — {album}' if album else artist,
+                                   'model': model})
 
     observations = data.get('observations', [])
     interpretations = data.get('interpretations', [])

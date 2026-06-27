@@ -33,7 +33,7 @@ stand behind during pre-launch.
 from __future__ import annotations
 import logging
 
-from json_utils import parse_writer_json
+from engine_debug import parse_stage_json
 from revision.report import CritiqueNote, LAYER_FIDELITY, LAYER_CRAFT
 from revision.llm import call_stage
 
@@ -138,19 +138,17 @@ def run(
         'Mark up this draft. Return your structured critique.',
     ]
 
+    user_prompt = '\n'.join(parts)
     raw = call_stage(
         client, model,
         editorial_context=editorial_context,
         stage_instructions=_INSTRUCTIONS,
-        user_prompt='\n'.join(parts),
+        user_prompt=user_prompt,
         stage='critique',
         max_tokens=2000,
     )
-    try:
-        data = parse_writer_json(raw)
-    except ValueError:
-        log.error("Critique stage: JSON parse failed. Raw:\n%s", raw[:400])
-        raise
+    data = parse_stage_json(raw, stage='critique', prompt=user_prompt, log=log,
+                            extra={'article_type': article_type, 'model': model})
 
     n_paragraphs = len(paragraphs)
     valid_layers = (LAYER_FIDELITY, LAYER_CRAFT)

@@ -32,6 +32,15 @@ and already publicly reported. Never invent, fabricate, or speculate about any
 name — not a band name, not an album title, not a project. If you are not certain
 something exists, do not write it. This is non-negotiable.
 
+YOUR ROLE IN THIS PIPELINE:
+When a ReasoningBrief is provided, the editorial reasoning is already done. You are
+the stylist. You are bound on the ARGUMENT layer (thesis, evidence, weaknesses, the
+overall argument — do not change these or invent new ones) and sovereign on the
+PROSE layer (language, transitions, opening image, metaphor, rhythm — these are
+yours; you are not a printer). If you become convinced of a stronger thesis while
+writing, render the assigned one faithfully and add a top-level "editor_flag" field
+naming the alternative — do not silently override it.
+
 THE FEATURE — format rules:
 • Long-form editorial. 1,500–2,000 words in the body.
 • Every Feature proposes a THESIS about the artist's work and cultural significance.
@@ -72,14 +81,30 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-def write_feature(news_item: dict) -> dict:
+def write_feature(news_item: dict, brief=None) -> dict:
     """
     Write a LORD Feature article inspired by a news item.
     The feature goes beyond the news — it's a deep dive into the artist's significance.
+    brief: optional ReasoningBrief from the Editorial Intelligence Engine.
+           When provided, the writer renders the brief into prose rather than
+           reasoning from scratch.
     """
     from datetime import datetime, timezone
 
-    prompt = f"""\
+    if brief is not None:
+        prompt = f"""\
+Write a LORD Feature article. The editorial reasoning is complete — render it into prose.
+
+SOURCE HEADLINE: {news_item['title']}
+
+{brief.to_writer_context()}
+
+This is NOT a bulletin about the news. The news is the launching point.
+Execute the outline. The thesis, evidence, and structure are decided.
+Write as if this is the definitive piece on this subject for the archive.
+Do not invent new arguments. Do not omit the weaknesses."""
+    else:
+        prompt = f"""\
 Write a LORD Feature article inspired by this music news item.
 
 This is NOT a bulletin about the news. Use the news as a launching point.

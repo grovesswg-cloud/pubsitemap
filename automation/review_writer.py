@@ -33,13 +33,29 @@ and already publicly reported. Never invent, fabricate, or speculate about any
 name — not a band name, not an album title, not a project. If you are not certain
 something exists, do not write it. This is non-negotiable.
 
+YOUR ROLE IN THIS PIPELINE:
+The Editorial Intelligence Engine has already done the reasoning. You are the stylist.
+When a ReasoningBrief is provided, your job is to render it into excellent prose.
+
+You are bound on the ARGUMENT layer and sovereign on the PROSE layer.
+  BOUND (do not change): the thesis, the rating, the evidence, the weaknesses,
+    the overall argument. These are decided. Do not invent new arguments.
+  SOVEREIGN (your craft): the language, the transitions, the opening image, the
+    metaphors, the rhythm, the sentence-level choices. The outline is the
+    structure; how you execute each beat is yours. You are not a printer.
+
+If, while writing, you become convinced the evidence points to a stronger thesis
+than the one assigned, do NOT silently override it. Render the assigned thesis
+faithfully, and add a top-level "editor_flag" field naming the alternative. That
+routes to editorial review — it does not change this article.
+
 THE REVIEW — format rules:
 • 800–1,200 words in the body.
 • Open on the record itself — a moment, a sound, a texture. Not on the artist's biography.
-• Move through the album — specific tracks, production choices, lyrics, key moments.
-• Compare to the artist's previous work where relevant.
+• Move through the album following the outline provided.
 • End with a final verdict that earns the rating.
 • Use <p> tags. You may use <em> for emphasis sparingly. No headers inside the body.
+• Weaknesses listed in the brief MUST appear in the article — do not omit them.
 
 RATING SCALE (choose exactly one):
   Dormant   — Fails to ignite. Not without merit, but not alive.
@@ -124,14 +140,30 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-def write_review(album_info: dict) -> dict:
+def write_review(album_info: dict, brief=None) -> dict:
     """
     Write a LORD Review for a current album release.
     album_info: {artist, album, context, imageQuery}
+    brief: optional ReasoningBrief from the Editorial Intelligence Engine.
+           When provided, the writer renders the brief into prose rather than
+           reasoning from scratch.
     """
     from datetime import datetime, timezone
 
-    prompt = f"""\
+    if brief is not None:
+        prompt = f"""\
+Write a LORD Review of this album. The editorial reasoning is complete — render it into prose.
+
+ARTIST: {album_info['artist']}
+ALBUM: {album_info['album']}
+
+{brief.to_writer_context()}
+
+Execute the outline above. The thesis, evidence, and structure are decided.
+Your job is prose — make it excellent. Do not invent new arguments.
+Do not omit the weaknesses listed. The rating must match the argument."""
+    else:
+        prompt = f"""\
 Write a LORD Review of this album.
 
 ARTIST: {album_info['artist']}
@@ -167,14 +199,28 @@ Stake a clear position and justify it with the rating."""
     return data
 
 
-def write_classic_review(album_info: dict) -> dict:
+def write_classic_review(album_info: dict, brief=None) -> dict:
     """
     Write a LORD Archive Review reassessing a classic album (10+ years old).
     album_info: {artist, album, year, context, imageQuery}
+    brief: optional ReasoningBrief from the Editorial Intelligence Engine.
     """
     from datetime import datetime, timezone
 
-    prompt = f"""\
+    if brief is not None:
+        prompt = f"""\
+Write a LORD Archive Review reassessing this classic album. The editorial reasoning is complete — render it into prose.
+
+ARTIST: {album_info['artist']}
+ALBUM: {album_info['album']}
+YEAR RELEASED: {album_info.get('year', '')}
+
+{brief.to_writer_context()}
+
+Execute the outline. The thesis, evidence, and reassessment position are decided.
+Do not omit the weaknesses. The rating must match the argument."""
+    else:
+        prompt = f"""\
 Write a LORD Archive Review reassessing this classic album.
 
 ARTIST: {album_info['artist']}

@@ -21,6 +21,7 @@ from config import (
     QUALITY_EDITORIAL_REVIEW, QUALITY_EDITORIAL_FAIL_OPEN,
     QUALITY_SEO_VALIDATION,
     GOOGLE_GEMINI_API_KEY,
+    REASONING_ENGINE,
 )
 from news_fetcher import get_trending_music_news
 from article_writer import write_bulletin
@@ -268,6 +269,31 @@ def _get_search_readiness_provider():
     return _search_readiness_provider
 
 
+def _run_reasoning_engine(subject: dict, article_type: str, articles_index: dict):
+    """Run the Editorial Intelligence Engine and return a ReasoningBrief.
+
+    Only called when REASONING_ENGINE=true. Raises on failure — a fail-closed
+    stage error propagates up to the cycle's outer exception handler, which
+    logs and returns False (article does not publish).
+
+    article_type: 'review' | 'feature-criticism' | 'feature-context'
+    """
+    from reasoning import run as engine_run
+    from editorial import load_criticism_context
+    log.info("Editorial Intelligence Engine: starting (%s)...", article_type)
+    brief = engine_run(
+        subject=subject,
+        editorial_context=load_criticism_context(),
+        articles_index=articles_index,
+        article_type=article_type,
+    )
+    log.info(
+        "Editorial Intelligence Engine: complete (confidence=%s, thesis_confidence=%s)",
+        brief.confidence, brief.thesis_confidence,
+    )
+    return brief
+
+
 def _run_search_readiness(article_data: dict, images: list) -> bool:
     """Run search readiness gate if enabled. Returns False to abort on FAIL."""
     if not QUALITY_SEO_VALIDATION:
@@ -502,7 +528,16 @@ def feature_cycle() -> bool:
             return False
 
         log.info("Writing feature inspired by: %s", selected['title'][:80])
-        article_data = write_feature(selected)
+        brief = None
+        if REASONING_ENGINE:
+            subject = {
+                'title': selected.get('title', ''),
+                'summary': selected.get('summary', ''),
+                'source': selected.get('source', ''),
+                'link': selected.get('link', ''),
+            }
+            brief = _run_reasoning_engine(subject, 'feature-context', index)
+        article_data = write_feature(selected, brief=brief)
         log.info("Written: %s", article_data.get('title', '')[:60])
 
         if not _run_metadata_validation(article_data):
@@ -582,7 +617,15 @@ def review_cycle() -> bool:
             return False
 
         log.info("Writing review: %s — %s", album_info['artist'], album_info['album'])
-        article_data = write_review(album_info)
+        brief = None
+        if REASONING_ENGINE:
+            subject = {
+                'artist': album_info.get('artist', ''),
+                'album': album_info.get('album', ''),
+                'context': album_info.get('context', ''),
+            }
+            brief = _run_reasoning_engine(subject, 'review', index)
+        article_data = write_review(album_info, brief=brief)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
         if not _run_metadata_validation(article_data):
@@ -669,7 +712,16 @@ def classic_review_cycle(target_artist: str = '', target_album: str = '') -> boo
                 )
                 return False
 
-        article_data = write_classic_review(album_info)
+        brief = None
+        if REASONING_ENGINE:
+            subject = {
+                'artist': album_info.get('artist', ''),
+                'album': album_info.get('album', ''),
+                'year': album_info.get('year', ''),
+                'context': album_info.get('context', ''),
+            }
+            brief = _run_reasoning_engine(subject, 'review', index)
+        article_data = write_classic_review(album_info, brief=brief)
         log.info("Written: %s [%s]", article_data.get('title', '')[:60], article_data.get('rating', ''))
 
         if not _run_metadata_validation(article_data):

@@ -1,15 +1,18 @@
 """LORD Automation — Article Writer
 Uses Claude to write LORD-voice Bulletin articles from raw news items.
+
+Like the review and feature writers, a bulletin whose JSON cannot be parsed
+fails closed and leaves a full evidence folder (raw response, repaired text,
+exact break position, stop_reason, token telemetry) via writer_llm.write_article
+— a bulletin failure is debuggable to the same standard as the engine.
 """
-import json
 import logging
-import re
 
 import anthropic
 
-from config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL
+from config import ANTHROPIC_API_KEY
 from editorial import load_editorial
-from json_utils import parse_writer_json
+from writer_llm import write_article
 
 log = logging.getLogger('lord.writer')
 
@@ -57,15 +60,6 @@ IMAGE RULE: The photo MUST be of the primary artist this bulletin is about — t
 """
 
 
-def _strip_fences(text: str) -> str:
-    """Remove any markdown code fences Claude may have included."""
-    text = text.strip()
-    if text.startswith('```'):
-        text = re.sub(r'^```(?:json)?\s*', '', text)
-        text = re.sub(r'\s*```$', '', text)
-    return text.strip()
-
-
 def write_bulletin(news_item: dict) -> dict:
     """
     Generate a LORD Bulletin article from a raw news item.
@@ -85,20 +79,11 @@ Transform this raw news into a LORD Bulletin. Stay entirely within the facts rep
 Add historical or cultural context only when you can state it as documented fact.
 Do not speculate, editorialize, or add opinion."""
 
-    client = _get_client()
-    message = client.messages.create(
-        model=ANTHROPIC_MODEL,
-        max_tokens=1200,
-        system=BULLETIN_SYSTEM,
-        messages=[{'role': 'user', 'content': prompt}],
+    data = write_article(
+        client=_get_client(), system=BULLETIN_SYSTEM, prompt=prompt,
+        stage='writer-bulletin', subject=news_item.get('title', ''),
+        article_type='bulletin', max_tokens=1200, log=log,
     )
-
-    raw = message.content[0].text
-    try:
-        data = parse_writer_json(raw)
-    except ValueError as exc:
-        log.error("JSON parse failed. Raw response:\n%s", raw[:500])
-        raise
 
     # Merge source metadata
     data['type']      = 'bulletin'

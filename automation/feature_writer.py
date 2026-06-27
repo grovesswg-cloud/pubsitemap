@@ -1,13 +1,16 @@
 """LORD Automation — Feature Writer
 Writes long-form editorial Features: deep artist/cultural dives with a thesis.
-"""
-import json
-import logging
-import re
 
-from config import ANTHROPIC_MODEL, ANTHROPIC_API_KEY
+Like the review and bulletin writers, a feature whose JSON cannot be parsed
+fails closed and leaves a full evidence folder (raw response, repaired text,
+exact break position, stop_reason, token telemetry) via writer_llm.write_article
+— a feature failure is debuggable to the same standard as the engine.
+"""
+import logging
+
+from config import ANTHROPIC_API_KEY
 from editorial import load_criticism_context
-from json_utils import parse_writer_json
+from writer_llm import write_article
 
 log = logging.getLogger('lord.feature')
 
@@ -73,14 +76,6 @@ IMAGE RULES — read carefully:
 """
 
 
-def _strip_fences(text: str) -> str:
-    text = text.strip()
-    if text.startswith('```'):
-        text = re.sub(r'^```(?:json)?\s*', '', text)
-        text = re.sub(r'\s*```$', '', text)
-    return text.strip()
-
-
 def write_feature(news_item: dict, brief=None) -> dict:
     """
     Write a LORD Feature article inspired by a news item.
@@ -118,20 +113,11 @@ ARTIST/SUBJECT: Extract from the above — focus your feature on the central art
 Propose a clear thesis. Back it with specific albums, tracks, moments, and context.
 Write as if this is the definitive piece on this subject for the archive."""
 
-    client = _get_client()
-    message = client.messages.create(
-        model=ANTHROPIC_MODEL,
-        max_tokens=3000,
-        system=FEATURE_SYSTEM,
-        messages=[{'role': 'user', 'content': prompt}],
+    data = write_article(
+        client=_get_client(), system=FEATURE_SYSTEM, prompt=prompt,
+        stage='writer-feature', subject=news_item.get('title', ''),
+        article_type='feature', max_tokens=3000, log=log,
     )
-
-    raw = message.content[0].text
-    try:
-        data = parse_writer_json(raw)
-    except ValueError as exc:
-        log.error("JSON parse failed for feature. Raw:\n%s", raw[:500])
-        raise
 
     data['type'] = 'feature'
     data['date'] = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')

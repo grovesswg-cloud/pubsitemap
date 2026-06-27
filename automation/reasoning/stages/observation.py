@@ -121,7 +121,9 @@ def run(subject: dict, editorial_context: str, client, model: str) -> tuple[list
         stage='observation',
         max_tokens=2000,
     )
-    data = parse_stage_json(raw, stage='observation', prompt=user_prompt, log=log)
+    data = parse_stage_json(raw, stage='observation', prompt=user_prompt, log=log,
+                            extra={'subject': f'{artist} — {album}' if album else artist,
+                                   'model': model})
 
     observations = data.get('observations', [])
     interpretations = data.get('interpretations', [])

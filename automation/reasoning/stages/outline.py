@@ -140,7 +140,9 @@ def run(
         stage='outline',
         max_tokens=2500,
     )
-    data = parse_stage_json(raw, stage='outline', prompt=user_prompt, log=log)
+    data = parse_stage_json(raw, stage='outline', prompt=user_prompt, log=log,
+                            extra={'subject': f'{artist} — {album}' if album else artist,
+                                   'article_type': article_type, 'model': model})
 
     raw_evidence = data.get('evidence', [])
     evidence = []

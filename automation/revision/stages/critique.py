@@ -147,7 +147,8 @@ def run(
         stage='critique',
         max_tokens=2000,
     )
-    data = parse_stage_json(raw, stage='critique', prompt=user_prompt, log=log)
+    data = parse_stage_json(raw, stage='critique', prompt=user_prompt, log=log,
+                            extra={'article_type': article_type, 'model': model})
 
     n_paragraphs = len(paragraphs)
     valid_layers = (LAYER_FIDELITY, LAYER_CRAFT)

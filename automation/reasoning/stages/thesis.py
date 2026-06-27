@@ -139,7 +139,9 @@ def run(
         stage='thesis',
         max_tokens=2500,
     )
-    data = parse_stage_json(raw, stage='thesis', prompt=user_prompt, log=log)
+    data = parse_stage_json(raw, stage='thesis', prompt=user_prompt, log=log,
+                            extra={'subject': f'{artist} — {album}' if album else artist,
+                                   'model': model})
 
     synthesis = data.get('synthesis', '')
     perspective = data.get('perspective', '')

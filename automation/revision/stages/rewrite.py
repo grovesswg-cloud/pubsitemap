@@ -137,7 +137,9 @@ def run(
         stage='rewrite',
         max_tokens=2500,
     )
-    data = parse_stage_json(raw, stage='rewrite', prompt=user_prompt, log=log)
+    data = parse_stage_json(raw, stage='rewrite', prompt=user_prompt, log=log,
+                            extra={'model': model,
+                                   'paragraphs_targeted': sorted(target_indices)})
 
     raw_revised = data.get('revised', {}) or {}
     n_paragraphs = len(paragraphs)

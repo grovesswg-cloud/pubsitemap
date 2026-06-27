@@ -1,4 +1,4 @@
-"""Engine observability — capture stage failures so they can be inspected.
+"""Groves Engine — stage observability.
 
 Every reasoning and revision stage asks the model for structured JSON. When the
 model returns something that is not valid JSON, the stage fails closed (correct —
@@ -6,25 +6,32 @@ we never publish an article built on a broken reasoning step). But a stack trace
 with a 400-character preview is not enough to understand WHY the JSON was
 malformed: the break is often thousands of characters into the response.
 
-This module turns each such failure into a small, self-contained evidence folder:
+This module is a permanent part of the Groves Engine. The principle it encodes:
+failures produce evidence, not mysteries. If a reasoning or revision stage fails
+in production six months from now, the system must leave behind enough to
+understand exactly what happened without reproducing the failure.
 
-    <debug-dir>/<timestamp>--<stage>/
+Each failure writes a self-contained evidence folder:
+
+    <evidence-dir>/<timestamp>--<stage>/
         stage.txt          the stage name
         error.txt          the parse error + the snippet around the break point
         prompt.txt         the exact user prompt sent to the model
         raw_response.txt   the model's raw output, untouched
         repaired.txt       the output after fence-stripping + quote/newline repair
                            — i.e. the exact bytes json.loads() choked on
+        context.json       article subject, model, article_type (when provided)
 
 Where the folder lands is controlled by the ENGINE_DEBUG_DIR environment
 variable:
-    unset            -> <repo-root>/calibration/_failures
+    unset            -> <repo-root>/evidence/failures  (gitignored; survives deploys)
     a path           -> that directory
     off|false|0|none -> disabled (nothing written)
 
-The calibration tool points ENGINE_DEBUG_DIR at the current run's folder, so a
-failed generation leaves its evidence next to the run's other artifacts. The
-variable is read lazily at failure time, so callers may set it after import.
+The calibration tool (generate.py) points ENGINE_DEBUG_DIR at each run's own
+failures/ subfolder, so a failed generation leaves its evidence beside its other
+artifacts. The scheduler uses the default (evidence/failures/) so production
+failures land in the same gitignored operational-artifact tree as other evidence.
 """
 from __future__ import annotations
 
@@ -34,6 +41,8 @@ import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+
+from json_utils import parse_writer_json, WriterJSONError
 
 _ROOT_DIR = Path(__file__).parent.parent
 _DISABLED = ('off', 'false', '0', 'none')
@@ -46,7 +55,7 @@ def _resolve_debug_dir() -> Path | None:
         return None
     if raw:
         return Path(raw)
-    return _ROOT_DIR / 'calibration' / '_failures'
+    return _ROOT_DIR / 'evidence' / 'failures'
 
 
 def _error_context(repaired: str | None, decode_error: json.JSONDecodeError | None) -> str:
@@ -131,7 +140,6 @@ def parse_stage_json(
     a ValueError whose message points at the evidence folder. Fail-closed
     behaviour is preserved — the article still stops.
     """
-    from json_utils import parse_writer_json, WriterJSONError
     try:
         return parse_writer_json(raw)
     except WriterJSONError as exc:

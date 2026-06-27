@@ -75,6 +75,7 @@ def call_stage(
     )
 
     _log_cache_usage(stage, message)
+    _warn_if_truncated(stage, message, max_tokens)
     return message.content[0].text
 
 
@@ -85,8 +86,23 @@ def _log_cache_usage(stage: str, message) -> None:
         cache_read = getattr(u, 'cache_read_input_tokens', 0) or 0
         cache_write = getattr(u, 'cache_creation_input_tokens', 0) or 0
         log.info(
-            "Stage '%s': input=%d output=%d cache_read=%d cache_write=%d",
+            "Stage '%s': input=%d output=%d cache_read=%d cache_write=%d stop=%s",
             stage, u.input_tokens, u.output_tokens, cache_read, cache_write,
+            getattr(message, 'stop_reason', None),
         )
     except Exception:
         pass
+
+
+def _warn_if_truncated(stage: str, message, max_tokens: int) -> None:
+    """A 'max_tokens' stop means the response was cut mid-stream — the JSON is
+    therefore incomplete and WILL fail to parse. Name that cause loudly here so
+    it is never mistaken for a malformed-quote bug. Fix by raising max_tokens for
+    the stage or shortening what it is asked to produce.
+    """
+    if getattr(message, 'stop_reason', None) == 'max_tokens':
+        log.warning(
+            "Stage '%s': response hit max_tokens=%d and was TRUNCATED — the JSON "
+            "is incomplete and will not parse. Raise max_tokens or reduce the ask.",
+            stage, max_tokens,
+        )

@@ -18,7 +18,7 @@ Failure mode: fail-closed. No thesis = no article.
 from __future__ import annotations
 import logging
 
-from json_utils import parse_writer_json
+from engine_debug import parse_stage_json
 from reasoning.llm import call_stage
 
 log = logging.getLogger('engine.thesis')
@@ -130,19 +130,16 @@ def run(
         'Do not skip directly to thesis generation.',
     ]
 
+    user_prompt = '\n'.join(parts)
     raw = call_stage(
         client, model,
         editorial_context=editorial_context,
         stage_instructions=_INSTRUCTIONS,
-        user_prompt='\n'.join(parts),
+        user_prompt=user_prompt,
         stage='thesis',
         max_tokens=2500,
     )
-    try:
-        data = parse_writer_json(raw)
-    except ValueError:
-        log.error("Thesis stage: JSON parse failed. Raw:\n%s", raw[:400])
-        raise
+    data = parse_stage_json(raw, stage='thesis', prompt=user_prompt, log=log)
 
     synthesis = data.get('synthesis', '')
     perspective = data.get('perspective', '')

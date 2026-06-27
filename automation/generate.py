@@ -26,6 +26,8 @@ Output (one folder per run):
     brief.json     ← ReasoningBrief (when engine ran)
     revision.json  ← RevisionReport (when revision ran)
     run.json       ← run metadata (git commit, model, flags)
+    failures/      ← only if a stage failed to parse the model's JSON:
+                     <stage>/raw_response.txt, repaired.txt, prompt.txt, error.txt
 """
 import argparse
 import json
@@ -88,6 +90,12 @@ def _make_run_dir(article_type: str, subject: dict, tag: str = '') -> Path:
         name = f'{name}--{_slugify(tag)}'
     path = CALIBRATION_DIR / name
     path.mkdir(parents=True, exist_ok=True)
+    # Route any engine/revision stage JSON failure into this run's own folder,
+    # so a failed generation leaves its evidence (raw response, repaired text,
+    # prompt, break position) next to the run's other artifacts. Read lazily by
+    # engine_debug at failure time, so setting it here — before the engine runs —
+    # is sufficient.
+    os.environ['ENGINE_DEBUG_DIR'] = str(path / 'failures')
     return path
 
 
@@ -560,6 +568,11 @@ def main() -> None:
         sys.exit(1)
     except Exception as exc:
         print(f'\nError: {exc}', file=sys.stderr)
+        debug_dir = os.environ.get('ENGINE_DEBUG_DIR', '')
+        if debug_dir and Path(debug_dir).exists():
+            print(f'\nStage failure evidence saved under: {debug_dir}', file=sys.stderr)
+            print('  Open repaired.txt and jump to the line in error.txt to see '
+                  'exactly what json.loads() choked on.', file=sys.stderr)
         import traceback
         traceback.print_exc()
         sys.exit(1)

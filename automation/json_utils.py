@@ -94,14 +94,45 @@ def _repair_json_strings(text: str) -> str:
     return ''.join(result)
 
 
+def repair_json(raw: str) -> str:
+    """Return the exact string fed to json.loads() by parse_writer_json().
+
+    This is strip_fences() followed by the string-repair pass. Exposed so the
+    observability layer can record precisely what the parser choked on, rather
+    than only the model's untouched output.
+    """
+    return _repair_json_strings(strip_fences(raw))
+
+
+class WriterJSONError(ValueError):
+    """Raised when a model response cannot be parsed as JSON.
+
+    Subclasses ValueError so existing `except ValueError` handlers keep working,
+    but carries the evidence needed to understand the failure: the raw response,
+    the repaired text that was actually handed to json.loads(), and the
+    underlying JSONDecodeError (which holds the exact break position).
+    """
+
+    def __init__(self, message: str, *, raw: str, repaired: str,
+                 decode_error: json.JSONDecodeError):
+        super().__init__(message)
+        self.raw = raw
+        self.repaired = repaired
+        self.decode_error = decode_error
+
+
 def parse_writer_json(raw: str) -> dict:
     """
     Strip fences, repair bare newlines/tabs and unescaped quotes in strings, then parse.
-    Raises ValueError (not JSONDecodeError) on failure so callers get a clean message.
+    Raises WriterJSONError (a ValueError) on failure so callers get a clean message
+    while observability tooling can still recover the raw + repaired text.
     """
     cleaned = strip_fences(raw)
     fixed = _repair_json_strings(cleaned)
     try:
         return json.loads(fixed)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Writer returned invalid JSON: {exc}") from exc
+        raise WriterJSONError(
+            f"Writer returned invalid JSON: {exc}",
+            raw=raw, repaired=fixed, decode_error=exc,
+        ) from exc
